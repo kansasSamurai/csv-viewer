@@ -1,13 +1,21 @@
 package org.jwellman.foundation;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Enumeration;
+
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.LookAndFeel;
+//import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+
 //import net.sourceforge.napkinlaf.NapkinLookAndFeel;
 //import net.sourceforge.napkinlaf.NapkinTheme;
 import org.jwellman.foundation.swing.IWindow;
@@ -82,7 +90,8 @@ public void init(uContext c) {
         try {
             for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 final String name = info.getName(); System.out.println(name);
-                if ("Nimbus".equals(name)) {
+                if ("Nimbus".equals(name)) { // Metal, Nimbus, CDE/Motif, Windows , Windows Classic                    
+                    
                     final int version = 1;
                     switch (version) {
                         case 1:
@@ -108,6 +117,16 @@ public void init(uContext c) {
                         	break;
                     }
 
+                    // http://robertour.com/2016/04/25/quickly-improving-java-metal-look-feel/
+                    // https://thebadprogrammer.com/swing-uimanager-keys/
+                    if ("Metal".equals(name)) { // Metal, Nimbus, CDE/Motif, Windows , Windows Classic
+                        setUIFont (new javax.swing.plaf.FontUIResource("Sans Serif",Font.PLAIN,12));
+                        UIManager.put("Button.background",  Color.decode("#eeeeee"));
+                        UIManager.put("ToggleButton.background",  Color.decode("#eeeeee"));
+                        UIManager.put("Button.border", new CompoundBorder(new LineBorder(new Color(200, 200, 200)), new EmptyBorder(2, 2, 2, 2)));
+                        UIManager.put("ToggleButton.border", new CompoundBorder(new LineBorder(new Color(200, 200, 200)), new EmptyBorder(2, 2, 2, 2)));
+                    }
+                    
                     // break;
                 }
 //                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -118,6 +137,20 @@ public void init(uContext c) {
 
     }
 } // end method
+
+/**
+ * http://robertour.com/2016/04/25/quickly-improving-java-metal-look-feel/
+ * 
+ * @param f
+ */
+private static void setUIFont (javax.swing.plaf.FontUIResource f){
+    final Enumeration<?> keys = UIManager.getDefaults().keys();
+    while (keys.hasMoreElements()) {
+        Object key = keys.nextElement();
+        Object value = UIManager.get (key);
+        if (value != null && value instanceof javax.swing.plaf.FontUIResource) UIManager.put (key, f);
+    }
+}
 
 public IWindow useDesktop(JPanel ui) {
 
