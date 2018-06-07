@@ -11,6 +11,8 @@ import java.io.File;
 
 import javax.swing.JComponent;
 
+import org.jwellman.swing.actions.FileActionAware;
+
 /**
  * Simple Drop Target inspired by
  * https://java-demos.blogspot.com/2013/06/drag-and-drop-file-in-jtextarea.html 
@@ -31,13 +33,16 @@ public class FileDropTarget extends DropTargetAdapter {
 
 	private JComponent target;
 	
+	private FileActionAware handler;
+	
 	private Color originalBackground;
 	
 	private Color dragOverColor = new Color(0x393939); // (0xc8dadf);
 	
-	public FileDropTarget(JComponent component) {
+	public FileDropTarget(JComponent component, FileActionAware aware) {
 		super();
 		this.target = component;
+		this.handler = aware;
 		this.originalBackground = this.target.getBackground();
 	}
 	
@@ -55,23 +60,28 @@ public class FileDropTarget extends DropTargetAdapter {
 	public void drop(DropTargetDropEvent e) {
 
 		this.target.setBackground(originalBackground);
+
+		// Accept the drop first, important!
+        e.acceptDrop(DnDConstants.ACTION_COPY);
 		
 		try {
-            // Accept the drop first, important!
-            e.acceptDrop(DnDConstants.ACTION_COPY);
             
             // Get the files that are dropped as java.util.List
             @SuppressWarnings("rawtypes")
-			java.util.List list = (java.util.List) e
+			java.util.List list = 
+			    (java.util.List) e
             		.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
             
             // Now get the first file from the list,
-            File file=(File)list.get(0);
+            final File file = (File)list.get(0);
             System.out.println(file);
+            
+            this.handler.doSingleFileAction(file);
             //jtextarea.read(new FileReader(file),null);
             
         } catch (Exception ex) {
-        	
+            // java.awt.datatransfer.UnsupportedFlavorException
+        	ex.printStackTrace();
         }
 		
 	}
