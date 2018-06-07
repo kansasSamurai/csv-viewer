@@ -22,6 +22,8 @@ import javax.swing.JComponent;
 public class HorizontalGraphitePanel extends JComponent {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static final Font FONT_DEFAULT = new Font("Segoe UI", Font.PLAIN, 14); // new Font("Segoe UI", Font.PLAIN, 14);
 
 	/**
 	 * The GraphiteButtonUI class is thread-safe and can be reused by
@@ -33,6 +35,8 @@ public class HorizontalGraphitePanel extends JComponent {
     // the hard-coded preferred height. ideally this would be derived from the font size.
     private static int HEADER_HEIGHT = 25; // 25 is the original value
 
+    // http://www.colorzilla.com/colors/393939+2e2e2e+232323+282828+171717+292929+353535+383838+2c2c2c+363636
+    
     // the background colors used in the multi-stop gradient.
     private static Color BACKGROUND_COLOR_1 = new Color(0x393939);
     private static Color BACKGROUND_COLOR_2 = new Color(0x2e2e2e);
@@ -133,17 +137,22 @@ public class HorizontalGraphitePanel extends JComponent {
      */
     public static JButton createButton(String label, Font font, Dimension size) {
         final JButton b = new JButton(label);
-//        b.setUI(BUTTONUI); // this *must* be first
-//        b.setFont((font != null) ? font : new Font("Segoe UI", Font.PLAIN, 14));
-//        b.setMinimumSize((size != null) ? size : (size = new Dimension(90, 1)));
-//        b.setPreferredSize(size);
-//        b.setMaximumSize(size);
         return (JButton) decorateButton(b, font, size);
     }
 
+    /**
+     * Convenience method to decorate a user-defined Button object.
+     * <p>
+     * Note that this is used internally by createButton().
+     * 
+     * @param b
+     * @param font
+     * @param size
+     * @return
+     */
     public static <T extends AbstractButton> T decorateButton(T b, Font font, Dimension size) {
         b.setUI(BUTTONUI); // this *must* be first
-        b.setFont((font != null) ? font : new Font("Segoe UI", Font.PLAIN, 14));
+        b.setFont((font != null) ? font : FONT_DEFAULT );
         b.setMinimumSize((size != null) ? size : (size = new Dimension(90, 1)));
         b.setPreferredSize(size);
         b.setMaximumSize(size);
