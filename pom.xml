@@ -49,6 +49,12 @@
 			<version>1.11.0</version>
 	    </dependency>
 
+		<dependency>
+		    <groupId>com.opencsv</groupId>
+		    <artifactId>opencsv</artifactId>
+		    <version>4.1</version>
+		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/org.swinglabs/swingx -->
 		<dependency>
 		    <groupId>org.swinglabs</groupId>
