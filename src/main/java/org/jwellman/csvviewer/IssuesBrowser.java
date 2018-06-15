@@ -38,6 +38,7 @@ import javax.swing.border.Border;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 
 import org.jdesktop.swingx.JXTable;
 import org.jwellman.csvviewer.models.Person;
@@ -50,6 +51,7 @@ import org.jwellman.swing.actions.FileActionAware;
 import org.jwellman.swing.component.HorizontalGraphitePanel;
 import org.jwellman.swing.jtable.BetterJTable;
 import org.jwellman.swing.jtable.JTablePropertyAction;
+import org.jwellman.swing.jtable.TableColumnManager;
 import org.jwellman.swing.layout.SpringUtilities;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -64,6 +66,10 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
     private static final long serialVersionUID = 1L;
     
     private JTable csvTable = new JXTable(); // new JXTable(tableModel); // JTable(tableModel); // BetterJTable
+    
+    private TableModel csvTableModel;
+    
+    private JPanel boxlayout;
     
     private static final Border BORDER_EMPTY = BorderFactory.createEmptyBorder(5, 5, 5, 5);
 
@@ -232,7 +238,8 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
         }
         pane.setBorder( BORDER_COMPOUND );
 
-        csvTable.setModel(new DelimitedFileTableModel(file, ","));      
+        csvTable.setModel(csvTableModel = new DelimitedFileTableModel(file, ","));
+        TableColumnManager tcm = new TableColumnManager(csvTable);
         
         boolean fillpanel = false;
         if (fillpanel) {
@@ -272,7 +279,7 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
         return pane;
     }
     
-	private Component createEasternPanel() {
+	private JPanel createEasternPanel() {
 		JPanel actions = new JPanel();
 		actions.setLayout(new BorderLayout()); //(new BoxLayout(actions, BoxLayout.PAGE_AXIS));
 		actions.setBorder( BorderFactory.createCompoundBorder(BORDER_EMPTY, BORDER_ETCHED) );
@@ -288,18 +295,15 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
             center.add(HorizontalGraphitePanel.createDefault(Arrays.asList(b)));
             break;
         case 2:
-            JPanel boxlayout = new JPanel();
+            boxlayout = new JPanel();
             boxlayout.setLayout(new BoxLayout(boxlayout, BoxLayout.Y_AXIS));
-            boxlayout.add(XCheckBox.create().setFont(FONT_SEGOE_UI).setAction(new JTablePropertyAction("Name", csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION)).get());
-            boxlayout.add(XCheckBox.create().setFont(FONT_SEGOE_UI).setAction(new JTablePropertyAction("Age", csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION)).get());
-            boxlayout.add(XCheckBox.create().setFont(FONT_SEGOE_UI).setAction(new JTablePropertyAction("Month", csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION)).get());
-            boxlayout.add(XCheckBox.create().setFont(FONT_SEGOE_UI).setAction(new JTablePropertyAction("Day", csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION)).get());
-            boxlayout.add(XCheckBox.create().setFont(FONT_SEGOE_UI).setAction(new JTablePropertyAction("Year", csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION)).get());
-//            boxlayout.add(new JCheckBox(new JTablePropertyAction("Name", csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION)));
-//            boxlayout.add(new JCheckBox(new JTablePropertyAction("Age", csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION)));
-//            boxlayout.add(new JCheckBox(new JTablePropertyAction("Month", csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION)));
-//            boxlayout.add(new JCheckBox(new JTablePropertyAction("Day", csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION)));
-//            boxlayout.add(new JCheckBox(new JTablePropertyAction("Year", csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION)));
+            
+            // Actually creating these now
+//            boxlayout.add(XCheckBox.create().setFont(FONT_SEGOE_UI).setAction(new JTablePropertyAction("Name",  csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION, null)).get());
+//            boxlayout.add(XCheckBox.create().setFont(FONT_SEGOE_UI).setAction(new JTablePropertyAction("Age",   csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION, null)).get());
+//            boxlayout.add(XCheckBox.create().setFont(FONT_SEGOE_UI).setAction(new JTablePropertyAction("Month", csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION, null)).get());
+//            boxlayout.add(XCheckBox.create().setFont(FONT_SEGOE_UI).setAction(new JTablePropertyAction("Day",   csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION, null)).get());
+//            boxlayout.add(XCheckBox.create().setFont(FONT_SEGOE_UI).setAction(new JTablePropertyAction("Year",  csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION, null)).get());
 
             JScrollPane pane = new JScrollPane(boxlayout);
             pane.setBorder(null); // This may only be necessary when using Nimbus L&F?
@@ -322,10 +326,17 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
 
 		JPanel delimiter = this.createDelimiter();
 		south.add(delimiter);
-		
-		JToggleButton a = (JToggleButton) HorizontalGraphitePanel.decorateButton(new JToggleButton("CLEAR SELECTION"), null, null);
+				
+		JToggleButton a = (JToggleButton) HorizontalGraphitePanel.decorateButton(new JToggleButton(), null, null);
+		a.setAction(new JTablePropertyAction("CLEAR SELECTION",  csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION, null));
 		south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(a)));
-		
+
+        JToggleButton b = (JToggleButton) HorizontalGraphitePanel.decorateButton(new JToggleButton(), null, null);
+        b.setAction(new JTablePropertyAction("RESIZE MODE",  csvTable, JTablePropertyAction.ACTION_TOGGLE_AUTORESIZEMODE, null));
+        south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(b)));
+
+        // TODO toggle column selection
+        
         actions.add(north, BorderLayout.NORTH);
 		actions.add(south, BorderLayout.SOUTH);
         actions.add(center, BorderLayout.CENTER);
@@ -396,7 +407,7 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
         
         p.add(tfield);
         
-        SpringUtilities.makeCompactGrid(p, 1, 2, 0, 0, 1, 1);
+        SpringUtilities.makeCompactGrid(p, 1, 2, 0, 0, 0, 0);
         return p;
     }
     
@@ -434,7 +445,7 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
     	
     	public NumberCellRenderer(String fontname) {
 	    	this.setFont(this.customFont = this.getFont(fontname, Font.PLAIN, 12));
-	    	setHorizontalAlignment(SwingConstants.RIGHT);
+	    	setHorizontalAlignment(SwingConstants.LEFT);
     	}
     	
     	@Override
