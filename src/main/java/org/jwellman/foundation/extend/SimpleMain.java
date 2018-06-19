@@ -1,8 +1,7 @@
 package org.jwellman.foundation.extend;
 
-import javax.swing.JPanel;
-
 import org.jwellman.foundation.swing.IWindow;
+import org.jwellman.foundation.swing.XPanel;
 
 /**
  * A base class providing common variables needed for basic Foundation app.
@@ -20,7 +19,6 @@ abstract public class SimpleMain {
     /**
      * Your user interface - JPanel(s) only!
      */
-    protected JPanel mainui;
-
+    protected XPanel mainui;
 
 }

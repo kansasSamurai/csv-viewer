@@ -156,6 +156,7 @@ public class HorizontalGraphitePanel extends JComponent {
         b.setMinimumSize((size != null) ? size : (size = new Dimension(90, 1)));
         b.setPreferredSize(size);
         b.setMaximumSize(size);
+        b.setBorder(null); // Some L&F (i.e. Metal) apply borders to buttons by default; Nimbus does not
         return b;
     }
 

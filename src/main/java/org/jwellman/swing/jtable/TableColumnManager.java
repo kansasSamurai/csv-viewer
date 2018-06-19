@@ -11,6 +11,7 @@ import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -54,6 +55,8 @@ public class TableColumnManager
     private TableColumnModel tableColumnModel;
     
     private List<TableColumn> allColumns;
+    
+    private List<JCheckBox> listOfJCheckBox;
 
     private boolean menuPopup;
 
@@ -98,10 +101,8 @@ public class TableColumnManager
         tableColumnModel.addColumnModelListener(this);
 
         // Keep a duplicate TableColumns for managing hidden TableColumns
-
-        int count = tableColumnModel.getColumnCount();
+        final int count = tableColumnModel.getColumnCount();
         allColumns = new ArrayList<TableColumn>(count);
-
         for (int i = 0; i < count; i++) {
             allColumns.add(tableColumnModel.getColumn(i));
         }
@@ -142,10 +143,9 @@ public class TableColumnManager
      *            the column index from the TableModel of the column to be removed
      */
     public void hideColumn(int modelColumn) {
-        int viewColumn = table.convertColumnIndexToView(modelColumn);
-
+        final int viewColumn = table.convertColumnIndexToView(modelColumn);
         if (viewColumn != -1) {
-            TableColumn column = tableColumnModel.getColumn(viewColumn);
+            final TableColumn column = tableColumnModel.getColumn(viewColumn);
             hideColumn(column);
         }
     }
@@ -161,7 +161,7 @@ public class TableColumnManager
             return;
 
         for (int i = 0; i < tableColumnModel.getColumnCount(); i++) {
-            TableColumn column = tableColumnModel.getColumn(i);
+            final TableColumn column = tableColumnModel.getColumn(i);
 
             if (columnName.equals(column.getHeaderValue())) {
                 hideColumn(column);
@@ -182,7 +182,6 @@ public class TableColumnManager
             return;
 
         // Ignore changes to the TableColumnModel made by the TableColumnManager
-
         tableColumnModel.removeColumnModelListener(this);
         tableColumnModel.removeColumn(column);
         tableColumnModel.addColumnModelListener(this);
@@ -219,15 +218,14 @@ public class TableColumnManager
     }
 
     /**
-     * Show a hidden column in the table. The column will be positioned at its
-     * proper place in the view of the table.
+     * Show a hidden column in the table. 
+     * The column will be positioned at its proper place in the view of the table.
      *
      * @param column
      *            the TableColumn to be shown.
      */
     private void showColumn(TableColumn column) {
-        // Ignore changes to the TableColumnModel made by the TableColumnManager
-
+        // Ignore changes to the TableColumnModel made during this method
         tableColumnModel.removeColumnModelListener(this);
 
         // Add the column to the end of the table
@@ -239,13 +237,12 @@ public class TableColumnManager
         // visible column before this column so the column can be moved
         // to the appropriate position)
 
-        int position = allColumns.indexOf(column);
-        int from = tableColumnModel.getColumnCount() - 1;
         int to = 0;
-
+        final int from = tableColumnModel.getColumnCount() - 1;        
+        final int position = allColumns.indexOf(column);
         for (int i = position - 1; i > -1; i--) {
             try {
-                TableColumn visibleColumn = allColumns.get(i);
+                final TableColumn visibleColumn = allColumns.get(i);
                 to = tableColumnModel.getColumnIndex(visibleColumn.getHeaderValue()) + 1;
                 break;
             } catch (IllegalArgumentException e) {
@@ -254,12 +251,12 @@ public class TableColumnManager
 
         tableColumnModel.moveColumn(from, to);
 
+        // Restore this as a listener now that we are done
         tableColumnModel.addColumnModelListener(this);
     }
 
-    //
-    // Implement MouseListener
-    //
+    // ===== Implement MouseListener Interface =====
+    
     public void mousePressed(MouseEvent e) {
         checkForPopup(e);
     }
@@ -279,8 +276,8 @@ public class TableColumnManager
 
     private void checkForPopup(MouseEvent e) {
         if (e.isPopupTrigger()) {
-            JTableHeader header = (JTableHeader) e.getComponent();
-            int column = header.columnAtPoint(e.getPoint());
+            final JTableHeader header = (JTableHeader) e.getComponent();
+            final int column = header.columnAtPoint(e.getPoint());
             showPopup(column);
         }
     }
@@ -300,25 +297,29 @@ public class TableColumnManager
         final int columnCount = tableColumnModel.getColumnCount();
         final Object headerValue = tableColumnModel.getColumn(index).getHeaderValue();
         for (TableColumn tableColumn : allColumns) {
-            final Object value = tableColumn.getHeaderValue();
-            final JCheckBoxMenuItem item = new JCheckBoxMenuItem(value.toString());
-            item.addActionListener(this);
+            
+        	final Object value = tableColumn.getHeaderValue();
+            final JCheckBoxMenuItem chkbox = new JCheckBoxMenuItem(value.toString());
+            chkbox.addActionListener(this);
+            chkbox.setSelected(false); // only set to true if it is visible; checked next
+            popup.add(chkbox);
 
             try {
+            	// This is how we check for visibility; will throw exception if not visible (i.e. missing)
                 tableColumnModel.getColumnIndex(value);
-                item.setSelected(true);
 
-                // Do not allow all columns to be hidden
-                if (columnCount == 1) item.setEnabled(false);
-                
+                // Since an exception was not thrown, we know it is visible
+                chkbox.setSelected(true);
+
+                // If this is the last visible column, do not allow to be hidden by disabling checkbox
+                if (columnCount == 1) chkbox.setEnabled(false); 
+
             } catch (IllegalArgumentException e) {
-                item.setSelected(false);
+            	// This happens when the column is hidden
             }
 
-            popup.add(item);
-
             // Visually select the item corresponding to the right-clicked column
-            if (value == headerValue) popup.setSelected(item);
+            if (value == headerValue) popup.setSelected(chkbox);
             
         }
 
@@ -328,39 +329,53 @@ public class TableColumnManager
         popup.show(header, r.x, r.height);
     }
 
-    //
-    // Implement ActionListener
-    //
-    /*
+    // === Implement ActionListener Interface ===
+    
+    /**
      * A table column will either be added to the table or removed from the table
      * depending on the state of the menu item that was clicked.
      */
+    @Override
     public void actionPerformed(ActionEvent event) {
-        final JMenuItem item = (JMenuItem) event.getSource();
-        if (item.isSelected()) {
-            showColumn(item.getText());
-        } else {
-            hideColumn(item.getText());
+
+        String columnName = null;
+        boolean isSelected = false;
+
+        if (event.getSource() instanceof JMenuItem) {
+
+            final JMenuItem item = (JMenuItem) event.getSource();
+            columnName = item.getText();
+            isSelected = item.isSelected();
+
+        } else if (event.getSource() instanceof JCheckBox) {
+
+            final JCheckBox box = (JCheckBox) event.getSource();
+            columnName = box.getText();
+            isSelected = box.isSelected();
+
         }
+       
+        if (isSelected) showColumn(columnName); else hideColumn(columnName);
+
     }
 
-    //
-    // Implement TableColumnModelListener
-    //
+    // === Implement TableColumnModelListener Interface ===
+    
+    @Override
     public void columnAdded(TableColumnModelEvent e) {
-        // A table column was added to the TableColumnModel so we need
+        
+    	// A table column was added to the TableColumnModel so we need
         // to update the manager to track this column
+        final TableColumn column = tableColumnModel.getColumn(e.getToIndex());
 
-        TableColumn column = tableColumnModel.getColumn(e.getToIndex());
-
-        if (allColumns.contains(column))
-            return;
-        else
-            allColumns.add(column);
+        if (allColumns.contains(column)) { return; }
+        else { allColumns.add(column); }
+        
     }
 
     public void columnMoved(TableColumnModelEvent e) {
-        if (e.getFromIndex() == e.getToIndex())
+        
+    	if (e.getFromIndex() == e.getToIndex())
             return;
 
         // A table column has been moved one position to the left or right
@@ -368,7 +383,8 @@ public class TableColumnManager
         // track the new location
 
         int index = e.getToIndex();
-        TableColumn column = tableColumnModel.getColumn(index);
+        
+        final TableColumn column = tableColumnModel.getColumn(index);
         allColumns.remove(column);
 
         if (index == 0) {
@@ -390,13 +406,13 @@ public class TableColumnManager
     public void columnSelectionChanged(ListSelectionEvent e) {
     }
 
-    //
-    // Implement PropertyChangeListener
-    //
+    // === Implement PropertyChangeListener ===
+    
     public void propertyChange(PropertyChangeEvent e) {
         if ("model".equals(e.getPropertyName())) {
-            if (table.getAutoCreateColumnsFromModel())
+            if (table.getAutoCreateColumnsFromModel()) {
                 reset();
+            }
         }
     }
 
@@ -410,18 +426,58 @@ public class TableColumnManager
 
         @Override
         public void setSelected(Component sel) {
-            int index = getComponentIndex(sel);
-            getSelectionModel().setSelectedIndex(index);
-            final MenuElement me[] = new MenuElement[2];
-            me[0] = (MenuElement) this;
-            me[1] = getSubElements()[index];
-
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    MenuSelectionManager.defaultManager().setSelectedPath(me);
-                }
-            });
+//            int index = getComponentIndex(sel);
+//            getSelectionModel().setSelectedIndex(index);
+//            final MenuElement me[] = new MenuElement[2];
+//            me[0] = (MenuElement) this;
+//            me[1] = getSubElements()[index];
+//
+//            SwingUtilities.invokeLater(new Runnable() {
+//                public void run() {
+//                    MenuSelectionManager.defaultManager().setSelectedPath(me);
+//                }
+//            });
         }
+    }
+
+    /**
+
+     * Convenience method for generating a checkbox per column that controls visibility.
+
+     *
+
+     * This is analogous to the JCheckBoxMenuItems used internally but intended for clients
+
+     * to arrange in the user interface as they wish.
+
+     *
+
+     * @return the listOfJCheckBox
+
+     */
+
+    public List<JCheckBox> getListOfJCheckBox() {
+
+		if (listOfJCheckBox == null) {
+
+            listOfJCheckBox = new ArrayList<>();
+
+            for (TableColumn tableColumn : allColumns) {
+
+                final Object value = tableColumn.getHeaderValue();
+
+                final JCheckBox item = new JCheckBox(value.toString(), true); // assume selected/visible (may have to change this later)
+
+                item.addActionListener(this);
+
+                listOfJCheckBox.add(item);
+
+            }
+
+        }
+
+        return listOfJCheckBox;
+
     }
     
 }

@@ -61,6 +61,13 @@
 		    <artifactId>swingx</artifactId>
 		    <version>1.6.1</version>
 		</dependency>
+
+        <!-- Not available in maven central; see local repo -->
+        <dependency>
+            <groupId>com.nilo.plaf</groupId>
+            <artifactId>nimrod</artifactId>
+            <version>1.2d</version>
+        </dependency>
 	    	
 	</dependencies>
 

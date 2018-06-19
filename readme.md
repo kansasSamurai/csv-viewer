@@ -16,6 +16,15 @@ Medium priority features:
 Low priority features:
 * Customize colors/theme
 
+===== install a local JAR to local repo =====
+mvn install:install-file 
+-Dfile=./nimrodlf-1.2d.jar 
+-DgroupId=com.nilo.plaf 
+-DartifactId=nimrod 
+-Dversion=1.2d 
+-Dpackaging=jar
+
+
 pattern for exposing API settings/actions:
 checkbox is not inherently an "action" but its paradigm is virtually the same as a button
 

@@ -1,5 +1,7 @@
 package org.jwellman.csvviewer;
 
+import javax.swing.JFrame;
+
 import org.jwellman.foundation.Foundation;
 import org.jwellman.foundation.uContext;
 import org.jwellman.foundation.extend.SimpleMain;
@@ -8,6 +10,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration;
+
+import swinghx.chapter12.hack96.ComponentGlassPane;
 
 @SpringBootApplication
 @EnableAutoConfiguration(exclude = WebMvcAutoConfiguration.class)
@@ -38,11 +42,17 @@ public class CsvViewerApplication extends SimpleMain implements uiCustomTheme {
 
         // Step 3 - Use Foundation to create your "window"; give it your UI.
         window = f.useWindow(mainui);
-        window.setTitle("CSV Viewer"); // Step 3a (optional) - Customize your window
-        window.setResizable(true); // Step 3a (optional) - Customize your window
+        // Step 3a (optional) - Customize your window
+        window.setTitle("CSV Viewer"); 
+        window.setResizable(true);
+
+		final ComponentGlassPane gp = new ComponentGlassPane((JFrame)this.window);		
+		final IssuesBrowser b = (IssuesBrowser)this.mainui.getChild();
+		b.getGlassPaneButton().addActionListener(gp);
 
         // Step 4a - Create data models, controllers, and other non-UI objects
         // n/a
+        
         // Step 4b (optional)- Associate models with views
         // n/a
 
@@ -54,6 +64,6 @@ public class CsvViewerApplication extends SimpleMain implements uiCustomTheme {
 
 	@Override
 	public void doCustomTheme() {
-		// TODO Auto-generated method stub		
+		
 	}
 }

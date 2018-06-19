@@ -22,6 +22,9 @@ import org.jwellman.foundation.swing.IWindow;
 import org.jwellman.foundation.swing.XFrame;
 import org.jwellman.foundation.swing.XInternalFrame;
 
+import com.nilo.plaf.nimrod.NimRODLookAndFeel;
+import com.nilo.plaf.nimrod.NimRODTheme;
+
 /**
  * The most basic of Swing initialization requirements.
  *
@@ -75,12 +78,12 @@ public void init(uContext c) {
         // The following may have some subtle system dependent behavior:
         // http://stackoverflow.com/questions/179955/how-do-you-enable-anti-aliasing-in-arbitrary-java-apps
         // Try System.setProperty("awt.useSystemAAFontSettings", "lcd"); and you should get ClearType
-// https://www.javalobby.org/java/forums/t98492.html
-//        System.setProperty("awt.useSystemAAFontSettings","on");
-//        System.setProperty("swing.aatext", "true");
+		// https://www.javalobby.org/java/forums/t98492.html
+		//      System.setProperty("awt.useSystemAAFontSettings","on");
+		//      System.setProperty("swing.aatext", "true");
 
         // Make sure our window decorations come from the look and feel.
-        JFrame.setDefaultLookAndFeelDecorated(true);
+        JFrame.setDefaultLookAndFeelDecorated(false); // I changed my mind... I think the OS frame makes more sense
 
         // Conditionally apply context settings...
         context = (c != null) ? c : uContext.createContext();
@@ -92,7 +95,7 @@ public void init(uContext c) {
                 final String name = info.getName(); System.out.println(name);
                 if ("Nimbus".equals(name)) { // Metal, Nimbus, CDE/Motif, Windows , Windows Classic                    
                     
-                    final int version = 1;
+                    final int version = 5;
                     switch (version) {
                         case 1:
                             UIManager.setLookAndFeel(info.getClassName());
@@ -111,7 +114,36 @@ public void init(uContext c) {
                             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                             break;
                         case 5:
-                            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                        	int theme = 2;
+                        	switch (theme) {
+                        	case 1:
+                            	UIManager.setLookAndFeel( new com.nilo.plaf.nimrod.NimRODLookAndFeel());
+                        		break;
+                        	case 2:
+                        		NimRODTheme nt = new NimRODTheme();
+                        		// syracuse
+                          		nt.setPrimary1( new Color(0xEB1F00) ); // scroll thumb border
+                        		nt.setPrimary2( new Color(0xF52900) ); // jtable.selection, scroll thumb, checkbox bgnd, text focus(highlighter)
+                        		nt.setPrimary3( new Color(0xFF3300) );
+                        		// firehat
+//                        		nt.setPrimary1( new Color(0xB80000) ); // scroll thumb border
+//                        		nt.setPrimary2( new Color(0xC20000) ); // jtable.selection, scroll thumb, checkbox bgnd, text focus(highlighter)
+//                        		nt.setPrimary3( new Color(0xCC0000) );
+                        		nt.setSecondary1( new Color(0x1F1F1F) );
+                        		nt.setSecondary2( new Color(0x292929) );
+                        		nt.setSecondary3( new Color(0x333333) );
+                        		nt.setBlack( new Color(0xCCCCCC) ); // text components (button, jtable, etc.)
+                        		nt.setWhite( new Color(0x666666) ); // text bgnd
+                        		nt.setFont(new Font("Consolas",Font.PLAIN,16));
+                        		
+                        		NimRODLookAndFeel NimRODLF = new NimRODLookAndFeel();
+                        		NimRODLookAndFeel.setCurrentTheme(nt);
+                        		UIManager.setLookAndFeel(NimRODLF);
+                        		break;
+                        	default:
+                            	UIManager.setLookAndFeel( new com.nilo.plaf.nimrod.NimRODLookAndFeel());
+                        			
+                        	}
                             break;
                         default:
                         	break;
@@ -127,7 +159,7 @@ public void init(uContext c) {
                         UIManager.put("ToggleButton.border", new CompoundBorder(new LineBorder(new Color(200, 200, 200)), new EmptyBorder(2, 2, 2, 2)));
                     }
                     
-                    // break;
+                    break;
                 }
 //                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             }

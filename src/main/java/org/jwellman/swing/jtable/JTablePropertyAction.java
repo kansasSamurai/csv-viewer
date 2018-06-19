@@ -20,6 +20,7 @@ public class JTablePropertyAction extends AbstractAction {
     public static final int ACTION_SHOW_COLUMN = 23;
 	public static final int ACTION_CLEAR_SELECTION = 55;
 	public static final int ACTION_TOGGLE_AUTORESIZEMODE = 66;
+	public static final int ACTION_TOGGLE_COLUMNSELECTION = 77;
 	
     public JTablePropertyAction(String text, JTable table, int actionid, String cname) {
         super(text);
@@ -65,6 +66,10 @@ public class JTablePropertyAction extends AbstractAction {
                 final boolean isoff = target.getAutoResizeMode() == JTable.AUTO_RESIZE_OFF;
                 target.setAutoResizeMode(isoff ? JTable.AUTO_RESIZE_ALL_COLUMNS : JTable.AUTO_RESIZE_OFF);
                 break;
+            case ACTION_TOGGLE_COLUMNSELECTION:
+            	final boolean ison = target.getColumnSelectionAllowed();
+            	target.setColumnSelectionAllowed(!ison);
+            	break;
             default:
                 System.out.println("UNDEFINED Action identifier: " + action);
             }

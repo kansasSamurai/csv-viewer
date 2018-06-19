@@ -66,6 +66,10 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
     private static final long serialVersionUID = 1L;
     
     private JTable csvTable = new JXTable(); // new JXTable(tableModel); // JTable(tableModel); // BetterJTable
+
+    private TableColumnManager csvTableColumnManager;
+
+	private JButton glassPaneButton;
     
     private TableModel csvTableModel;
     
@@ -78,6 +82,8 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
     private static final Border BORDER_COMPOUND = BorderFactory.createCompoundBorder(BORDER_EMPTY, BORDER_ETCHED);
     
     private static final Font FONT_SEGOE_UI = new Font("Segoe UI", Font.PLAIN, 10);
+
+    private static final Color COLOR_GREY_MED = new Color(136,136,136);
     
     public IssuesBrowser() {
 
@@ -121,12 +127,6 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
     	    text.setText(calltoaction);    	
     	    text.setFont(font);
     	    text.setForeground(foreground);
-    	    
-    	    boolean trytoaddbutton = true;
-    	    if (trytoaddbutton) {
-    	        JButton b = new JButton("T");
-    	        text.add(b);
-    	    }
     	    
     	    panel.add(text);
     	}
@@ -239,7 +239,7 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
         pane.setBorder( BORDER_COMPOUND );
 
         csvTable.setModel(csvTableModel = new DelimitedFileTableModel(file, ","));
-        TableColumnManager tcm = new TableColumnManager(csvTable);
+        csvTableColumnManager = new TableColumnManager(csvTable);
         
         boolean fillpanel = false;
         if (fillpanel) {
@@ -261,9 +261,23 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
             csvTable.getColumn(cname).setCellRenderer(cellRenderer);
         }
 
-        csvTable.getTableHeader().setFont(cellRenderer.getFont());
-        //csvTable.getTableHeader().setDefaultRenderer(cellRenderer);
-        //csvTable.setColumnSelectionAllowed(true);
+        boolean customizeHeader = false;
+        if (customizeHeader) {
+            final NumberCellRenderer hdrRenderer = new NumberCellRenderer("Consolas");
+            hdrRenderer.setForeground(Color.white);
+            hdrRenderer.setBackground(COLOR_GREY_MED);        
+            hdrRenderer.setFont(FONT_SEGOE_UI);
+            //hdrRenderer.setBorder(BORDER_ETCHED);
+            hdrRenderer.setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
+            hdrRenderer.setVerticalAlignment(DefaultTableCellRenderer.BOTTOM);
+            csvTable.getTableHeader().setDefaultRenderer(hdrRenderer);
+            csvTable.getTableHeader().setBorder(null);
+        	//csvTable.setBorder(BORDER_ETCHED);
+        }
+//        // csvTable.getTableHeader().setFont(cellRenderer.getFont());
+//        csvTable.getTableHeader().setForeground(Color.white);
+//        csvTable.getTableHeader().setBackground(COLOR_GREY_MED);
+//        csvTable.getTableHeader().setFont(FONT_SEGOE_UI);
 
         if (csvTable instanceof JTable) {
             this.resizeColumnWidth(csvTable);
@@ -319,10 +333,10 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
                 .createDefault(Arrays.asList(packButton, unpackButton));
         north.add(graphitepanel);       
 
-		JPanel south = new JPanel();
+		JPanel south = new JPanel(); // 1,1,2,2
+		south.setBorder(BorderFactory.createEmptyBorder(0, 1, 0, 1)); // fixes a small glitch caused by HorizontalGraphitePanel
 		LayoutManager southlayout = new BoxLayout(south, BoxLayout.Y_AXIS); // new GridLayout(0,1)
 		south.setLayout(southlayout);
-		south.setBorder(BorderFactory.createEmptyBorder(1, 1, 2, 2)); // fixes a small glitch caused by HorizontalGraphitePanel
 
 		JPanel delimiter = this.createDelimiter();
 		south.add(delimiter);
@@ -336,7 +350,14 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
         south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(b)));
 
         // TODO toggle column selection
-        
+        JToggleButton c = (JToggleButton) HorizontalGraphitePanel.decorateButton(new JToggleButton(), null, null);
+        c.setAction(new JTablePropertyAction("COLUMN SELECTION",  csvTable, JTablePropertyAction.ACTION_TOGGLE_COLUMNSELECTION, null));
+        south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(c)));
+
+
+		this.glassPaneButton = HorizontalGraphitePanel.decorateButton(new JButton("GLASS PANE"), null, null);
+		south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(this.glassPaneButton)));
+
         actions.add(north, BorderLayout.NORTH);
 		actions.add(south, BorderLayout.SOUTH);
         actions.add(center, BorderLayout.CENTER);
@@ -390,6 +411,7 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
     private JPanel createDelimiterV3() {
         final JTextField tfield = (JTextField) XTextField.create().setFont(FONT_SEGOE_UI).get();
         tfield.setEditable(false);
+        //tfield.setBorder(null);
         
         final JPanel p = new JPanel(new SpringLayout());
         p.setBorder(null);
@@ -547,12 +569,15 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
     @Override
     public void doSingleFileAction(File file) {
         //jtextarea.read(new FileReader(file),null);
-        
-        
+                
         final BorderLayout layout = (BorderLayout) this.getLayout();
         this.remove(layout.getLayoutComponent(BorderLayout.CENTER));
         this.add(this.createCsvTable(file), BorderLayout.CENTER);
         
+        for (JCheckBox checkbox : csvTableColumnManager.getListOfJCheckBox()) {
+            // checkbox.setFont(FONT_SEGOE_UI);
+            boxlayout.add(checkbox);
+        }
 //        final URL csv = file.toURI().toURL(); // new URL("http://myapp/employees.csv");
 //        DefaultTableModelExt data = new DefaultTableModelExt(url);
 //        TableModelExtTextLoader loader = new TableModelExtTextLoader(",", false, 75);
@@ -573,5 +598,9 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
     public void doListOfFilesAction(List<File> listoffiles) {
         throw new RuntimeException("Method not implemented");
     }
+
+	public JButton getGlassPaneButton() {
+		return this.glassPaneButton;
+	}
 
 }
