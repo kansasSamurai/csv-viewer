@@ -1,24 +1,26 @@
 # License
 
-This project is in pre-release; it is intended to have the Apache license but is not ready for consumption by the general public.
+This project is in pre-release; it is intended to have the Apache license but is not ready for consumption by the general public.  If you would like to try this application and/or contribute with code and feedback, feel free.
 
 # Summary
-*Building a delimited file viewer:* 
-Why?  Quickly view delimited file (comma-delimited is the default) 
+*Building a delimited file viewer.* 
+Why?  Quickly view a delimited file (comma-delimited is the default) 
       *and* autosize columns according to content.
       
 * High priority features:
   * Button/Action to "toggle"-autosize (i.e. the user has modified column widths so restore autosize but allow to restore user settings)
   * Modifications to view* should be captured in a way that both displays the mod to the user and lets them selectively enable/disable it.
-    For example, if I filter a column, the filter expression should be displayed in a way that I can later disable the filter expression
+     * For example, if I filter a column, the filter expression should be displayed in a way that I can later disable the filter expression
     ... but!... it should still exist in the UI in case I want to re-enable it (i.e. toggle it for the rest of the "session")
-    For example, same goes for sorting on a column
+     * For example, same goes for sorting on a column
         - drag and drop reorder of sorting priority?
   * Allow SQL-like filtering (i.e. where columnN = expression); 
     - perhaps use DB driver that understands file?
+    
 * Medium priority features:
   * Search (see JIDE lib; example here <http://www.tutego.de/java/additional-java-swing-components.htm>)
-  * Auto detect date fields
+  * Auto detect numeric and date fields
+  
 *Low priority features:
   * Customize colors/theme
 
