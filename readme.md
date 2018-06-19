@@ -1,30 +1,35 @@
-Building a delimited file viewer: 
+= License
+This project is in pre-release; it is intended to have the Apache license but is not ready for consumption by the general public.
+
+= Summary
+*Building a delimited file viewer:* 
 Why?  Quickly view delimited file (comma-delimited is the default) 
       *and* autosize columns according to content.
-High priority features:
-* Button/Action to "toggle"-autosize (i.e. the user has modified column widths so restore autosize but allow to restore user settings)
-* Modifications to view* should be captured in a way that both displays the mod to the user and lets them selectively enable/disable it.
+* High priority features:
+  * Button/Action to "toggle"-autosize (i.e. the user has modified column widths so restore autosize but allow to restore user settings)
+  * Modifications to view* should be captured in a way that both displays the mod to the user and lets them selectively enable/disable it.
     For example, if I filter a column, the filter expression should be displayed in a way that I can later disable the filter expression
     ... but!... it should still exist in the UI in case I want to re-enable it (i.e. toggle it for the rest of the "session")
     For example, same goes for sorting on a column
         - drag and drop reorder of sorting priority?
-* Allow SQL-like filtering (i.e. where columnN = expression); 
+  * Allow SQL-like filtering (i.e. where columnN = expression); 
     - perhaps use DB driver that understands file?
-Medium priority features:
-* Search (see JIDE lib; example here http://www.tutego.de/java/additional-java-swing-components.htm)
-* Auto detect date fields
-Low priority features:
-* Customize colors/theme
+* Medium priority features:
+  * Search (see JIDE lib; example here http://www.tutego.de/java/additional-java-swing-components.htm)
+  * Auto detect date fields
+*Low priority features:
+  * Customize colors/theme
 
-===== install a local JAR to local repo =====
-mvn install:install-file 
+= Install a local JAR to local repo
+```mvn install:install-file 
 -Dfile=./nimrodlf-1.2d.jar 
 -DgroupId=com.nilo.plaf 
 -DartifactId=nimrod 
 -Dversion=1.2d 
 -Dpackaging=jar
+```
 
-
+= Misc/Notes
 pattern for exposing API settings/actions:
 checkbox is not inherently an "action" but its paradigm is virtually the same as a button
 
