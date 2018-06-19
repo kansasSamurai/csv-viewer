@@ -21,11 +21,12 @@ Why?  Quickly view a delimited file (comma-delimited is the default)
   * Search (see JIDE lib; example here <http://www.tutego.de/java/additional-java-swing-components.htm>)
   * Auto detect numeric and date fields
   
-*Low priority features:
+* Low priority features:
   * Customize colors/theme
 
 # Install a local JAR to local repo
-```mvn install:install-file 
+```
+mvn install:install-file 
 -Dfile=./nimrodlf-1.2d.jar 
 -DgroupId=com.nilo.plaf 
 -DartifactId=nimrod 
