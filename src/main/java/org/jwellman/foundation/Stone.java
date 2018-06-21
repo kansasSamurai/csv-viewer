@@ -93,7 +93,7 @@ public void init(uContext c) {
         try {
             for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 final String name = info.getName(); System.out.println(name);
-                if ("Nimbus".equals(name)) { // Metal, Nimbus, CDE/Motif, Windows , Windows Classic                    
+                if ("Metal".equals(name)) { // Metal, Nimbus, CDE/Motif, Windows , Windows Classic                    
                     
                     final int version = 5;
                     switch (version) {
@@ -114,13 +114,16 @@ public void init(uContext c) {
                             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                             break;
                         case 5:
-                        	int theme = 2;
+                        	NimRODTheme nt = new NimRODTheme();
+                        	NimRODLookAndFeel NimRODLF = new NimRODLookAndFeel();
+                        	
+                        	int theme = 3;
                         	switch (theme) {
-                        	case 1:
+                        	case 1: // this has been testedand works
                             	UIManager.setLookAndFeel( new com.nilo.plaf.nimrod.NimRODLookAndFeel());
                         		break;
-                        	case 2:
-                        		NimRODTheme nt = new NimRODTheme();
+                        	case 2: // this has been tested and works
+                        		nt = new NimRODTheme();
                         		// syracuse
                           		nt.setPrimary1( new Color(0xEB1F00) ); // scroll thumb border
                         		nt.setPrimary2( new Color(0xF52900) ); // jtable.selection, scroll thumb, checkbox bgnd, text focus(highlighter)
@@ -136,9 +139,16 @@ public void init(uContext c) {
                         		nt.setWhite( new Color(0x666666) ); // text bgnd
                         		nt.setFont(new Font("Consolas",Font.PLAIN,16));
                         		
-                        		NimRODLookAndFeel NimRODLF = new NimRODLookAndFeel();
+                        		NimRODLF = new NimRODLookAndFeel();
                         		NimRODLookAndFeel.setCurrentTheme(nt);
                         		UIManager.setLookAndFeel(NimRODLF);
+                        		break;
+                        	case 3:                        		
+                        		// greyscale , blueberry , NimRODThemeFile_rix_mint_segoeui
+                        		nt = new NimRODTheme("themes/nimrod/NimRODThemeFile_rix_mint_segoeui.theme");
+                        		NimRODLF = new NimRODLookAndFeel();
+                        		NimRODLookAndFeel.setCurrentTheme(nt);
+                        		UIManager.setLookAndFeel(NimRODLF);                        		
                         		break;
                         	default:
                             	UIManager.setLookAndFeel( new com.nilo.plaf.nimrod.NimRODLookAndFeel());
@@ -155,8 +165,8 @@ public void init(uContext c) {
                         setUIFont (new javax.swing.plaf.FontUIResource("Sans Serif",Font.PLAIN,12));
                         UIManager.put("Button.background",  Color.decode("#eeeeee"));
                         UIManager.put("ToggleButton.background",  Color.decode("#eeeeee"));
-                        UIManager.put("Button.border", new CompoundBorder(new LineBorder(new Color(200, 200, 200)), new EmptyBorder(2, 2, 2, 2)));
-                        UIManager.put("ToggleButton.border", new CompoundBorder(new LineBorder(new Color(200, 200, 200)), new EmptyBorder(2, 2, 2, 2)));
+//                        UIManager.put("Button.border", new CompoundBorder(new LineBorder(new Color(200, 200, 200)), new EmptyBorder(2, 2, 2, 2)));
+//                        UIManager.put("ToggleButton.border", new CompoundBorder(new LineBorder(new Color(200, 200, 200)), new EmptyBorder(2, 2, 2, 2)));
                     }
                     
                     break;

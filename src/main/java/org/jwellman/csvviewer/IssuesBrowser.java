@@ -67,11 +67,11 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
     
     private JTable csvTable = new JXTable(); // new JXTable(tableModel); // JTable(tableModel); // BetterJTable
 
+    private TableModel csvTableModel;
+    
     private TableColumnManager csvTableColumnManager;
 
 	private JButton glassPaneButton;
-    
-    private TableModel csvTableModel;
     
     private JPanel boxlayout;
     
@@ -81,7 +81,9 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
     
     private static final Border BORDER_COMPOUND = BorderFactory.createCompoundBorder(BORDER_EMPTY, BORDER_ETCHED);
     
-    private static final Font FONT_SEGOE_UI = new Font("Segoe UI", Font.PLAIN, 10);
+    private static final Border BORDER_FIX = BorderFactory.createEmptyBorder(3, 0, 0, 0);
+    
+    private static final Font FONT_SEGOE_UI = new Font("Segoe UI", Font.BOLD, 12);
 
     private static final Color COLOR_GREY_MED = new Color(136,136,136);
     
@@ -239,6 +241,9 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
         pane.setBorder( BORDER_COMPOUND );
 
         csvTable.setModel(csvTableModel = new DelimitedFileTableModel(file, ","));
+		csvTable.setShowVerticalLines(false);
+        // csvTable.setRowHeight(50); // experimental to research cell borders
+        
         csvTableColumnManager = new TableColumnManager(csvTable);
         
         boolean fillpanel = false;
@@ -470,6 +475,13 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
 	    	setHorizontalAlignment(SwingConstants.LEFT);
     	}
     	
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+        	final JComponent c = (JComponent) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        	c.setBorder(BORDER_FIX);
+        	return c;
+    	}
+    	
     	@Override
     	public Font getFont() {
     		return customFont;
@@ -590,6 +602,8 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
             final JXTable t = (JXTable) csvTable;
             t.setColumnControlVisible(false);
         }
+        
+        this.updateRowHeights_fast();
 
         this.validate();
     }
@@ -599,6 +613,39 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
         throw new RuntimeException("Method not implemented");
     }
 
+    private void updateRowHeights() {
+        for (int row = 0; row < csvTable.getRowCount(); row++)
+        {
+            int rowHeight = csvTable.getRowHeight(); 
+            System.out.print("row height before: " + rowHeight);
+
+            for (int column = 0; column < csvTable.getColumnCount(); column++) {
+                Component comp = csvTable.prepareRenderer(csvTable.getCellRenderer(row, column), row, column);
+                rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);
+            }
+
+            System.out.println(", after: " + rowHeight);
+            csvTable.setRowHeight(row, rowHeight);
+        }
+    }
+    
+    private void updateRowHeights_fast() {
+        for (int row = 0; row < csvTable.getRowCount(); row++)
+        {
+            int rowHeight = csvTable.getRowHeight(); 
+            System.out.print("row height before: " + rowHeight);
+
+            //assume first column is sufficient to adjust the entire row
+            for (int column = 0; column < 1; column++) {
+                Component comp = csvTable.prepareRenderer(csvTable.getCellRenderer(row, column), row, column);
+                rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);
+            }
+
+            System.out.println(", after: " + rowHeight);
+            csvTable.setRowHeight(row, rowHeight);
+        }
+    }
+    
 	public JButton getGlassPaneButton() {
 		return this.glassPaneButton;
 	}

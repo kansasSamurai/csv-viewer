@@ -33,23 +33,26 @@ public class DelimitedFileTableModel extends AbstractTableModel {
 			reader = Files.newBufferedReader(file.toPath(), Charset.defaultCharset());
 
 			final CSVParser parser = new CSVParserBuilder()
-
 			.withSeparator(delimiter.charAt(0))
-
 			.withIgnoreQuotations(false)
-
 			.build();
 
 			csvReader = new CSVReaderBuilder(reader)
-
 			.withSkipLines(0)
-
 			.withCSVParser(parser)
-
 			.build();
 
 			records = csvReader.readAll();
 
+			boolean fix = true;
+			if (fix) {
+				for (String[] record : records) {
+					for (int i=0; i < record.length; i++) {
+						String field = record[i];
+						record[i] = field.trim();
+					}
+				}
+			}
 			// assume first record is column headings
 
 			List<String> columnHeadings = new ArrayList<>(records.get(0).length);

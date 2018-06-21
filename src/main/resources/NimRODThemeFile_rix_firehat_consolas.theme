@@ -1,0 +1,11 @@
+nimrodlf.p1=#B80000
+nimrodlf.p2=#C20000
+nimrodlf.p3=#CC0000
+nimrodlf.s1=#1F1F1F
+nimrodlf.s2=#292929
+nimrodlf.s3=#333333
+nimrodlf.w=#666666
+nimrodlf.b=#CCCCCC
+nimrodlf.menuOpacity=171
+nimrodlf.frameOpacity=57
+nimrodlf.font=Consolas-PLAIN-16
