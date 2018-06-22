@@ -354,22 +354,27 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
         b.setAction(new JTablePropertyAction("RESIZE MODE",  csvTable, JTablePropertyAction.ACTION_TOGGLE_AUTORESIZEMODE, null));
         south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(b)));
 
-        // TODO toggle column selection
         JToggleButton c = (JToggleButton) HorizontalGraphitePanel.decorateButton(new JToggleButton(), null, null);
         c.setAction(new JTablePropertyAction("COLUMN SELECTION",  csvTable, JTablePropertyAction.ACTION_TOGGLE_COLUMNSELECTION, null));
         south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(c)));
 
+        JToggleButton d = (JToggleButton) HorizontalGraphitePanel.createToggleButton(null, null, null);
+        d.setAction(new JTablePropertyAction("GRID",  csvTable, JTablePropertyAction.ACTION_TOGGLE_GRID, null));
+        JToggleButton e = (JToggleButton) HorizontalGraphitePanel.createToggleButton(null, null, null);
+        e.setAction(new JTablePropertyAction("HORZ",  csvTable, JTablePropertyAction.ACTION_TOGGLE_HORIZONTAL_LINES, null));
+        JToggleButton f = (JToggleButton) HorizontalGraphitePanel.createToggleButton(null, null, null);
+        f.setAction(new JTablePropertyAction("VERT",  csvTable, JTablePropertyAction.ACTION_TOGGLE_VERTICAL_LINES, null));
+        south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(d, e, f)));
 
-		this.glassPaneButton = HorizontalGraphitePanel.decorateButton(new JButton("GLASS PANE"), null, null);
-		south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(this.glassPaneButton)));
+        this.glassPaneButton = HorizontalGraphitePanel.decorateButton(new JButton("GLASS PANE"), null, null);
+        south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(this.glassPaneButton)));
 
         actions.add(north, BorderLayout.NORTH);
-		actions.add(south, BorderLayout.SOUTH);
+        actions.add(south, BorderLayout.SOUTH);
         actions.add(center, BorderLayout.CENTER);
 
-		return actions;
-	}
-
+        return actions;
+    }
 
     private JPanel createDelimiter() {
         return this.createDelimiterV3();
