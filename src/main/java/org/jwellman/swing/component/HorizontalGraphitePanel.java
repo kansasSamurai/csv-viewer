@@ -141,6 +141,19 @@ public class HorizontalGraphitePanel extends JComponent {
     }
 
     /**
+     * Factory method to properly create a JToggleButton with the GraphiteButtonUI installed.
+     * 
+     * @param label if null, set to empty string (since clients often control label with an Action object)
+     * @param font
+     * @param size
+     * @return
+     */
+    public static JToggleButton createToggleButton(String label, Font font, Dimension size) {
+        final JToggleButton b = new JToggleButton((label == null) ? "" : label);
+        return (JToggleButton) decorateButton(b, font, size);
+    }
+
+    /**
      * Convenience method to decorate a user-defined Button object.
      * <p>
      * Note that this is used internally by createButton().
