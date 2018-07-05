@@ -1,11 +1,15 @@
 package org.jwellman.swing.jtable;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
+
+import org.assertj.core.data.Offset;
+import org.jwellman.utility.Limit;
 
 /**
  * A class that encapsulates access to all properties of a JTable.
@@ -30,6 +34,10 @@ public class JTablePropertyAction extends AbstractAction {
     public static final int ACTION_TOGGLE_HORIZONTAL_LINES = 26;
 	public static final int ACTION_CLEAR_SELECTION = 55;
 	public static final int ACTION_TOGGLE_AUTORESIZEMODE = 66;
+	public static final int ACTION_INCREASE_COLUMN_MARGIN = 71;
+	public static final int ACTION_DECREASE_COLUMN_MARGIN = 72;
+	public static final int ACTION_INCREASE_ROW_MARGIN = 73;
+	public static final int ACTION_DECREASE_ROW_MARGIN = 74;
 	public static final int ACTION_TOGGLE_COLUMNSELECTION = 77;
 
 	/**
@@ -63,6 +71,10 @@ public class JTablePropertyAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         
+    	int i = 0;
+    	
+    	Dimension dim = null;
+    	
         TableColumn column = null; // Reusable TableColumn reference
         
         AbstractButton button = null; // A lot of actions/properties can come only from buttons
@@ -94,6 +106,43 @@ public class JTablePropertyAction extends AbstractAction {
             case ACTION_TOGGLE_VERTICAL_LINES:
                 target.setShowVerticalLines(!target.getShowVerticalLines());
                 break;
+            case ACTION_INCREASE_ROW_MARGIN:
+            	i = target.getRowMargin();
+            	target
+            	  .setRowMargin(Limit.incrementOf(i).to(100));
+            	break;
+            case ACTION_DECREASE_ROW_MARGIN:
+            	i = target.getRowMargin();
+            	target
+            	  .setRowMargin(Limit.decrementOf(i).to(0));
+            	break;
+            case ACTION_INCREASE_COLUMN_MARGIN:
+            	i = target.getColumnModel().getColumnMargin();
+            	target
+            	  .getColumnModel()
+            	    .setColumnMargin(Limit.incrementOf(i).to(100));
+            	
+//            	dim = target.getIntercellSpacing();
+//            	dim = new Dimension(
+//            			Limit.incrementOf(dim.width).to(100), 
+//            			dim.height); //Limit.incrementOf(dim.height).to(100));
+//            	target.setIntercellSpacing(dim);
+//            	i = target.getColumnModel().getColumnMargin();
+//            	target.getColumnModel().setColumnMargin(++i);
+            	break;
+            case ACTION_DECREASE_COLUMN_MARGIN:
+            	i = target.getColumnModel().getColumnMargin();
+            	target
+            	  .getColumnModel()
+            	    .setColumnMargin(Limit.decrementOf(i).to(0));
+//            	dim = target.getIntercellSpacing();
+//            	dim = new Dimension(
+//            			Limit.decrementOf(dim.width).to(0), 
+//            			dim.height); // Limit.decrementOf(dim.height).to(0));
+//            	target.setIntercellSpacing(dim);
+//            	i = target.getColumnModel().getColumnMargin();
+//            	target.getColumnModel().setColumnMargin((i < 1) ? 0 : --i);
+            	break;
             case ACTION_TOGGLE_COLUMNSELECTION:
             	final boolean ison = target.getColumnSelectionAllowed();
             	target.setColumnSelectionAllowed(!ison);

@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GraphicsEnvironment;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
@@ -13,7 +12,6 @@ import java.awt.Toolkit;
 import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,7 +30,6 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
-import javax.swing.SwingConstants;
 import javax.swing.SpringLayout;
 import javax.swing.border.Border;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -43,16 +40,19 @@ import javax.swing.table.TableModel;
 import org.jdesktop.swingx.JXTable;
 import org.jwellman.csvviewer.models.Person;
 import org.jwellman.foundation.swing.XButton;
-import org.jwellman.foundation.swing.XCheckBox;
 import org.jwellman.foundation.swing.XLabel;
 import org.jwellman.foundation.swing.XTextField;
 import org.jwellman.foundation.swing.XToggleButton;
 import org.jwellman.swing.actions.FileActionAware;
 import org.jwellman.swing.component.HorizontalGraphitePanel;
+import org.jwellman.swing.dnd.FileDropTarget;
 import org.jwellman.swing.jtable.BetterJTable;
 import org.jwellman.swing.jtable.JTablePropertyAction;
 import org.jwellman.swing.jtable.TableColumnManager;
+import org.jwellman.swing.jtable.XTable;
+import org.jwellman.swing.jtable.renderer.NumberCellRenderer;
 import org.jwellman.swing.layout.SpringUtilities;
+import org.jwellman.utility.Limit;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
@@ -60,14 +60,19 @@ import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.gui.TableFormat;
 import ca.odell.glazedlists.swing.EventTableModel;
 
-@SuppressWarnings("deprecation")
+/**
+ * 
+ * @author rwellman
+ *
+ */
+@SuppressWarnings({"unused", "deprecation"})
 public class IssuesBrowser extends JPanel implements FileActionAware {
 
     private static final long serialVersionUID = 1L;
     
-    private JTable csvTable = new JXTable(); // new JXTable(tableModel); // JTable(tableModel); // BetterJTable
+    private JTable csvTable = new XTable(); // new JXTable(tableModel); // JTable(tableModel); // BetterJTable
 
-    private TableModel csvTableModel;
+	private TableModel csvTableModel;
     
     private TableColumnManager csvTableColumnManager;
 
@@ -79,9 +84,25 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
 
     private static final Border BORDER_ETCHED = BorderFactory.createEtchedBorder();
     
+    private static final Border BORDER_LINE = BorderFactory.createLineBorder(Color.red, 1);    
+    
+    private static final Border BORDER_DASHED = BorderFactory.createDashedBorder(null, 3.0f, 2.0f);
+    
     private static final Border BORDER_COMPOUND = BorderFactory.createCompoundBorder(BORDER_EMPTY, BORDER_ETCHED);
     
-    private static final Border BORDER_FIX = BorderFactory.createEmptyBorder(3, 0, 0, 0);
+    private static final Border BORDER_FIX = BorderFactory.createEmptyBorder(6, 0, 0, 0);
+    
+    private static final Border BORDER_DEBUG_INNER = BorderFactory
+    		.createCompoundBorder(
+    				BORDER_DASHED, 
+    				BorderFactory.createEmptyBorder(12, 2, 2, 2)
+    				);
+    
+    private static final Border BORDER_DEBUG_OUTER = BorderFactory
+    		.createCompoundBorder(
+    				BORDER_DEBUG_INNER, 
+    				BORDER_LINE
+    				);
     
     private static final Font FONT_SEGOE_UI = new Font("Segoe UI", Font.BOLD, 12);
 
@@ -201,7 +222,7 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
 	        csvTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		}
 		
-		final NumberCellRenderer cellRenderer = new NumberCellRenderer("Consolas"); 
+		final NumberCellRenderer cellRenderer = new NumberCellRenderer("Consolas", "dummy"); 
 		// order of preference: Consolas , Lucida Console , Bitstream Vera Sans Mono 
 		// Courier New , Lucida Sans Typewriter
 		// following are interesting (* = not monospaced):
@@ -242,7 +263,7 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
 
         csvTable.setModel(csvTableModel = new DelimitedFileTableModel(file, ","));
 		csvTable.setShowVerticalLines(false);
-        // csvTable.setRowHeight(50); // experimental to research cell borders
+		csvTable.setRowMargin(1); csvTable.getColumnModel().setColumnMargin(0);
         
         csvTableColumnManager = new TableColumnManager(csvTable);
         
@@ -255,7 +276,7 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
             csvTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         }
         
-        final NumberCellRenderer cellRenderer = new NumberCellRenderer("Consolas"); 
+        final NumberCellRenderer cellRenderer = new NumberCellRenderer("Consolas", "dummy"); 
         // order of preference: Consolas , Lucida Console , Bitstream Vera Sans Mono 
         // Courier New , Lucida Sans Typewriter
         // following are interesting (* = not monospaced):
@@ -268,7 +289,7 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
 
         boolean customizeHeader = false;
         if (customizeHeader) {
-            final NumberCellRenderer hdrRenderer = new NumberCellRenderer("Consolas");
+            final NumberCellRenderer hdrRenderer = new NumberCellRenderer("Consolas", "dummy");
             hdrRenderer.setForeground(Color.white);
             hdrRenderer.setBackground(COLOR_GREY_MED);        
             hdrRenderer.setFont(FONT_SEGOE_UI);
@@ -360,12 +381,26 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
 
         JToggleButton d = (JToggleButton) HorizontalGraphitePanel.createToggleButton(null, null, null);
         d.setAction(new JTablePropertyAction("GRID",  csvTable, JTablePropertyAction.ACTION_TOGGLE_GRID, null));
-        JToggleButton e = (JToggleButton) HorizontalGraphitePanel.createToggleButton(null, null, null);
+        JToggleButton e = HorizontalGraphitePanel.createToggleButton(null, null, null);
         e.setAction(new JTablePropertyAction("HORZ",  csvTable, JTablePropertyAction.ACTION_TOGGLE_HORIZONTAL_LINES, null));
-        JToggleButton f = (JToggleButton) HorizontalGraphitePanel.createToggleButton(null, null, null);
+        JToggleButton f = HorizontalGraphitePanel.createToggleButton(null, null, null);
         f.setAction(new JTablePropertyAction("VERT",  csvTable, JTablePropertyAction.ACTION_TOGGLE_VERTICAL_LINES, null));
         south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(d, e, f)));
 
+        JButton g = HorizontalGraphitePanel.createButton(null, null, null);
+        g.setAction(new JTablePropertyAction("CMARGIN+",  csvTable, JTablePropertyAction.ACTION_INCREASE_COLUMN_MARGIN, null));
+        
+        JButton h = HorizontalGraphitePanel.createButton(null, null, null);
+        h.setAction(new JTablePropertyAction("CMARGIN-",  csvTable, JTablePropertyAction.ACTION_DECREASE_COLUMN_MARGIN, null));
+        south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(g, h)));        
+
+        JButton i = HorizontalGraphitePanel.createButton(null, null, null);
+        i.setAction(new JTablePropertyAction("RMARGIN+",  csvTable, JTablePropertyAction.ACTION_INCREASE_ROW_MARGIN, null));
+        
+        JButton j = HorizontalGraphitePanel.createButton(null, null, null);
+        j.setAction(new JTablePropertyAction("RMARGIN-",  csvTable, JTablePropertyAction.ACTION_DECREASE_ROW_MARGIN, null));
+        south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(i, j)));        
+                
         this.glassPaneButton = HorizontalGraphitePanel.decorateButton(new JButton("GLASS PANE"), null, null);
         south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(this.glassPaneButton)));
 
@@ -421,11 +456,9 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
     private JPanel createDelimiterV3() {
         final JTextField tfield = (JTextField) XTextField.create().setFont(FONT_SEGOE_UI).get();
         tfield.setEditable(false);
-        //tfield.setBorder(null);
         
         final JPanel p = new JPanel(new SpringLayout());
         p.setBorder(null);
-        // p.add(XLabel.create().setText("DELIMITER").setFont(FONT_SEGOE_UI).get());
 
         final Dimension d = new Dimension(22, 1);
         final ButtonGroup bg = new ButtonGroup(); 
@@ -471,75 +504,6 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
         
     }
 
-    @SuppressWarnings("serial")
-	private class NumberCellRenderer extends DefaultTableCellRenderer  {
-    	private Font customFont;
-    	
-    	public NumberCellRenderer(String fontname) {
-	    	this.setFont(this.customFont = this.getFont(fontname, Font.PLAIN, 12));
-	    	setHorizontalAlignment(SwingConstants.LEFT);
-    	}
-    	
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
-        	final JComponent c = (JComponent) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-        	c.setBorder(BORDER_FIX);
-        	return c;
-    	}
-    	
-    	@Override
-    	public Font getFont() {
-    		return customFont;
-    	}
-    	
-    	/**
-    	 * https://wesbos.com/programming-fonts/
-    	 * 
-    	 * https://docs.oracle.com/javase/tutorial/2d/text/fonts.html
-    	 * https://www.javalobby.org/java/forums/t98492.html
-    	 * https://docs.oracle.com/javase/7/docs/technotes/guides/intl/font.html
-    	 * https://wpollock.com/Java/Fonts.htm
-    	 * http://edn.embarcadero.com/article/29991
-    	 * https://superuser.com/questions/988379/how-do-i-run-java-apps-upscaled-on-a-high-dpi-display
-    	 * http://www.pushing-pixels.org/category/java
-    	 * 
-    	 * !! http://www.pushing-pixels.org/2018/05/23/hello-radiance.html
-    	 * !! http://www.pushing-pixels.org/2017/02/23/releases-2017-h1.html
-    	 * http://www.pushing-pixels.org/2018/05/18/the-art-and-craft-of-screen-graphics-interview-with-krista-lomax.html
-    	 * 
-    	 * 
-    	 * @param name
-    	 * @param style
-    	 * @param size
-    	 * @return
-    	 */
-        private Font getFont(String name, int style, int size) {
-            System.out.println("Requesting font: " + name);
-            
-        	String fontname = "Dialog";
-        	int fontstyle = Font.PLAIN;
-        	int fontsize = 36;
-        	
-        	final GraphicsEnvironment gEnv = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            final String[] names = gEnv.getAvailableFontFamilyNames();    
-            final List<String> namesList = Arrays.asList(names);
-            System.out.println(namesList);
-            
-            if (namesList.contains(name)) {
-            	fontname = name;
-            	fontstyle = style;
-            	fontsize = size;
-            }
-            System.out.println("Delivering font: " + fontname);
-            
-        	final Font font = new Font(fontname, fontstyle, fontsize);
-            System.out.println("Verifying font: " + font.getName());
-            
-            return font;
-        }
-
-    }
-    
     /**
      * As taken from https://stackoverflow.com/questions/17627431/auto-resizing-the-jtable-column-widths
      * 
@@ -554,14 +518,14 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
                 Component comp = table.prepareRenderer(renderer, row, column);
                 width = Math.max(comp.getPreferredSize().width +1 , width);
             }
-            if(width > 300) width=300;
-            if(width < 50) width=50;
+            width = Limit.rangeOf(width).toRange(50,300); 
+            // if(width > 300) width=300;
+            // if(width < 50) width=50;
             
             columnModel.getColumn(column).setPreferredWidth(width);
         }
     }
     
-    @SuppressWarnings("unused")
     private class IssueTableFormat implements TableFormat<Person> {
 
         public int getColumnCount() {
@@ -593,6 +557,8 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
         
         for (JCheckBox checkbox : csvTableColumnManager.getListOfJCheckBox()) {
             // checkbox.setFont(FONT_SEGOE_UI);
+        	Dimension d = checkbox.getPreferredSize(); d.width = Short.MAX_VALUE;
+        	checkbox.setMaximumSize(d);
             boxlayout.add(checkbox);
         }
 //        final URL csv = file.toURI().toURL(); // new URL("http://myapp/employees.csv");
@@ -619,8 +585,19 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
     }
 
     private void updateRowHeights() {
-        for (int row = 0; row < csvTable.getRowCount(); row++)
-        {
+    	boolean fastest = true;
+    	boolean enable = false;
+    	if (enable) {
+    		if (fastest) 
+    			updateRowHeights_fast();
+    		else
+    			updateRowHeights_slower();
+    	}
+    }
+    
+    private void updateRowHeights_slower() {
+        for (int row = 0; row < csvTable.getRowCount(); row++) {
+        	
             int rowHeight = csvTable.getRowHeight(); 
             System.out.print("row height before: " + rowHeight);
 

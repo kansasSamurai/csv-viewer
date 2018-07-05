@@ -57,11 +57,11 @@ protected XInternalFrame internalFrame;
 
 
 
-public void init() {
-    init(null);
+public Foundation init() {
+    return init(null);
 }
 
-public void init(uContext c) {
+public Foundation init(uContext c) {
 
     if (!isInitialized) {
         isInitialized = true;
@@ -145,7 +145,8 @@ public void init(uContext c) {
                         		break;
                         	case 3:                        		
                         		// greyscale , blueberry , NimRODThemeFile_rix_mint_segoeui
-                        		nt = new NimRODTheme("themes/nimrod/NimRODThemeFile_rix_mint_segoeui.theme");
+                        		// themes/nimrod/NimRODThemeFile_rix_mint_segoeui.theme
+                        		nt = new NimRODTheme("NimRODThemeFile_rix_royale_calibri.theme");
                         		NimRODLF = new NimRODLookAndFeel();
                         		NimRODLookAndFeel.setCurrentTheme(nt);
                         		UIManager.setLookAndFeel(NimRODLF);                        		
@@ -178,6 +179,8 @@ public void init(uContext c) {
         }
 
     }
+    
+    return (Foundation) this;
 } // end method
 
 /**

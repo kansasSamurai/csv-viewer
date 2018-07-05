@@ -1,7 +1,5 @@
 package org.jwellman.swing.jtable;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.awt.Component;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -10,15 +8,14 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTable;
-import javax.swing.MenuElement;
-import javax.swing.MenuSelectionManager;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableColumnModelEvent;
@@ -50,14 +47,19 @@ import javax.swing.table.TableColumnModel;
 public class TableColumnManager 
     implements MouseListener, ActionListener, TableColumnModelListener, PropertyChangeListener {
     
+	// The JTable whose columns will be managed
     private JTable table;
     
+    // The TableColumnModel of the JTable
     private TableColumnModel tableColumnModel;
     
+    // A persistent list of all original TableColumn(s)
     private List<TableColumn> allColumns;
     
+    // A persistent list of JCheckBox(es) to use for external implementations
     private List<JCheckBox> listOfJCheckBox;
 
+    // A flag to enable/disable the popup menu
     private boolean menuPopup;
 
     /**
@@ -441,43 +443,29 @@ public class TableColumnManager
     }
 
     /**
-
      * Convenience method for generating a checkbox per column that controls visibility.
-
      *
-
      * This is analogous to the JCheckBoxMenuItems used internally but intended for clients
-
      * to arrange in the user interface as they wish.
-
      *
-
      * @return the listOfJCheckBox
-
      */
-
     public List<JCheckBox> getListOfJCheckBox() {
 
 		if (listOfJCheckBox == null) {
-
             listOfJCheckBox = new ArrayList<>();
 
             for (TableColumn tableColumn : allColumns) {
-
                 final Object value = tableColumn.getHeaderValue();
-
                 final JCheckBox item = new JCheckBox(value.toString(), true); // assume selected/visible (may have to change this later)
-
                 item.addActionListener(this);
 
                 listOfJCheckBox.add(item);
-
             }
 
         }
 
         return listOfJCheckBox;
-
     }
     
 }

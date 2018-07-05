@@ -1,4 +1,4 @@
-package org.jwellman.csvviewer;
+package org.jwellman.swing.dnd;
 
 import java.awt.Color;
 import java.awt.datatransfer.DataFlavor;
@@ -8,6 +8,7 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.io.File;
+import java.util.List;
 
 import javax.swing.JComponent;
 
@@ -67,17 +68,19 @@ public class FileDropTarget extends DropTargetAdapter {
 		try {
             
             // Get the files that are dropped as java.util.List
-            @SuppressWarnings("rawtypes")
-			java.util.List list = 
-			    (java.util.List) e
-            		.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+            @SuppressWarnings( "unchecked" )
+			final List<File> list = (List<File>) e
+				.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
             
-            // Now get the first file from the list,
-            final File file = (File)list.get(0);
-            System.out.println(file);
-            
-            this.handler.doSingleFileAction(file);
-            //jtextarea.read(new FileReader(file),null);
+            if ( list.size() == 1) {
+                // Now get the first/only file from the list,                
+                final File file = (File)list.get(0);
+                System.out.println(file);
+                
+                this.handler.doSingleFileAction(file);            	
+            } else {
+            	this.handler.doListOfFilesAction(list);
+            }            
             
         } catch (Exception ex) {
             // java.awt.datatransfer.UnsupportedFlavorException

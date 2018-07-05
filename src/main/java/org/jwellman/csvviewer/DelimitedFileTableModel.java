@@ -25,7 +25,6 @@ public class DelimitedFileTableModel extends AbstractTableModel {
 	public DelimitedFileTableModel(File file, String delimiter) {
 
 		Reader reader = null;
-
 		CSVReader csvReader = null;
 
 		try {
@@ -56,9 +55,7 @@ public class DelimitedFileTableModel extends AbstractTableModel {
 			// assume first record is column headings
 
 			List<String> columnHeadings = new ArrayList<>(records.get(0).length);
-
 			columnHeadings.add("Line #");
-
 			columnHeadings.addAll(Arrays.asList(records.get(0)));
 
 			columns.addAll(columnHeadings);
@@ -66,9 +63,7 @@ public class DelimitedFileTableModel extends AbstractTableModel {
 			records.remove(0);
 
 		} catch (IOException e) {
-
 			e.printStackTrace();
-
 		} finally {
 
 			try {
@@ -76,13 +71,11 @@ public class DelimitedFileTableModel extends AbstractTableModel {
 				if (csvReader != null)
 					csvReader.close();
 
-				if (csvReader != null)
+				if (reader != null)
 					reader.close();
 
 			} catch (IOException e) {
-
 				e.printStackTrace();
-
 			}
 
 		}

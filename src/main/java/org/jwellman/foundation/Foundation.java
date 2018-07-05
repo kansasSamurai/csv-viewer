@@ -19,6 +19,12 @@ public class Foundation extends Platinum {
 
     private static Foundation f; // singleton
 
+    /**
+     * Use static method to get singleton
+     * 
+     * @deprecated Use static init() instead
+     * @return
+     */
     public static Foundation get() {
         if (f == null) f = new Foundation();
         return f;
