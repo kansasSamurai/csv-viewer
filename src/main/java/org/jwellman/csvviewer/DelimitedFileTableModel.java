@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
+
+import org.apache.commons.lang3.math.NumberUtils;
+
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
@@ -19,6 +22,8 @@ public class DelimitedFileTableModel extends AbstractTableModel {
 	private static final long serialVersionUID = 1L;
 
 	private List<String> columns = new ArrayList<>();
+
+	private List<DataHint> dataHints = new ArrayList<>();
 
 	private List<String[]> records;
 
@@ -56,11 +61,18 @@ public class DelimitedFileTableModel extends AbstractTableModel {
 
 			List<String> columnHeadings = new ArrayList<>(records.get(0).length);
 			columnHeadings.add("Line #");
-			columnHeadings.addAll(Arrays.asList(records.get(0)));
-
+			columnHeadings.addAll(Arrays.asList(records.get(0)));			
 			columns.addAll(columnHeadings);
-
-			records.remove(0);
+			records.remove(0); // remove the column headings record
+			
+			final String[] record = records.get(0);
+			for (String field : record) {
+				if (NumberUtils.isCreatable(field)) {
+					dataHints.add(DataHint.NUMERIC);
+				} else {
+					dataHints.add(DataHint.STRING);
+				}
+			}
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -107,4 +119,12 @@ public class DelimitedFileTableModel extends AbstractTableModel {
 		return (columns != null) ? columns.get(col) : "TBD";
 	}
 
+	public List<DataHint> getDataHints() {
+		return dataHints;
+	}
+	
+	public enum DataHint {
+		STRING, NUMERIC;
+	}
+	
 }

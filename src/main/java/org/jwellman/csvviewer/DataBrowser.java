@@ -66,7 +66,7 @@ import ca.odell.glazedlists.swing.EventTableModel;
  *
  */
 @SuppressWarnings({"unused", "deprecation"})
-public class IssuesBrowser extends JPanel implements FileActionAware {
+public class DataBrowser extends JPanel implements FileActionAware {
 
     private static final long serialVersionUID = 1L;
     
@@ -108,7 +108,7 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
 
     private static final Color COLOR_GREY_MED = new Color(136,136,136);
     
-    public IssuesBrowser() {
+    public DataBrowser() {
 
 		this.setLayout(new BorderLayout());		
 		
@@ -392,14 +392,14 @@ public class IssuesBrowser extends JPanel implements FileActionAware {
         
         JButton h = HorizontalGraphitePanel.createButton(null, null, null);
         h.setAction(new JTablePropertyAction("CMARGIN-",  csvTable, JTablePropertyAction.ACTION_DECREASE_COLUMN_MARGIN, null));
-        south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(g, h)));        
+        south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(h, g)));        
 
         JButton i = HorizontalGraphitePanel.createButton(null, null, null);
         i.setAction(new JTablePropertyAction("RMARGIN+",  csvTable, JTablePropertyAction.ACTION_INCREASE_ROW_MARGIN, null));
         
         JButton j = HorizontalGraphitePanel.createButton(null, null, null);
         j.setAction(new JTablePropertyAction("RMARGIN-",  csvTable, JTablePropertyAction.ACTION_DECREASE_ROW_MARGIN, null));
-        south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(i, j)));        
+        south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(j, i)));        
                 
         this.glassPaneButton = HorizontalGraphitePanel.decorateButton(new JButton("GLASS PANE"), null, null);
         south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(this.glassPaneButton)));
