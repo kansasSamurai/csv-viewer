@@ -28,6 +28,10 @@ public class AbstractTableCellRenderer extends DefaultTableCellRenderer {
     
     private static final Border BORDER_FIX = BorderFactory.createEmptyBorder(6, 0, 1, 0);
     
+    protected AbstractTableCellRenderer(Font font) {
+    	if (font != null) this.customFont = font;
+    }
+    
 	@Override
     public Component getTableCellRendererComponent(JTable table, Object value,
             boolean isSelected, boolean hasFocus, int row, int column) {

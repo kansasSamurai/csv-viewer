@@ -9,21 +9,18 @@ import java.util.Enumeration;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-//import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 
-//import net.sourceforge.napkinlaf.NapkinLookAndFeel;
-//import net.sourceforge.napkinlaf.NapkinTheme;
 import org.jwellman.foundation.swing.IWindow;
 import org.jwellman.foundation.swing.XFrame;
 import org.jwellman.foundation.swing.XInternalFrame;
 
 import com.nilo.plaf.nimrod.NimRODLookAndFeel;
 import com.nilo.plaf.nimrod.NimRODTheme;
+//import javax.swing.LookAndFeel;
+//import net.sourceforge.napkinlaf.NapkinLookAndFeel;
+//import net.sourceforge.napkinlaf.NapkinTheme;
 
 /**
  * The most basic of Swing initialization requirements.
@@ -146,7 +143,9 @@ public Foundation init(uContext c) {
                         	case 3:                        		
                         		// greyscale , blueberry , NimRODThemeFile_rix_mint_segoeui
                         		// themes/nimrod/NimRODThemeFile_rix_mint_segoeui.theme
-                        		nt = new NimRODTheme("NimRODThemeFile_rix_royale_calibri.theme");
+                        		// themes/nimrod/NimRODThemeFile_rix_royale_calibri.theme
+                        		// themes/nimrod/NimRODThemeFile_ocean_light_segoe.theme
+                        		nt = new NimRODTheme("themes/nimrod/NimRODThemeFile_rix_magenta_calibri.theme");
                         		NimRODLF = new NimRODLookAndFeel();
                         		NimRODLookAndFeel.setCurrentTheme(nt);
                         		UIManager.setLookAndFeel(NimRODLF);                        		

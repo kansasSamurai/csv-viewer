@@ -24,7 +24,7 @@ public class NumberCellRenderer extends AbstractTableCellRenderer  {
 	}
 	
 	public NumberCellRenderer(Font font) {
-    	if (font != null) this.customFont = font;
+    	super(font);
     	setHorizontalAlignment(SwingConstants.RIGHT);	
 	}
 	

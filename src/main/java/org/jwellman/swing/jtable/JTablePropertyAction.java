@@ -1,6 +1,5 @@
 package org.jwellman.swing.jtable;
 
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
@@ -8,7 +7,6 @@ import javax.swing.AbstractButton;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
-import org.assertj.core.data.Offset;
 import org.jwellman.utility.Limit;
 
 /**
@@ -73,8 +71,6 @@ public class JTablePropertyAction extends AbstractAction {
         
     	int i = 0;
     	
-    	Dimension dim = null;
-    	
         TableColumn column = null; // Reusable TableColumn reference
         
         AbstractButton button = null; // A lot of actions/properties can come only from buttons
@@ -122,26 +118,12 @@ public class JTablePropertyAction extends AbstractAction {
             	  .getColumnModel()
             	    .setColumnMargin(Limit.incrementOf(i).to(100));
             	
-//            	dim = target.getIntercellSpacing();
-//            	dim = new Dimension(
-//            			Limit.incrementOf(dim.width).to(100), 
-//            			dim.height); //Limit.incrementOf(dim.height).to(100));
-//            	target.setIntercellSpacing(dim);
-//            	i = target.getColumnModel().getColumnMargin();
-//            	target.getColumnModel().setColumnMargin(++i);
             	break;
             case ACTION_DECREASE_COLUMN_MARGIN:
             	i = target.getColumnModel().getColumnMargin();
             	target
             	  .getColumnModel()
             	    .setColumnMargin(Limit.decrementOf(i).to(0));
-//            	dim = target.getIntercellSpacing();
-//            	dim = new Dimension(
-//            			Limit.decrementOf(dim.width).to(0), 
-//            			dim.height); // Limit.decrementOf(dim.height).to(0));
-//            	target.setIntercellSpacing(dim);
-//            	i = target.getColumnModel().getColumnMargin();
-//            	target.getColumnModel().setColumnMargin((i < 1) ? 0 : --i);
             	break;
             case ACTION_TOGGLE_COLUMNSELECTION:
             	final boolean ison = target.getColumnSelectionAllowed();

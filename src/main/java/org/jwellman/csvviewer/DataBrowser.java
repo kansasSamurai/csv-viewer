@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
@@ -12,6 +13,8 @@ import java.awt.Toolkit;
 import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,6 +39,10 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
+
+import jiconfont.swing.IconFontSwing;
+import jiconfont.icons.FontAwesome;
+import jiconfont.icons.GoogleMaterialDesignIcons;
 
 import org.jdesktop.swingx.JXTable;
 import org.jwellman.csvviewer.models.Person;
@@ -107,6 +114,8 @@ public class DataBrowser extends JPanel implements FileActionAware {
     private static final Font FONT_SEGOE_UI = new Font("Segoe UI", Font.BOLD, 12);
 
     private static final Color COLOR_GREY_MED = new Color(136,136,136);
+    
+    private static final Color COLOR_EAST_TEXT = new Color(0xcdcdcd);
     
     public DataBrowser() {
 
@@ -290,14 +299,14 @@ public class DataBrowser extends JPanel implements FileActionAware {
         boolean customizeHeader = false;
         if (customizeHeader) {
             final NumberCellRenderer hdrRenderer = new NumberCellRenderer("Consolas", "dummy");
-            hdrRenderer.setForeground(Color.white);
-            hdrRenderer.setBackground(COLOR_GREY_MED);        
-            hdrRenderer.setFont(FONT_SEGOE_UI);
-            //hdrRenderer.setBorder(BORDER_ETCHED);
+            // hdrRenderer.setForeground(Color.white);
+            // hdrRenderer.setBackground(COLOR_GREY_MED);        
+            // hdrRenderer.setFont(FONT_SEGOE_UI);
+            hdrRenderer.setBorder(BORDER_ETCHED); // DefaultTableCellRenderer does not honor a user Border :(
             hdrRenderer.setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
             hdrRenderer.setVerticalAlignment(DefaultTableCellRenderer.BOTTOM);
             csvTable.getTableHeader().setDefaultRenderer(hdrRenderer);
-            csvTable.getTableHeader().setBorder(null);
+            csvTable.getTableHeader().setBorder(BORDER_ETCHED);
         	//csvTable.setBorder(BORDER_ETCHED);
         }
 //        // csvTable.getTableHeader().setFont(cellRenderer.getFont());
@@ -320,6 +329,21 @@ public class DataBrowser extends JPanel implements FileActionAware {
     }
     
 	private JPanel createEasternPanel() {
+		
+		Font font = null;
+		try {
+			InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream("com/fontawesome/Font Awesome 5 Free-Solid-900.otf");
+			font = Font.createFont(Font.TRUETYPE_FONT, stream);
+			font = font.deriveFont(28f);
+			// font = font.deriveFont(Font.BOLD, 40);
+			stream.close();
+		} catch (FontFormatException | IOException e1) {
+			e1.printStackTrace();
+		}
+		
+		IconFontSwing.register(FontAwesome.getIconFont());
+		IconFontSwing.register(GoogleMaterialDesignIcons.getIconFont());
+		
 		JPanel actions = new JPanel();
 		actions.setLayout(new BorderLayout()); //(new BoxLayout(actions, BoxLayout.PAGE_AXIS));
 		actions.setBorder( BorderFactory.createCompoundBorder(BORDER_EMPTY, BORDER_ETCHED) );
@@ -367,39 +391,52 @@ public class DataBrowser extends JPanel implements FileActionAware {
 		JPanel delimiter = this.createDelimiter();
 		south.add(delimiter);
 				
-		JToggleButton a = (JToggleButton) HorizontalGraphitePanel.decorateButton(new JToggleButton(), null, null);
-		a.setAction(new JTablePropertyAction("CLEAR SELECTION",  csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION, null));
-		south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(a)));
-
         JToggleButton b = (JToggleButton) HorizontalGraphitePanel.decorateButton(new JToggleButton(), null, null);
         b.setAction(new JTablePropertyAction("RESIZE MODE",  csvTable, JTablePropertyAction.ACTION_TOGGLE_AUTORESIZEMODE, null));
         south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(b)));
+
+		JButton a = (JButton) HorizontalGraphitePanel.decorateButton(new JButton(), null, null);
+		a.setAction(new JTablePropertyAction("CLEAR SELECTION",  csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION, null));
+		south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(a)));
 
         JToggleButton c = (JToggleButton) HorizontalGraphitePanel.decorateButton(new JToggleButton(), null, null);
         c.setAction(new JTablePropertyAction("COLUMN SELECTION",  csvTable, JTablePropertyAction.ACTION_TOGGLE_COLUMNSELECTION, null));
         south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(c)));
 
         JToggleButton d = (JToggleButton) HorizontalGraphitePanel.createToggleButton(null, null, null);
+        //d.setFont(font); 
+        //d.setText("\uf0ab\uf039\uf038\uf13d"); d.setForeground(Color.white);
         d.setAction(new JTablePropertyAction("GRID",  csvTable, JTablePropertyAction.ACTION_TOGGLE_GRID, null));
+        d.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.BORDER_ALL, 18, COLOR_EAST_TEXT));
+        // GRID_ON / OFF
         JToggleButton e = HorizontalGraphitePanel.createToggleButton(null, null, null);
         e.setAction(new JTablePropertyAction("HORZ",  csvTable, JTablePropertyAction.ACTION_TOGGLE_HORIZONTAL_LINES, null));
+        e.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.BORDER_BOTTOM, 18, COLOR_EAST_TEXT));
         JToggleButton f = HorizontalGraphitePanel.createToggleButton(null, null, null);
         f.setAction(new JTablePropertyAction("VERT",  csvTable, JTablePropertyAction.ACTION_TOGGLE_VERTICAL_LINES, null));
+        f.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.BORDER_VERTICAL, 18, COLOR_EAST_TEXT));
         south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(d, e, f)));
 
-        JButton g = HorizontalGraphitePanel.createButton(null, null, null);
+        final Dimension dimicon = new Dimension(30,1);
+        JButton g = HorizontalGraphitePanel.createButton(null, null, dimicon);
         g.setAction(new JTablePropertyAction("CMARGIN+",  csvTable, JTablePropertyAction.ACTION_INCREASE_COLUMN_MARGIN, null));
+        g.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_INDENT_INCREASE, 18, COLOR_EAST_TEXT));
+        g.setText("");
         
-        JButton h = HorizontalGraphitePanel.createButton(null, null, null);
+        JButton h = HorizontalGraphitePanel.createButton(null, null, dimicon);
         h.setAction(new JTablePropertyAction("CMARGIN-",  csvTable, JTablePropertyAction.ACTION_DECREASE_COLUMN_MARGIN, null));
-        south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(h, g)));        
-
-        JButton i = HorizontalGraphitePanel.createButton(null, null, null);
-        i.setAction(new JTablePropertyAction("RMARGIN+",  csvTable, JTablePropertyAction.ACTION_INCREASE_ROW_MARGIN, null));
+        h.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_INDENT_DECREASE, 18, COLOR_EAST_TEXT));
+        h.setText("");
         
-        JButton j = HorizontalGraphitePanel.createButton(null, null, null);
-        j.setAction(new JTablePropertyAction("RMARGIN-",  csvTable, JTablePropertyAction.ACTION_DECREASE_ROW_MARGIN, null));
-        south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(j, i)));        
+        JButton i = HorizontalGraphitePanel.createButton(null, null, dimicon);
+        i.setAction(new JTablePropertyAction(" +",  csvTable, JTablePropertyAction.ACTION_INCREASE_ROW_MARGIN, null));
+        i.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_LINE_SPACING, 18, COLOR_EAST_TEXT));
+        
+        JButton j = HorizontalGraphitePanel.createButton(null, null, dimicon);
+        j.setAction(new JTablePropertyAction(" -",  csvTable, JTablePropertyAction.ACTION_DECREASE_ROW_MARGIN, null));
+        j.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_LINE_SPACING, 18, COLOR_EAST_TEXT));
+
+        south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(h, g, j, i)));        
                 
         this.glassPaneButton = HorizontalGraphitePanel.decorateButton(new JButton("GLASS PANE"), null, null);
         south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(this.glassPaneButton)));

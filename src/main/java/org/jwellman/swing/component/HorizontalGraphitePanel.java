@@ -33,7 +33,14 @@ public class HorizontalGraphitePanel extends JComponent {
 	 */
 	public static final GraphiteButtonUI BUTTONUI = new GraphiteButtonUI();
 	
-    // the hard-coded preferred height. ideally this would be derived from the font size.
+	// A default dimension to use for buttons added to this panel; change with accessor
+	private static Dimension BUTTON_DIMENSION = new Dimension(80, 1);
+	
+    public static void setButtonDimension(Dimension d) {
+		BUTTON_DIMENSION = d;
+	}
+
+	// the hard-coded preferred height. ideally this would be derived from the font size.
     private static int HEADER_HEIGHT = 25; // 25 is the original value
 
     // http://www.colorzilla.com/colors/393939+2e2e2e+232323+282828+171717+292929+353535+383838+2c2c2c+363636
@@ -167,7 +174,7 @@ public class HorizontalGraphitePanel extends JComponent {
     public static <T extends AbstractButton> T decorateButton(T b, Font font, Dimension size) {
         b.setUI(BUTTONUI); // this *must* be first
         b.setFont((font != null) ? font : FONT_DEFAULT );
-        b.setMinimumSize((size != null) ? size : (size = new Dimension(90, 1)));
+        b.setMinimumSize((size != null) ? size : (size = BUTTON_DIMENSION));
         b.setPreferredSize(size);
         b.setMaximumSize(size);
         b.setBorder(null); // Some L&F (i.e. Metal) apply borders to buttons by default; Nimbus does not
