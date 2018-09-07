@@ -53,12 +53,16 @@ import org.jwellman.foundation.swing.XToggleButton;
 import org.jwellman.swing.actions.FileActionAware;
 import org.jwellman.swing.component.HorizontalGraphitePanel;
 import org.jwellman.swing.dnd.FileDropTarget;
+import org.jwellman.swing.font.FontFactory;
 import org.jwellman.swing.jtable.BetterJTable;
 import org.jwellman.swing.jtable.JTablePropertyAction;
 import org.jwellman.swing.jtable.TableColumnManager;
 import org.jwellman.swing.jtable.XTable;
 import org.jwellman.swing.jtable.renderer.NumberCellRenderer;
+import org.jwellman.swing.jtable.renderer.StringCellRenderer;
 import org.jwellman.swing.layout.SpringUtilities;
+import org.jwellman.swing.misc.DataHint;
+import org.jwellman.swing.misc.DataHintAware;
 import org.jwellman.utility.Limit;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -77,15 +81,21 @@ public class DataBrowser extends JPanel implements FileActionAware {
 
     private static final long serialVersionUID = 1L;
     
-    private JTable csvTable = new XTable(); // new JXTable(tableModel); // JTable(tableModel); // BetterJTable
+    private JTable tblCsvData = new JXTable(); // new JXTable(tableModel); // JTable(tableModel); // BetterJTable
 
 	private TableModel csvTableModel;
     
     private TableColumnManager csvTableColumnManager;
 
-	private JButton glassPaneButton;
+	private JButton btnGlassPane;
     
-    private JPanel boxlayout;
+    private JPanel boxpnlColumns;
+
+    private final Font datafont = FontFactory.getFont("Consolas", Font.PLAIN, 12);
+
+    private final NumberCellRenderer numRenderer = new NumberCellRenderer(datafont);
+    
+    private final StringCellRenderer strRenderer = new StringCellRenderer(datafont);
     
     private static final Border BORDER_EMPTY = BorderFactory.createEmptyBorder(5, 5, 5, 5);
 
@@ -183,10 +193,10 @@ public class DataBrowser extends JPanel implements FileActionAware {
     }
     
 	private JComponent createCsvTableV1(File file) {
-        final JScrollPane pane = (csvTable instanceof BetterJTable) 
-                ? BetterJTable.createStripedJScrollPane(csvTable) 
-                : new JScrollPane(csvTable);
-        if (csvTable instanceof BetterJTable) {
+        final JScrollPane pane = (tblCsvData instanceof BetterJTable) 
+                ? BetterJTable.createStripedJScrollPane(tblCsvData) 
+                : new JScrollPane(tblCsvData);
+        if (tblCsvData instanceof BetterJTable) {
             // do nothing (yet?)
         } else {
         }
@@ -219,7 +229,7 @@ public class DataBrowser extends JPanel implements FileActionAware {
 		EventTableModel<Person> tableModel = new EventTableModel<>(personList, personTableFormat);
 		// csvTable = new JTable(tableModel); // new JXTable(tableModel); // JTable(tableModel);
 		// ^^^ this line was moved to initializer and replaced with following line
-		csvTable.setModel(tableModel);		
+		tblCsvData.setModel(tableModel);		
         // Any modifications to the ‘people’ list is automatically reflected in the csvTable
 		
 		boolean fillpanel = false;
@@ -228,7 +238,7 @@ public class DataBrowser extends JPanel implements FileActionAware {
 		    // This is generally undesirable as most delimited files will be wider
 		    // than the default size of the panel and overflow/scrolling is desirable.
 		} else {
-	        csvTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+	        tblCsvData.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		}
 		
 		final NumberCellRenderer cellRenderer = new NumberCellRenderer("Consolas", "dummy"); 
@@ -237,20 +247,20 @@ public class DataBrowser extends JPanel implements FileActionAware {
 		// following are interesting (* = not monospaced):
 		// OCR A Extended , HP Simplified* , LuzSans-Book* , Rockwell* , Roboto*
 		// Sitka Text* , X-Files*
-		for (int i=0; i<csvTable.getColumnCount(); i++) {
-			final String cname = csvTable.getColumnName(i);
-			csvTable.getColumn(cname).setCellRenderer(cellRenderer);
+		for (int i=0; i<tblCsvData.getColumnCount(); i++) {
+			final String cname = tblCsvData.getColumnName(i);
+			tblCsvData.getColumn(cname).setCellRenderer(cellRenderer);
 		}
 
-		csvTable.getTableHeader().setFont(cellRenderer.getFont());
+		tblCsvData.getTableHeader().setFont(cellRenderer.getFont());
 		//csvTable.getTableHeader().setDefaultRenderer(cellRenderer);
 		//csvTable.setColumnSelectionAllowed(true);
 
-		if (csvTable instanceof JTable) {
-	        this.resizeColumnWidth(csvTable);
+		if (tblCsvData instanceof JTable) {
+	        this.resizeColumnWidth(tblCsvData);
 		    
-		} else if (csvTable instanceof JXTable) {
-		    final JXTable t = (JXTable) csvTable;
+		} else if (tblCsvData instanceof JXTable) {
+		    final JXTable t = (JXTable) tblCsvData;
 	        t.packAll();
 	        t.setFillsViewportHeight(false);
 	        t.setColumnControlVisible(true);
@@ -261,20 +271,20 @@ public class DataBrowser extends JPanel implements FileActionAware {
 	}
 
     private JComponent createCsvTableV2(File file) {
-        final JScrollPane pane = (csvTable instanceof BetterJTable) 
-                ? BetterJTable.createStripedJScrollPane(csvTable) 
-                : new JScrollPane(csvTable);
-        if (csvTable instanceof BetterJTable) {
+        final JScrollPane pane = (tblCsvData instanceof BetterJTable) 
+                ? BetterJTable.createStripedJScrollPane(tblCsvData) 
+                : new JScrollPane(tblCsvData);
+        if (tblCsvData instanceof BetterJTable) {
             // do nothing (yet?)
         } else {
         }
         pane.setBorder( BORDER_COMPOUND );
 
-        csvTable.setModel(csvTableModel = new DelimitedFileTableModel(file, ","));
-		csvTable.setShowVerticalLines(false);
-		csvTable.setRowMargin(1); csvTable.getColumnModel().setColumnMargin(0);
+        tblCsvData.setModel(csvTableModel = new DelimitedFileTableModel(file, ","));
+		tblCsvData.setShowVerticalLines(false);
+		tblCsvData.setRowMargin(1); tblCsvData.getColumnModel().setColumnMargin(0);
         
-        csvTableColumnManager = new TableColumnManager(csvTable);
+        csvTableColumnManager = new TableColumnManager(tblCsvData);
         
         boolean fillpanel = false;
         if (fillpanel) {
@@ -282,18 +292,22 @@ public class DataBrowser extends JPanel implements FileActionAware {
             // This is generally undesirable as most delimited files will be wider
             // than the default size of the panel and overflow/scrolling is desirable.
         } else {
-            csvTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+            tblCsvData.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         }
         
-        final NumberCellRenderer cellRenderer = new NumberCellRenderer("Consolas", "dummy"); 
         // order of preference: Consolas , Lucida Console , Bitstream Vera Sans Mono 
         // Courier New , Lucida Sans Typewriter
         // following are interesting (* = not monospaced):
         // OCR A Extended , HP Simplified* , LuzSans-Book* , Rockwell* , Roboto*
         // Sitka Text* , X-Files*
-        for (int i=0; i<csvTable.getColumnCount(); i++) {
-            final String cname = csvTable.getColumnName(i);
-            csvTable.getColumn(cname).setCellRenderer(cellRenderer);
+        final List<DataHint> hints = ((DataHintAware) csvTableModel).getDataHints();
+        for (int i=0; i<tblCsvData.getColumnCount(); i++) {
+            final String cname = tblCsvData.getColumnName(i);
+        	if (hints.get(i).equals(DataHint.NUMERIC)) {
+	            tblCsvData.getColumn(cname).setCellRenderer(numRenderer);
+        	} else {
+	            tblCsvData.getColumn(cname).setCellRenderer(strRenderer);        		
+        	}
         }
 
         boolean customizeHeader = false;
@@ -305,8 +319,8 @@ public class DataBrowser extends JPanel implements FileActionAware {
             hdrRenderer.setBorder(BORDER_ETCHED); // DefaultTableCellRenderer does not honor a user Border :(
             hdrRenderer.setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
             hdrRenderer.setVerticalAlignment(DefaultTableCellRenderer.BOTTOM);
-            csvTable.getTableHeader().setDefaultRenderer(hdrRenderer);
-            csvTable.getTableHeader().setBorder(BORDER_ETCHED);
+            tblCsvData.getTableHeader().setDefaultRenderer(hdrRenderer);
+            tblCsvData.getTableHeader().setBorder(BORDER_ETCHED);
         	//csvTable.setBorder(BORDER_ETCHED);
         }
 //        // csvTable.getTableHeader().setFont(cellRenderer.getFont());
@@ -314,11 +328,11 @@ public class DataBrowser extends JPanel implements FileActionAware {
 //        csvTable.getTableHeader().setBackground(COLOR_GREY_MED);
 //        csvTable.getTableHeader().setFont(FONT_SEGOE_UI);
 
-        if (csvTable instanceof JTable) {
-            this.resizeColumnWidth(csvTable);
+        if (tblCsvData instanceof JTable) {
+            this.resizeColumnWidth(tblCsvData);
             
-        } else if (csvTable instanceof JXTable) {
-            final JXTable t = (JXTable) csvTable;
+        } else if (tblCsvData instanceof JXTable) {
+            final JXTable t = (JXTable) tblCsvData;
             t.packAll();
             t.setFillsViewportHeight(false);
             t.setColumnControlVisible(true);
@@ -359,8 +373,8 @@ public class DataBrowser extends JPanel implements FileActionAware {
             center.add(HorizontalGraphitePanel.createDefault(Arrays.asList(b)));
             break;
         case 2:
-            boxlayout = new JPanel();
-            boxlayout.setLayout(new BoxLayout(boxlayout, BoxLayout.Y_AXIS));
+            boxpnlColumns = new JPanel();
+            boxpnlColumns.setLayout(new BoxLayout(boxpnlColumns, BoxLayout.Y_AXIS));
             
             // Actually creating these now
 //            boxlayout.add(XCheckBox.create().setFont(FONT_SEGOE_UI).setAction(new JTablePropertyAction("Name",  csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION, null)).get());
@@ -369,7 +383,7 @@ public class DataBrowser extends JPanel implements FileActionAware {
 //            boxlayout.add(XCheckBox.create().setFont(FONT_SEGOE_UI).setAction(new JTablePropertyAction("Day",   csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION, null)).get());
 //            boxlayout.add(XCheckBox.create().setFont(FONT_SEGOE_UI).setAction(new JTablePropertyAction("Year",  csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION, null)).get());
 
-            JScrollPane pane = new JScrollPane(boxlayout);
+            JScrollPane pane = new JScrollPane(boxpnlColumns);
             pane.setBorder(null); // This may only be necessary when using Nimbus L&F?
             center.add(pane);
             break;
@@ -392,54 +406,55 @@ public class DataBrowser extends JPanel implements FileActionAware {
 		south.add(delimiter);
 				
         JToggleButton b = (JToggleButton) HorizontalGraphitePanel.decorateButton(new JToggleButton(), null, null);
-        b.setAction(new JTablePropertyAction("RESIZE MODE",  csvTable, JTablePropertyAction.ACTION_TOGGLE_AUTORESIZEMODE, null));
+        b.setAction(new JTablePropertyAction("RESIZE MODE",  tblCsvData, JTablePropertyAction.ACTION_TOGGLE_AUTORESIZEMODE, null));
         south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(b)));
 
 		JButton a = (JButton) HorizontalGraphitePanel.decorateButton(new JButton(), null, null);
-		a.setAction(new JTablePropertyAction("CLEAR SELECTION",  csvTable, JTablePropertyAction.ACTION_CLEAR_SELECTION, null));
+		a.setAction(new JTablePropertyAction("CLEAR SELECTION",  tblCsvData, JTablePropertyAction.ACTION_CLEAR_SELECTION, null));
 		south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(a)));
 
         JToggleButton c = (JToggleButton) HorizontalGraphitePanel.decorateButton(new JToggleButton(), null, null);
-        c.setAction(new JTablePropertyAction("COLUMN SELECTION",  csvTable, JTablePropertyAction.ACTION_TOGGLE_COLUMNSELECTION, null));
+        c.setAction(new JTablePropertyAction("COLUMN SELECTION",  tblCsvData, JTablePropertyAction.ACTION_TOGGLE_COLUMNSELECTION, null));
         south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(c)));
 
         JToggleButton d = (JToggleButton) HorizontalGraphitePanel.createToggleButton(null, null, null);
         //d.setFont(font); 
         //d.setText("\uf0ab\uf039\uf038\uf13d"); d.setForeground(Color.white);
-        d.setAction(new JTablePropertyAction("GRID",  csvTable, JTablePropertyAction.ACTION_TOGGLE_GRID, null));
+        d.setAction(new JTablePropertyAction("GRID",  tblCsvData, JTablePropertyAction.ACTION_TOGGLE_GRID, null));
         d.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.BORDER_ALL, 18, COLOR_EAST_TEXT));
         // GRID_ON / OFF
         JToggleButton e = HorizontalGraphitePanel.createToggleButton(null, null, null);
-        e.setAction(new JTablePropertyAction("HORZ",  csvTable, JTablePropertyAction.ACTION_TOGGLE_HORIZONTAL_LINES, null));
+        e.setAction(new JTablePropertyAction("HORZ",  tblCsvData, JTablePropertyAction.ACTION_TOGGLE_HORIZONTAL_LINES, null));
         e.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.BORDER_BOTTOM, 18, COLOR_EAST_TEXT));
+        e.getModel().setSelected(true);
         JToggleButton f = HorizontalGraphitePanel.createToggleButton(null, null, null);
-        f.setAction(new JTablePropertyAction("VERT",  csvTable, JTablePropertyAction.ACTION_TOGGLE_VERTICAL_LINES, null));
+        f.setAction(new JTablePropertyAction("VERT",  tblCsvData, JTablePropertyAction.ACTION_TOGGLE_VERTICAL_LINES, null));
         f.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.BORDER_VERTICAL, 18, COLOR_EAST_TEXT));
         south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(d, e, f)));
 
         final Dimension dimicon = new Dimension(30,1);
         JButton g = HorizontalGraphitePanel.createButton(null, null, dimicon);
-        g.setAction(new JTablePropertyAction("CMARGIN+",  csvTable, JTablePropertyAction.ACTION_INCREASE_COLUMN_MARGIN, null));
+        g.setAction(new JTablePropertyAction("CMARGIN+",  tblCsvData, JTablePropertyAction.ACTION_INCREASE_COLUMN_MARGIN, null));
         g.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_INDENT_INCREASE, 18, COLOR_EAST_TEXT));
         g.setText("");
         
         JButton h = HorizontalGraphitePanel.createButton(null, null, dimicon);
-        h.setAction(new JTablePropertyAction("CMARGIN-",  csvTable, JTablePropertyAction.ACTION_DECREASE_COLUMN_MARGIN, null));
+        h.setAction(new JTablePropertyAction("CMARGIN-",  tblCsvData, JTablePropertyAction.ACTION_DECREASE_COLUMN_MARGIN, null));
         h.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_INDENT_DECREASE, 18, COLOR_EAST_TEXT));
         h.setText("");
         
         JButton i = HorizontalGraphitePanel.createButton(null, null, dimicon);
-        i.setAction(new JTablePropertyAction(" +",  csvTable, JTablePropertyAction.ACTION_INCREASE_ROW_MARGIN, null));
+        i.setAction(new JTablePropertyAction(" +",  tblCsvData, JTablePropertyAction.ACTION_INCREASE_ROW_MARGIN, null));
         i.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_LINE_SPACING, 18, COLOR_EAST_TEXT));
         
         JButton j = HorizontalGraphitePanel.createButton(null, null, dimicon);
-        j.setAction(new JTablePropertyAction(" -",  csvTable, JTablePropertyAction.ACTION_DECREASE_ROW_MARGIN, null));
+        j.setAction(new JTablePropertyAction(" -",  tblCsvData, JTablePropertyAction.ACTION_DECREASE_ROW_MARGIN, null));
         j.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_LINE_SPACING, 18, COLOR_EAST_TEXT));
 
         south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(h, g, j, i)));        
                 
-        this.glassPaneButton = HorizontalGraphitePanel.decorateButton(new JButton("GLASS PANE"), null, null);
-        south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(this.glassPaneButton)));
+        this.btnGlassPane = HorizontalGraphitePanel.decorateButton(new JButton("GLASS PANE"), null, null);
+        south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(this.btnGlassPane)));
 
         actions.add(north, BorderLayout.NORTH);
         actions.add(south, BorderLayout.SOUTH);
@@ -542,9 +557,10 @@ public class DataBrowser extends JPanel implements FileActionAware {
     }
 
     /**
-     * As taken from https://stackoverflow.com/questions/17627431/auto-resizing-the-jtable-column-widths
+     * Thanks to:
+     * https://stackoverflow.com/questions/17627431/auto-resizing-the-jtable-column-widths
      * 
-     * @param csvTable
+     * @param tblCsvData
      */
     public void resizeColumnWidth(JTable table) {
         final TableColumnModel columnModel = table.getColumnModel();
@@ -562,31 +578,9 @@ public class DataBrowser extends JPanel implements FileActionAware {
             columnModel.getColumn(column).setPreferredWidth(width);
         }
     }
-    
-    private class IssueTableFormat implements TableFormat<Person> {
-
-        public int getColumnCount() {
-            return 2;
-        }
-        
-        public String getColumnName(int column) {
-            if (column == 0)      return "Name";
-            else if (column == 1) return "Age";
-
-            throw new IllegalStateException();
-        }
-        
-        public Object getColumnValue(Person issue, int column) {
-            if(column == 0)      return issue.getName();
-            else if(column == 1) return issue.getAge();
-
-            throw new IllegalStateException();
-        }
-    }
 
     @Override
     public void doSingleFileAction(File file) {
-        //jtextarea.read(new FileReader(file),null);
                 
         final BorderLayout layout = (BorderLayout) this.getLayout();
         this.remove(layout.getLayoutComponent(BorderLayout.CENTER));
@@ -596,18 +590,13 @@ public class DataBrowser extends JPanel implements FileActionAware {
             // checkbox.setFont(FONT_SEGOE_UI);
         	Dimension d = checkbox.getPreferredSize(); d.width = Short.MAX_VALUE;
         	checkbox.setMaximumSize(d);
-            boxlayout.add(checkbox);
+            boxpnlColumns.add(checkbox);
         }
-//        final URL csv = file.toURI().toURL(); // new URL("http://myapp/employees.csv");
-//        DefaultTableModelExt data = new DefaultTableModelExt(url);
-//        TableModelExtTextLoader loader = new TableModelExtTextLoader(",", false, 75);
-//        data.setLoader(loader);
-//        data.startLoading();
-        
-        if (csvTable instanceof JTable) {
+
+        if (tblCsvData instanceof JTable) {
             //
-        } else if (csvTable instanceof JXTable) {
-            final JXTable t = (JXTable) csvTable;
+        } else if (tblCsvData instanceof JXTable) {
+            final JXTable t = (JXTable) tblCsvData;
             t.setColumnControlVisible(false);
         }
         
@@ -633,40 +622,40 @@ public class DataBrowser extends JPanel implements FileActionAware {
     }
     
     private void updateRowHeights_slower() {
-        for (int row = 0; row < csvTable.getRowCount(); row++) {
+        for (int row = 0; row < tblCsvData.getRowCount(); row++) {
         	
-            int rowHeight = csvTable.getRowHeight(); 
+            int rowHeight = tblCsvData.getRowHeight(); 
             System.out.print("row height before: " + rowHeight);
 
-            for (int column = 0; column < csvTable.getColumnCount(); column++) {
-                Component comp = csvTable.prepareRenderer(csvTable.getCellRenderer(row, column), row, column);
+            for (int column = 0; column < tblCsvData.getColumnCount(); column++) {
+                Component comp = tblCsvData.prepareRenderer(tblCsvData.getCellRenderer(row, column), row, column);
                 rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);
             }
 
             System.out.println(", after: " + rowHeight);
-            csvTable.setRowHeight(row, rowHeight);
+            tblCsvData.setRowHeight(row, rowHeight);
         }
     }
     
     private void updateRowHeights_fast() {
-        for (int row = 0; row < csvTable.getRowCount(); row++)
+        for (int row = 0; row < tblCsvData.getRowCount(); row++)
         {
-            int rowHeight = csvTable.getRowHeight(); 
+            int rowHeight = tblCsvData.getRowHeight(); 
             System.out.print("row height before: " + rowHeight);
 
             //assume first column is sufficient to adjust the entire row
             for (int column = 0; column < 1; column++) {
-                Component comp = csvTable.prepareRenderer(csvTable.getCellRenderer(row, column), row, column);
+                Component comp = tblCsvData.prepareRenderer(tblCsvData.getCellRenderer(row, column), row, column);
                 rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);
             }
 
             System.out.println(", after: " + rowHeight);
-            csvTable.setRowHeight(row, rowHeight);
+            tblCsvData.setRowHeight(row, rowHeight);
         }
     }
     
 	public JButton getGlassPaneButton() {
-		return this.glassPaneButton;
+		return this.btnGlassPane;
 	}
 
 }

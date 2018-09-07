@@ -92,7 +92,7 @@ public Foundation init(uContext c) {
                 final String name = info.getName(); System.out.println(name);
                 if ("Metal".equals(name)) { // Metal, Nimbus, CDE/Motif, Windows , Windows Classic                    
                     
-                    final int version = 5;
+                    final int version = 2;
                     switch (version) {
                         case 1:
                             UIManager.setLookAndFeel(info.getClassName());
@@ -111,7 +111,7 @@ public Foundation init(uContext c) {
                             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                             break;
                         case 5:
-                        	NimRODTheme nt = new NimRODTheme();
+                        	NimRODTheme nt = null;
                         	NimRODLookAndFeel NimRODLF = new NimRODLookAndFeel();
                         	
                         	int theme = 3;
@@ -145,8 +145,7 @@ public Foundation init(uContext c) {
                         		// themes/nimrod/NimRODThemeFile_rix_mint_segoeui.theme
                         		// themes/nimrod/NimRODThemeFile_rix_royale_calibri.theme
                         		// themes/nimrod/NimRODThemeFile_ocean_light_segoe.theme
-                        		nt = new NimRODTheme("themes/nimrod/NimRODThemeFile_rix_magenta_calibri.theme");
-                        		NimRODLF = new NimRODLookAndFeel();
+                        		nt = new NimRODTheme("themes/nimrod/NimRODThemeFile_executive_calibri.theme");
                         		NimRODLookAndFeel.setCurrentTheme(nt);
                         		UIManager.setLookAndFeel(NimRODLF);                        		
                         		break;

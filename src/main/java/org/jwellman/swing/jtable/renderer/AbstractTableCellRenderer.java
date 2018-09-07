@@ -26,7 +26,7 @@ public class AbstractTableCellRenderer extends DefaultTableCellRenderer {
 	
     protected Border cellBorder;
     
-    private static final Border BORDER_FIX = BorderFactory.createEmptyBorder(6, 0, 1, 0);
+    private static final Border BORDER_FIX = BorderFactory.createEmptyBorder(5, 3, 0, 3); // 5, 1, 0, 1   |   6, 0, 1, 0
     
     protected AbstractTableCellRenderer(Font font) {
     	if (font != null) this.customFont = font;
@@ -55,10 +55,19 @@ public class AbstractTableCellRenderer extends DefaultTableCellRenderer {
 		// An empty default implementation.
 	}	
 
-    // For now, lets not provide a getter; i.e. why would you want it? you set it.
-	//	public Border getBorder() {
-	//		return border;
-	//	}
+	/**
+	 * For now, lets not provide a getter; 
+	 * i.e. why would you want it? you set it.
+	 * Finally decided that one possible use case is if
+	 * you set the border using the insets method and later
+	 * need to retrieve the border in a separate piece of code
+	 * (like in an Action).
+	 * 
+	 * @return a Border object for the renderer; may be null
+	 */
+	public Border getBorder() {
+		return this.cellBorder;
+	}
 
     /**
      * Provide a Border around the rendered Component.

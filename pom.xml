@@ -80,6 +80,19 @@
 		    <version>1.6.1</version>
 		</dependency>
 
+	    <dependency>
+	        <groupId>com.mgarin</groupId>
+	        <artifactId>weblaf</artifactId>
+	        <version>1.29</version>
+	    </dependency>
+	
+	    <!-- This is currently only necessary for weblaf (though I may keep) -->
+	    <dependency>
+	        <groupId>com.thoughtworks.xstream</groupId>
+	        <artifactId>xstream</artifactId>
+	        <version>1.4.7</version>
+	    </dependency>
+
         <!-- Not available in maven central; see local repo -->
         <dependency>
             <groupId>com.nilo.plaf</groupId>

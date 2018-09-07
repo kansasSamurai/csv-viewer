@@ -11,13 +11,22 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import org.apache.commons.lang3.math.NumberUtils;
+import org.jwellman.swing.misc.DataHint;
+import org.jwellman.swing.misc.DataHintAware;
 
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 
-public class DelimitedFileTableModel extends AbstractTableModel {
+/**
+ * TODO Option to fix/trim leading/trailing whitespace
+ * TODO Option to treat first line as headings
+ * 
+ * @author rwellman
+ *
+ */
+public class DelimitedFileTableModel extends AbstractTableModel implements DataHintAware {
 
 	private static final long serialVersionUID = 1L;
 
@@ -57,13 +66,14 @@ public class DelimitedFileTableModel extends AbstractTableModel {
 					}
 				}
 			}
+			
 			// assume first record is column headings
-
 			List<String> columnHeadings = new ArrayList<>(records.get(0).length);
-			columnHeadings.add("Line #");
+			columnHeadings.add("Line#");
 			columnHeadings.addAll(Arrays.asList(records.get(0)));			
 			columns.addAll(columnHeadings);
 			records.remove(0); // remove the column headings record
+			dataHints.add(DataHint.STRING); // though numeric, treat line numbers as strings
 			
 			final String[] record = records.get(0);
 			for (String field : record) {
@@ -79,13 +89,11 @@ public class DelimitedFileTableModel extends AbstractTableModel {
 		} finally {
 
 			try {
-
 				if (csvReader != null)
 					csvReader.close();
 
 				if (reader != null)
 					reader.close();
-
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -106,12 +114,10 @@ public class DelimitedFileTableModel extends AbstractTableModel {
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-
 		if (columnIndex == 0)
 			return rowIndex + 1;
-
-		return ((String[]) records.get(rowIndex))[columnIndex - 1];
-
+		else
+			return ((String[]) records.get(rowIndex))[columnIndex - 1];
 	}
 
 	@Override
@@ -119,12 +125,9 @@ public class DelimitedFileTableModel extends AbstractTableModel {
 		return (columns != null) ? columns.get(col) : "TBD";
 	}
 
+	@Override
 	public List<DataHint> getDataHints() {
 		return dataHints;
-	}
-	
-	public enum DataHint {
-		STRING, NUMERIC;
 	}
 	
 }
