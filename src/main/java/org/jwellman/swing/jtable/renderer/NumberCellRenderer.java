@@ -10,7 +10,7 @@ import org.jwellman.swing.font.FontFactory;
  * A renderer for numeric String(s). Right aligns the data.
  * 
  * Note:  It does not make sense to override this class and change the alignment;
- * if that is your goal, override xxx instead.
+ * if that is your goal, override AbstractTableCellRenderer instead.
  * 
  * @author rwellman
  *

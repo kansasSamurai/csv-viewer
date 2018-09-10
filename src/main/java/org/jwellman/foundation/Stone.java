@@ -91,8 +91,14 @@ public Foundation init(uContext c) {
             for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 final String name = info.getName(); System.out.println(name);
                 if ("Metal".equals(name)) { // Metal, Nimbus, CDE/Motif, Windows , Windows Classic                    
-                    
-                    final int version = 2;
+
+                	final int MATCHES_SETTING = 1;
+                	final int WEB_LAF = 2;
+                	final int TBD = 3;
+                	final int SYSTEM_LAF = 4;
+                	final int NIMROD_LAF = 5;
+                	
+                    final int version = MATCHES_SETTING;
                     switch (version) {
                         case 1:
                             UIManager.setLookAndFeel(info.getClassName());
@@ -161,7 +167,7 @@ public Foundation init(uContext c) {
                     // http://robertour.com/2016/04/25/quickly-improving-java-metal-look-feel/
                     // https://thebadprogrammer.com/swing-uimanager-keys/
                     if ("Metal".equals(name)) { // Metal, Nimbus, CDE/Motif, Windows , Windows Classic
-                        setUIFont (new javax.swing.plaf.FontUIResource("Sans Serif",Font.PLAIN,12));
+                        setUIFont( new javax.swing.plaf.FontUIResource("Segoe UI", Font.PLAIN, 14) );
                         UIManager.put("Button.background",  Color.decode("#eeeeee"));
                         UIManager.put("ToggleButton.background",  Color.decode("#eeeeee"));
 //                        UIManager.put("Button.border", new CompoundBorder(new LineBorder(new Color(200, 200, 200)), new EmptyBorder(2, 2, 2, 2)));

@@ -60,3 +60,47 @@ checkbox is not inherently an "action" but its paradigm is virtually the same as
 
 Interesting archivable page:
 <https://docs.oracle.com/cd/E37975_01/user.111240/e17455/java_swing.htm#OJDUG2093>
+
+http://commons.apache.org/
+
+^^^ pull most of these into jpad
+
+                https://dzone.com/articles/java-command-line-interfaces-part-1-apache-commons
+
+ 
+
+Check this out:
+
+https://github.com/apache/incubator-optiq-csv
+
+https://github.com/julianhyde/optiq
+
+^^^ ahhhh... Superceded by Calcite (which I have an earlier email about)
+
+ 
+
+Google: java fastest parse of fixed width format
+
+ 
+
+https://stackoverflow.com/questions/1609807/whats-the-best-way-of-parsing-a-fixed-width-formatted-file-in-java
+
+http://flatworm.sourceforge.net/
+
+http://commons.apache.org/sandbox/commons-flatfile/
+
+https://www.univocity.com/pages/univocity_parsers_tutorial
+
+http://fixedformat4j.ancientprogramming.com/
+                https://github.com/jeyben/fixedformat4j
+                http://jeyben.github.io/fixedformat4j/
+
+ 
+
+http://commons.apache.org/proper/commons-csv/
+
+http://commons.apache.org/sandbox/commons-finder/
+
+http://commons.apache.org/dormant.html > Launcher
+
+ 

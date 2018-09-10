@@ -73,7 +73,7 @@ public class DelimitedFileTableModel extends AbstractTableModel implements DataH
 			columnHeadings.addAll(Arrays.asList(records.get(0)));			
 			columns.addAll(columnHeadings);
 			records.remove(0); // remove the column headings record
-			dataHints.add(DataHint.STRING); // though numeric, treat line numbers as strings
+			dataHints.add(DataHint.NUMERIC); // though numeric, treat line numbers as strings
 			
 			final String[] record = records.get(0);
 			for (String field : record) {

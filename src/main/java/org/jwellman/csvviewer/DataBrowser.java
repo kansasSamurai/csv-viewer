@@ -91,7 +91,7 @@ public class DataBrowser extends JPanel implements FileActionAware {
     
     private JPanel boxpnlColumns;
 
-    private final Font datafont = FontFactory.getFont("Consolas", Font.PLAIN, 12);
+    private final Font datafont = FontFactory.getFont("Consolas", Font.PLAIN, 14);
 
     private final NumberCellRenderer numRenderer = new NumberCellRenderer(datafont);
     
@@ -126,6 +126,8 @@ public class DataBrowser extends JPanel implements FileActionAware {
     private static final Color COLOR_GREY_MED = new Color(136,136,136);
     
     private static final Color COLOR_EAST_TEXT = new Color(0xcdcdcd);
+
+    private boolean printedCellSize = false;
     
     public DataBrowser() {
 
@@ -641,7 +643,8 @@ public class DataBrowser extends JPanel implements FileActionAware {
         for (int row = 0; row < tblCsvData.getRowCount(); row++)
         {
             int rowHeight = tblCsvData.getRowHeight(); 
-            System.out.print("row height before: " + rowHeight);
+            if (!printedCellSize)
+                System.out.print("row height before: " + rowHeight);
 
             //assume first column is sufficient to adjust the entire row
             for (int column = 0; column < 1; column++) {
@@ -649,8 +652,12 @@ public class DataBrowser extends JPanel implements FileActionAware {
                 rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);
             }
 
-            System.out.println(", after: " + rowHeight);
+            if (!printedCellSize)
+                System.out.println(", after: " + rowHeight);
+            
             tblCsvData.setRowHeight(row, rowHeight);
+
+            printedCellSize = true;
         }
     }
     

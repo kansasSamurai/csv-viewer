@@ -46,7 +46,7 @@ public class BetterJTable extends JTable {
     private void init() {
         setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         setTableHeader(createTableHeader());
-        getTableHeader().setReorderingAllowed(false);
+        getTableHeader().setReorderingAllowed(true);
         setOpaque(false);
         setGridColor(TABLE_GRID_COLOR);
         setIntercellSpacing(new Dimension(0, 0));

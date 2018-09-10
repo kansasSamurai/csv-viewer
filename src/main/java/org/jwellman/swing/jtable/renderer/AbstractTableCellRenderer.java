@@ -1,5 +1,6 @@
 package org.jwellman.swing.jtable.renderer;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 
@@ -26,19 +27,25 @@ public class AbstractTableCellRenderer extends DefaultTableCellRenderer {
 	
     protected Border cellBorder;
     
-    private static final Border BORDER_FIX = BorderFactory.createEmptyBorder(5, 3, 0, 3); // 5, 1, 0, 1   |   6, 0, 1, 0
+    protected static final Border BORDER_FIX = BorderFactory.createEmptyBorder(5, 3, 0, 3); // 5, 3, 0, 3 | 5, 1, 0, 1   |   6, 0, 1, 0
+    
+    protected static final Border BORDER_OUTLINE = BorderFactory.createLineBorder(Color.red, 1);
+    
+    protected static final Border BORDER_COMPOUND = BorderFactory.createCompoundBorder( BORDER_FIX, BORDER_OUTLINE );
     
     protected AbstractTableCellRenderer(Font font) {
     	if (font != null) this.customFont = font;
     }
     
 	@Override
-    public Component getTableCellRendererComponent(JTable table, Object value,
-            boolean isSelected, boolean hasFocus, int row, int column) {
+    public Component getTableCellRendererComponent(
+    		JTable table, Object value,
+            boolean isSelected, boolean hasFocus, 
+            int row, int column) {
 		
     	final JComponent c = (JComponent) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
     	c.setBorder(this.cellBorder == null ? BORDER_FIX : this.cellBorder);
-    	if (this.customFont != null) c.setFont(this.customFont); 
+    	//if (this.customFont != null) c.setFont(this.customFont); 
     	
     	this.postProcess(c);
     	
@@ -58,14 +65,19 @@ public class AbstractTableCellRenderer extends DefaultTableCellRenderer {
 	/**
 	 * For now, lets not provide a getter; 
 	 * i.e. why would you want it? you set it.
+	 * 
 	 * Finally decided that one possible use case is if
 	 * you set the border using the insets method and later
 	 * need to retrieve the border in a separate piece of code
 	 * (like in an Action).
 	 * 
+	 * Be careful... I originally misnamed this "getBorder()"
+	 * which overrides the JComponent method and can (and did)
+	 * have the effect of "undoing" the border set in getTableCellRendererComponent().
+	 * 
 	 * @return a Border object for the renderer; may be null
 	 */
-	public Border getBorder() {
+	public Border getCellBorder() {
 		return this.cellBorder;
 	}
 
