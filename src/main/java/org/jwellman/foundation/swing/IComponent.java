@@ -22,5 +22,7 @@ public interface IComponent {
     public XComponent setForeground(Color color);
     
     public XComponent setBackground(Color color);
+
+    public XComponent setSelected(boolean b);
     
 }
