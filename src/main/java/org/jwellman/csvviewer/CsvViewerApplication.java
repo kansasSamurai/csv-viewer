@@ -38,7 +38,7 @@ public class CsvViewerApplication extends SimpleMain implements uiCustomTheme {
         f.init(context); // context
 
         // Step 2 - Create your UIs in JPanel(s)
-        mainui = f.registerUI("viewer", new DataBrowser());
+        mainui = f.registerUI("viewer", new DocumentManager()); // new DataBrowser());
 
         // Step 3 - Use Foundation to create your "window"; give it your UI.
         window = f.useWindow(mainui);
@@ -46,9 +46,9 @@ public class CsvViewerApplication extends SimpleMain implements uiCustomTheme {
         window.setTitle("CSV Viewer"); 
         window.setResizable(true);
 
-		final ComponentGlassPane gp = new ComponentGlassPane((JFrame)this.window);		
-		final DataBrowser b = (DataBrowser)this.mainui.getChild();
-		b.getGlassPaneButton().addActionListener(gp);
+//		final ComponentGlassPane gp = new ComponentGlassPane((JFrame)this.window);		
+//		final DataBrowser b = (DataBrowser)this.mainui.getChild();
+//		b.getGlassPaneButton().addActionListener(gp);
 
         // Step 4a - Create data models, controllers, and other non-UI objects
         // n/a
