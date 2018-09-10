@@ -46,7 +46,7 @@ public class DelimitedFileTableModel extends AbstractTableModel implements DataH
 			reader = Files.newBufferedReader(file.toPath(), Charset.defaultCharset());
 
 			final CSVParser parser = new CSVParserBuilder()
-			.withSeparator(delimiter.charAt(0))
+			.withSeparator((delimiter.equals("\\t")) ? '\t' : delimiter.charAt(0))
 			.withIgnoreQuotations(false)
 			.build();
 
