@@ -63,6 +63,17 @@ abstract public class XComponent implements IComponent {
     }
 
     @Override
+    public XComponent setSelected(boolean value) {
+        if (wrapped instanceof AbstractButton) {
+            final AbstractButton b = (AbstractButton) wrapped;
+            b.setSelected(value);            
+        } else {
+            System.out.println("WARNING - Wrapped JComponent does not implement setSelected(boolean)");
+        }
+        return this;
+    }
+    
+    @Override
     public XComponent addTo(ButtonGroup bg) {
         if (wrapped instanceof AbstractButton) {
             final AbstractButton b = (AbstractButton) wrapped;
@@ -84,5 +95,5 @@ abstract public class XComponent implements IComponent {
         wrapped.setBackground(color);
         return this;
     }
-    
+
 }
