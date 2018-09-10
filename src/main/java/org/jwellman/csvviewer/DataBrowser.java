@@ -45,6 +45,7 @@ import jiconfont.icons.FontAwesome;
 import jiconfont.icons.GoogleMaterialDesignIcons;
 
 import org.jdesktop.swingx.JXTable;
+import org.jwellman.csvviewer.interfaces.TextChooserAware;
 import org.jwellman.csvviewer.models.Person;
 import org.jwellman.foundation.swing.XButton;
 import org.jwellman.foundation.swing.XLabel;
@@ -83,6 +84,10 @@ public class DataBrowser extends JPanel implements FileActionAware {
     
     private JTable tblCsvData = new JXTable(); // new JXTable(tableModel); // JTable(tableModel); // BetterJTable
 
+    private TextChooserAware textChooser;
+    
+    private DelimiterChooser delimiterChooser;
+    
 	private TableModel csvTableModel;
     
     private TableColumnManager csvTableColumnManager;
@@ -145,7 +150,7 @@ public class DataBrowser extends JPanel implements FileActionAware {
         // final DropTarget target = 
         new DropTarget(panel, new FileDropTarget(panel, this));
     	
-        final String calltoaction = "Open a file by dragging it here.";
+        final String calltoaction = "Drop a file here to open it...";
         final Font font = new Font("Roboto", Font.PLAIN, calcPointSize(20));
         final Color foreground = new Color(0x92b0b3);
     	boolean uselabel = true;
@@ -273,16 +278,19 @@ public class DataBrowser extends JPanel implements FileActionAware {
 	}
 
     private JComponent createCsvTableV2(File file) {
+        
         final JScrollPane pane = (tblCsvData instanceof BetterJTable) 
                 ? BetterJTable.createStripedJScrollPane(tblCsvData) 
                 : new JScrollPane(tblCsvData);
+        
         if (tblCsvData instanceof BetterJTable) {
             // do nothing (yet?)
         } else {
         }
+        
         pane.setBorder( BORDER_COMPOUND );
 
-        tblCsvData.setModel(csvTableModel = new DelimitedFileTableModel(file, ","));
+        tblCsvData.setModel(csvTableModel = new DelimitedFileTableModel(file, this.textChooser.getText()));
 		tblCsvData.setShowVerticalLines(false);
 		tblCsvData.setRowMargin(1); tblCsvData.getColumnModel().setColumnMargin(0);
         
@@ -404,8 +412,10 @@ public class DataBrowser extends JPanel implements FileActionAware {
 		LayoutManager southlayout = new BoxLayout(south, BoxLayout.Y_AXIS); // new GridLayout(0,1)
 		south.setLayout(southlayout);
 
-		JPanel delimiter = this.createDelimiter();
-		south.add(delimiter);
+		//JPanel delimiter = this.createDelimiter();
+		//south.add(delimiter);
+		this.delimiterChooser = (DelimiterChooser) (this.textChooser = new DelimiterChooser());
+		south.add(this.delimiterChooser.getUI());
 				
         JToggleButton b = (JToggleButton) HorizontalGraphitePanel.decorateButton(new JToggleButton(), null, null);
         b.setAction(new JTablePropertyAction("RESIZE MODE",  tblCsvData, JTablePropertyAction.ACTION_TOGGLE_AUTORESIZEMODE, null));
