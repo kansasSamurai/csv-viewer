@@ -58,6 +58,7 @@ public Foundation init() {
     return init(null);
 }
 
+@SuppressWarnings("unused")
 public Foundation init(uContext c) {
 
     if (!isInitialized) {
@@ -98,7 +99,7 @@ public Foundation init(uContext c) {
                 	final int SYSTEM_LAF = 4;
                 	final int NIMROD_LAF = 5;
                 	
-                    final int version = MATCHES_SETTING;
+                    final int version = WEB_LAF;
                     switch (version) {
                         case 1:
                             UIManager.setLookAndFeel(info.getClassName());
