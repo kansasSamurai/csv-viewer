@@ -2,9 +2,15 @@ package org.jwellman.foundation;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
@@ -18,9 +24,6 @@ import org.jwellman.foundation.swing.XInternalFrame;
 
 import com.nilo.plaf.nimrod.NimRODLookAndFeel;
 import com.nilo.plaf.nimrod.NimRODTheme;
-//import javax.swing.LookAndFeel;
-//import net.sourceforge.napkinlaf.NapkinLookAndFeel;
-//import net.sourceforge.napkinlaf.NapkinTheme;
 
 /**
  * The most basic of Swing initialization requirements.
@@ -72,16 +75,52 @@ public Foundation init(uContext c) {
             System.out.println(url.getFile());
         }
 
-        // Apply anti-aliasing for better rendering (particulary fonts)
+        // Apply anti-aliasing for better rendering (particularly fonts)
+        //
         // The following may have some subtle system dependent behavior:
         // http://stackoverflow.com/questions/179955/how-do-you-enable-anti-aliasing-in-arbitrary-java-apps
         // Try System.setProperty("awt.useSystemAAFontSettings", "lcd"); and you should get ClearType
 		// https://www.javalobby.org/java/forums/t98492.html
-		//      System.setProperty("awt.useSystemAAFontSettings","on");
-		//      System.setProperty("swing.aatext", "true");
+        // Then, there is also this post:
+        // https://www.javalobby.org/java/forums/t14179.html by Romain Guy (explodingpixels)
+        // ... and also this post (also see Note 1 below): 
+        // http://wiki.netbeans.org/FaqFontRendering
+        
+// also reference: https://docs.oracle.com/javase/7/docs/api/java/awt/doc-files/DesktopProperties.html 
+//        Toolkit tk = Toolkit.getDefaultToolkit();
+//        Map map = (Map)(tk.getDesktopProperty("awt.font.desktophints"));
+//        if (map != null) {
+//            graphics2D.addRenderingHints(map);
+//        }
+        
+//        System.setProperty("awt.useSystemAAFontSettings","gasp");
+        
+        // This may be deprecated: https://bugs.openjdk.java.net/browse/JDK-6391267
+//        System.setProperty("swing.aatext", "true");
 
-        // Make sure our window decorations come from the look and feel.
-        JFrame.setDefaultLookAndFeelDecorated(false); // I changed my mind... I think the OS frame makes more sense
+        /*
+         *  NetBeans uses the Swing text renderer. 
+         *  Since JDK 1.6 this renderer supports sub-pixel rendering in addition to standard anti-aliasing. 
+         *  The renderer supports several operating modes. According to
+
+            http://docs.oracle.com/javase/6/docs/technotes/guides/2d/flags.html#aaFonts
+            
+            If the antialiasing switch awt.useSystemAAFontSettings is not set, 
+            then Swing text renderer tries to detect the optimum setting for given system and use that. 
+            Since 1.6 the renderer implements the following options:
+            
+            off | false | default - meaning "do not override what has been auto-detected"
+            on - use anti-aliasing without sub-pixel rendering
+            gasp - use anti-aliasing wit sub-pixel rendering, intended for use both on CRT and LCD
+            lcd - use anti-aliasing wit sub-pixel rendering, optimized for LCD
+            lcd_hbgr - same as lcd, but with different distribution of sub pixels (monitor upside down)
+            lcd_vrgb - same as lcd, but with different distribution of sub pixels (monitor is vertical)
+            lcd_vbgr - same as lcd, but with different distribution of sub pixels (vertical again but on other side)
+         */
+        
+        // true := Make sure our window decorations come from the look and feel.
+        JFrame.setDefaultLookAndFeelDecorated(false); // false := I changed my mind... I think the OS frame makes more sense
+        // TODO ultimately, need to default to whatever I want but provide override mechanism (uContext)
 
         // Conditionally apply context settings...
         context = (c != null) ? c : uContext.createContext();
@@ -99,7 +138,7 @@ public Foundation init(uContext c) {
                 	final int SYSTEM_LAF = 4;
                 	final int NIMROD_LAF = 5;
                 	
-                    final int version = WEB_LAF;
+                    final int version = MATCHES_SETTING;
                     switch (version) {
                         case 1:
                             UIManager.setLookAndFeel(info.getClassName());
@@ -202,6 +241,21 @@ private static void setUIFont (javax.swing.plaf.FontUIResource f){
     }
 }
 
+/**
+ * Not using this but I wanted to capture it in case it is ever useful.
+ * https://stackoverflow.com/questions/179955/how-do-you-enable-anti-aliasing-in-arbitrary-java-apps
+ */
+@SuppressWarnings("unused")
+private static void olderAntiAliasHint() {
+//    if (desktopHints == null) { 
+//        Toolkit tk = Toolkit.getDefaultToolkit(); 
+//        desktopHints = (Map) (tk.getDesktopProperty("awt.font.desktophints")); 
+//    }
+//    if (desktopHints != null) { 
+//        g2d.addRenderingHints(desktopHints); 
+//    } 
+}
+
 public IWindow useDesktop(JPanel ui) {
 
     isDesktop = true; // store the mode
@@ -259,8 +313,7 @@ public void showGUI() {
                     internalFrame.setVisible(true);
                 }
             });
-    }
-    else if (frame != null) {
+    } else if (frame != null) {
         // Start the GUI on the Event Dispatch Thread (EDT)
         javax.swing.SwingUtilities.invokeLater(
             new Runnable() { @Override public void run() {
@@ -273,9 +326,30 @@ public void showGUI() {
 
             } }
         );
-    }
-    else {
+    } else {
         throw new RuntimeException("You have not chosen a window type: useWindow() or useDesktop() ");
+    }
+
+    // Dump all properties now that system and app have been fully initialized.
+    System.out.println("======= System Initialized : JVM Property Listing =======");
+    Properties systemProperties = System.getProperties();
+    
+    List<String> keys = new ArrayList (systemProperties.keySet());
+    Collections.sort(keys);
+    for (String key : keys) {
+        System.out.println(key + ": " + systemProperties.getProperty(key));        
+    }
+    
+    Toolkit tk = Toolkit.getDefaultToolkit();
+    Map map = (Map)(tk.getDesktopProperty("awt.font.desktophints"));
+    if (map != null) {
+        System.out.println("------- Desktop Property : awt.font.desktophints -------");
+        keys = new ArrayList (map.keySet());
+        System.out.println(map);
+// For some reason, the keys are not Strings :( but the println prints the map nicely
+//        for (String key : keys) {
+//            System.out.println(key + ": " + map.get(key));        
+//        }
     }
 
 } // end method
