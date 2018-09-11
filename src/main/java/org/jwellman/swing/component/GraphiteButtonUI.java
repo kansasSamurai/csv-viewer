@@ -1,6 +1,8 @@
 package org.jwellman.swing.component;
 
 import java.awt.*;
+import java.util.Map;
+
 import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 import javax.swing.plaf.basic.BasicButtonUI;
@@ -19,6 +21,13 @@ public class GraphiteButtonUI extends BasicButtonUI {
 
     /** If true, will draw disabled state.  Otherwise, disabled is not drawn distinctly. */
     private boolean drawDisabledState = false;
+
+    private Toolkit tk = Toolkit.getDefaultToolkit();
+    
+    @SuppressWarnings("rawtypes")
+    private Map map = (Map) (tk.getDesktopProperty("awt.font.desktophints"));
+    
+    private static boolean useDrawString = false;
 
     private static Color TEXT_COLOR = new Color(0xcdcdcd); // Color.WHITE
     private static Color TEXT_PRESSED_COLOR = Color.WHITE;
@@ -85,10 +94,15 @@ public class GraphiteButtonUI extends BasicButtonUI {
     protected void paintText(Graphics gg, AbstractButton button, Rectangle textRect, String text) {
 
         final Graphics2D g = (Graphics2D)gg;
-        g.setRenderingHint(
+        
+        if (map != null) {
+            g.addRenderingHints(map);
+        } else {
+            g.setRenderingHint(
             RenderingHints.KEY_TEXT_ANTIALIASING,
-            RenderingHints.VALUE_TEXT_ANTIALIAS_GASP); // VALUE_TEXT_ANTIALIAS_ON | VALUE_TEXT_ANTIALIAS_GASP
-
+            RenderingHints.VALUE_TEXT_ANTIALIAS_DEFAULT); // VALUE_TEXT_ANTIALIAS_ON | VALUE_TEXT_ANTIALIAS_GASP            
+        }
+        
         final FontMetrics fontMetrics = g.getFontMetrics(button.getFont());
         final int mnemonicIndex = button.getDisplayedMnemonicIndex();
 
@@ -98,9 +112,18 @@ public class GraphiteButtonUI extends BasicButtonUI {
                 // do not draw shadow
             } else {
                 g.setColor(TEXT_SHADOW_COLOR);
-                BasicGraphicsUtils.drawStringUnderlineCharAt(g, text, mnemonicIndex,
-                        textRect.x + getTextShiftOffset() + 1,
-                        textRect.y + fontMetrics.getAscent() + getTextShiftOffset() + 1);
+                if (useDrawString) {
+                    g.drawString(
+                            text,
+                            textRect.x + getTextShiftOffset() + 1,
+                            textRect.y + fontMetrics.getAscent() + getTextShiftOffset() + 1);   
+                } else {
+                    // TODO if windows 7, do not paint the shadow
+                    BasicGraphicsUtils.drawStringUnderlineCharAt(
+                            g, text, mnemonicIndex,
+                            textRect.x + getTextShiftOffset() + 1,
+                            textRect.y + fontMetrics.getAscent() + getTextShiftOffset() + 1);                    
+                }
             }
         }
 
@@ -112,9 +135,17 @@ public class GraphiteButtonUI extends BasicButtonUI {
             c = button.getModel().isPressed() ? TEXT_PRESSED_COLOR : TEXT_COLOR;
         }
         g.setColor(c);
-        BasicGraphicsUtils.drawStringUnderlineCharAt(g, text, mnemonicIndex,
-                textRect.x + getTextShiftOffset(),
-                textRect.y + fontMetrics.getAscent() + getTextShiftOffset());
+        if (useDrawString) {
+            g.drawString(
+                    text, 
+                    textRect.x + getTextShiftOffset(),
+                    textRect.y + fontMetrics.getAscent() + getTextShiftOffset());
+        } else {
+            BasicGraphicsUtils.drawStringUnderlineCharAt(
+                    g, text, mnemonicIndex,
+                    textRect.x + getTextShiftOffset(),
+                    textRect.y + fontMetrics.getAscent() + getTextShiftOffset());
+        }
     }
 
     /**
@@ -140,7 +171,7 @@ public class GraphiteButtonUI extends BasicButtonUI {
         graphics.setColor(SELECTED_BOTTOM_BORDER);
         graphics.drawLine(0, button.getHeight() - 1, button.getWidth(), button.getHeight() - 1);
 
-        // paint the outter part of the inner shadow.
+        // paint the outer part of the inner shadow.
         graphics.setColor(SELECTED_INNER_SHADOW_COLOR_1);
         graphics.drawLine(0, 1, 0, button.getHeight()-2);
         graphics.drawLine(0, 1, button.getWidth(), 1);
