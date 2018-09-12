@@ -24,7 +24,7 @@ public class HorizontalGraphitePanel extends JComponent {
 
 	private static final long serialVersionUID = 1L;
 	
-	private static final Font FONT_DEFAULT = new Font("Segoe UI", Font.PLAIN, 14); // new Font("Segoe UI", Font.PLAIN, 14);
+	private static final Font FONT_DEFAULT = new Font("Verdana", Font.PLAIN, 14); // new Font("Segoe UI", Font.PLAIN, 14);
 
 	/**
 	 * The GraphiteButtonUI class is thread-safe and can be reused by
