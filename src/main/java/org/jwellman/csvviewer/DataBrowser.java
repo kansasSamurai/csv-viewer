@@ -21,6 +21,7 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -34,6 +35,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SpringLayout;
+import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
@@ -96,11 +98,15 @@ public class DataBrowser extends JPanel implements FileActionAware {
     
     private JPanel boxpnlColumns;
 
-    private final Font datafont = FontFactory.getFont("Consolas", Font.PLAIN, 14);
-
-    private final NumberCellRenderer numRenderer = new NumberCellRenderer(datafont);
+    private final Font fontSmallData = FontFactory.getFont("Consolas", Font.PLAIN, 12);
     
-    private final StringCellRenderer strRenderer = new StringCellRenderer(datafont);
+    private final Font fontSmallLabel = FontFactory.getFont("Segoe UI", Font.PLAIN, 12);
+
+    private final Font fontNormalGrid = FontFactory.getFont("Consolas", Font.PLAIN, 14);
+
+    private final NumberCellRenderer numRenderer = new NumberCellRenderer(fontNormalGrid);
+    
+    private final StringCellRenderer strRenderer = new StringCellRenderer(fontNormalGrid);
     
     private static final Border BORDER_EMPTY = BorderFactory.createEmptyBorder(5, 5, 5, 5);
 
@@ -141,8 +147,26 @@ public class DataBrowser extends JPanel implements FileActionAware {
 		this.add(this.createFileDropTarget(), BorderLayout.CENTER);
 		
 		this.add(this.createEasternPanel(), BorderLayout.EAST);
+		
+		this.add(this.createStatusBar(), BorderLayout.SOUTH);
     }
     
+    private Component createStatusBar() {
+        Border b = BorderFactory.createCompoundBorder(
+            BorderFactory.createEmptyBorder(0,5,1,5),
+            BORDER_ETCHED
+        );
+        
+        final JPanel statusBar = new JPanel();
+        statusBar.setLayout(new BoxLayout(statusBar, BoxLayout.X_AXIS));
+        statusBar.setBorder(b);
+        
+        JLabel filename = new JLabel(" C:/a/b/c/example.csv");
+        statusBar.add(filename);
+        
+        return statusBar;
+    }
+
     private Component createFileDropTarget() {
     	
     	final JPanel panel = new JPanel(new GridBagLayout()); // (new GridBagLayout());
@@ -192,6 +216,8 @@ public class DataBrowser extends JPanel implements FileActionAware {
      */
     private int calcPointSize(int pixelSize) {
     	final double fontSize= pixelSize * Toolkit.getDefaultToolkit().getScreenResolution() / 72.0;
+        System.out.println("Given pixel size of " + pixelSize + ", font size = " + fontSize);
+        
 		return (int) fontSize;
 	}
 
@@ -290,8 +316,7 @@ public class DataBrowser extends JPanel implements FileActionAware {
         
         pane.setBorder( BORDER_COMPOUND );
 
-        int[] widths = {8,4,12,13,8,19,5,4,10,4,18,20,5};
-        tblCsvData.setModel( csvTableModel = new FixedWidthFileTableModel(file, widths) ); // new DelimitedFileTableModel(file, this.textChooser.getText()));
+        tblCsvData.setModel(csvTableModel = new DelimitedFileTableModel(file, this.textChooser.getText()));
 		tblCsvData.setShowVerticalLines(false);
 		tblCsvData.setRowMargin(1); tblCsvData.getColumnModel().setColumnMargin(0);
         
@@ -353,7 +378,165 @@ public class DataBrowser extends JPanel implements FileActionAware {
         return pane;
     }
     
-	private JPanel createEasternPanel() {
+    private JPanel createEasternPanel() {
+        return createEasternPanel_new();
+    }
+    
+    private JPanel createEasternPanel_new() {
+        
+        JPanel actions = new JPanel();
+        actions.setLayout(new BorderLayout());
+        actions.setBorder( BORDER_COMPOUND );
+
+        Font font = null;
+        try {
+            InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream("com/fontawesome/Font Awesome 5 Free-Solid-900.otf");
+            font = Font.createFont(Font.TRUETYPE_FONT, stream);
+            font = font.deriveFont(28f);
+            // font = font.deriveFont(Font.BOLD, 40);
+            stream.close();
+        } catch (FontFormatException | IOException e1) {
+            e1.printStackTrace();
+        }
+        
+        // TODO move this to global initialization
+        IconFontSwing.register(FontAwesome.getIconFont());
+        IconFontSwing.register(GoogleMaterialDesignIcons.getIconFont());
+        
+        JPanel center = new JPanel(new GridLayout(0,1));
+        center.setBorder(BorderFactory.createEmptyBorder(1, 1, 2, 2)); // fixes a small glitch caused by HorizontalGraphitePanel
+        
+        int designoption = 2;
+        switch (designoption) {
+        case 1:
+            JButton b = HorizontalGraphitePanel.decorateButton(new JButton("BIG BUTTON"), null, null);
+            //JToggleButton jtbButton = new JToggleButton("ToggleButton Press Me");
+            center.add(HorizontalGraphitePanel.createDefault(Arrays.asList(b)));
+            break;
+        case 2:
+            boxpnlColumns = new JPanel();
+            boxpnlColumns.setLayout(new BoxLayout(boxpnlColumns, BoxLayout.Y_AXIS));
+            
+            JScrollPane pane = new JScrollPane(boxpnlColumns);
+            pane.setBorder(null); // This may only be necessary when using Nimbus L&F?
+            center.add(pane);
+            break;
+        }
+        
+        JPanel north = new JPanel();
+        north.setLayout(new BoxLayout(north, BoxLayout.Y_AXIS)); // (new GridLayout(4,1));
+        north.setBorder(BorderFactory.createEmptyBorder(1, 1, 2, 2)); // fixes a small glitch caused by HorizontalGraphitePanel
+        
+        JLabel lblFilename = (JLabel) XLabel.create().setFont(fontSmallLabel).setText("FILENAME:").get(); 
+        JLabel txtFilename = (JLabel) XLabel.create().setFont(fontSmallData).setText("example.csv").get(); 
+            north.add(fileinfoPanel(lblFilename,txtFilename));
+        JLabel lblFilesize = (JLabel) XLabel.create().setFont(fontSmallLabel).setText("FILESIZE:").get(); 
+        JLabel txtFilesize = (JLabel) XLabel.create().setFont(fontSmallData).setText("357 KB").get(); 
+            north.add(fileinfoPanel(lblFilesize,txtFilesize));
+        JLabel lblLinecount = (JLabel) XLabel.create().setFont(fontSmallLabel).setText("LINES:").get();
+        JLabel txtLinecount = (JLabel) XLabel.create().setFont(fontSmallData).setText("12,356").get();
+            north.add(fileinfoPanel(lblLinecount,txtLinecount));
+        this.delimiterChooser = (DelimiterChooser) (this.textChooser = new DelimiterChooser());
+            //this.delimiterChooser.getUI().setBorder(BORDER_LINE);
+            north.add(this.delimiterChooser.getUI());
+        
+        JButton packButton = HorizontalGraphitePanel.createButton("PACK", null, null);
+        JButton unpackButton = HorizontalGraphitePanel.createButton("UNPACK", null, null);
+        final HorizontalGraphitePanel graphitepanel = HorizontalGraphitePanel
+                .createDefault(Arrays.asList(packButton, unpackButton));
+//        north.add(graphitepanel);       
+
+
+        
+        JPanel south = new JPanel(); // 1,1,2,2
+        south.setBorder(BorderFactory.createEmptyBorder(0, 1, 0, 1)); // fixes a small glitch caused by HorizontalGraphitePanel
+        
+        LayoutManager southlayout = new BoxLayout(south, BoxLayout.Y_AXIS); // new GridLayout(0,1)
+        south.setLayout(southlayout);
+
+        // Use this reference to control where the following components are placed
+        JPanel panelptr = north;
+        
+        //JPanel delimiter = this.createDelimiter();
+        //south.add(delimiter);
+//        this.delimiterChooser = (DelimiterChooser) (this.textChooser = new DelimiterChooser());
+//        south.add(this.delimiterChooser.getUI());
+                
+        JToggleButton b = (JToggleButton) HorizontalGraphitePanel.decorateButton(new JToggleButton(), null, null);
+        b.setAction(new JTablePropertyAction("RESIZE MODE",  tblCsvData, JTablePropertyAction.ACTION_TOGGLE_AUTORESIZEMODE, null));
+        panelptr.add(HorizontalGraphitePanel.createDefault(Arrays.asList(b)));
+
+        JToggleButton c = (JToggleButton) HorizontalGraphitePanel.decorateButton(new JToggleButton(), null, null);
+        c.setAction(new JTablePropertyAction("SELECTION MODE",  tblCsvData, JTablePropertyAction.ACTION_TOGGLE_COLUMNSELECTION, null));
+        //panelptr.add(HorizontalGraphitePanel.createDefault(Arrays.asList(c)));
+
+        JButton a = (JButton) HorizontalGraphitePanel.decorateButton(new JButton(), null, null);
+        a.setAction(new JTablePropertyAction("CLEAR",  tblCsvData, JTablePropertyAction.ACTION_CLEAR_SELECTION, null));
+        panelptr.add(HorizontalGraphitePanel.createDefault(Arrays.asList(c,a)));
+
+        JToggleButton d = (JToggleButton) HorizontalGraphitePanel.createToggleButton(null, null, null);
+        //d.setFont(font); 
+        //d.setText("\uf0ab\uf039\uf038\uf13d"); d.setForeground(Color.white);
+        d.setAction(new JTablePropertyAction("GRID",  tblCsvData, JTablePropertyAction.ACTION_TOGGLE_GRID, null));
+        d.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.BORDER_ALL, 14, COLOR_EAST_TEXT));
+        // GRID_ON / OFF
+        JToggleButton e = HorizontalGraphitePanel.createToggleButton(null, null, null);
+        e.setAction(new JTablePropertyAction("HORZ",  tblCsvData, JTablePropertyAction.ACTION_TOGGLE_HORIZONTAL_LINES, null));
+        e.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.BORDER_BOTTOM, 14, COLOR_EAST_TEXT));
+        e.getModel().setSelected(true);
+        JToggleButton f = HorizontalGraphitePanel.createToggleButton(null, null, null);
+        f.setAction(new JTablePropertyAction("VERT",  tblCsvData, JTablePropertyAction.ACTION_TOGGLE_VERTICAL_LINES, null));
+        f.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.BORDER_VERTICAL, 14, COLOR_EAST_TEXT));
+        south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(d, e, f)));
+
+        final Dimension dimicon = new Dimension(30,1);
+        JButton g = HorizontalGraphitePanel.createButton(null, null, dimicon);
+        g.setAction(new JTablePropertyAction("CMARGIN+",  tblCsvData, JTablePropertyAction.ACTION_INCREASE_COLUMN_MARGIN, null));
+        g.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_INDENT_INCREASE, 14, COLOR_EAST_TEXT));
+        g.setText("");
+        
+        JButton h = HorizontalGraphitePanel.createButton(null, null, dimicon);
+        h.setAction(new JTablePropertyAction("CMARGIN-",  tblCsvData, JTablePropertyAction.ACTION_DECREASE_COLUMN_MARGIN, null));
+        h.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_INDENT_DECREASE, 14, COLOR_EAST_TEXT));
+        h.setText("");
+        
+        JButton i = HorizontalGraphitePanel.createButton(null, null, dimicon);
+        i.setAction(new JTablePropertyAction(" +",  tblCsvData, JTablePropertyAction.ACTION_INCREASE_ROW_MARGIN, null));
+        i.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_LINE_SPACING, 14, COLOR_EAST_TEXT));
+        
+        JButton j = HorizontalGraphitePanel.createButton(null, null, dimicon);
+        j.setAction(new JTablePropertyAction(" -",  tblCsvData, JTablePropertyAction.ACTION_DECREASE_ROW_MARGIN, null));
+        j.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_LINE_SPACING, 14, COLOR_EAST_TEXT));
+
+        south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(h, g, j, i)));        
+                
+        this.btnGlassPane = HorizontalGraphitePanel.decorateButton(new JButton("GLASS PANE"), null, null);
+        south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(this.btnGlassPane)));
+
+        actions.add(north, BorderLayout.NORTH);
+        actions.add(south, BorderLayout.SOUTH);
+        actions.add(center, BorderLayout.CENTER);
+
+        return actions;        
+    }
+    
+    private JPanel fileinfoPanel(JComponent label, JComponent text) {
+        final JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(label);
+        p.add(Box.createHorizontalGlue());
+        p.add(text);
+        
+        boolean debug = false;
+        if (debug) {
+            p.setBorder(BORDER_LINE);
+            label.setBorder(BORDER_LINE);
+        }
+        
+        return p;
+    }
+    
+	private JPanel createEasternPanel_works() {
 		
 		Font font = null;
 		try {
@@ -366,6 +549,7 @@ public class DataBrowser extends JPanel implements FileActionAware {
 			e1.printStackTrace();
 		}
 		
+		// TODO move this to global initialization
 		IconFontSwing.register(FontAwesome.getIconFont());
 		IconFontSwing.register(GoogleMaterialDesignIcons.getIconFont());
 		
