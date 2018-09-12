@@ -290,7 +290,8 @@ public class DataBrowser extends JPanel implements FileActionAware {
         
         pane.setBorder( BORDER_COMPOUND );
 
-        tblCsvData.setModel(csvTableModel = new DelimitedFileTableModel(file, this.textChooser.getText()));
+        int[] widths = {8,4,12,13,8,19,5,4,10,4,18,20,5};
+        tblCsvData.setModel( csvTableModel = new FixedWidthFileTableModel(file, widths) ); // new DelimitedFileTableModel(file, this.textChooser.getText()));
 		tblCsvData.setShowVerticalLines(false);
 		tblCsvData.setRowMargin(1); tblCsvData.getColumnModel().setColumnMargin(0);
         
