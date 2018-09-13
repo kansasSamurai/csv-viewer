@@ -138,10 +138,21 @@ public Foundation init(uContext c) {
                 	final int SYSTEM_LAF = 4;
                 	final int NIMROD_LAF = 5;
                 	
-                    final int version = MATCHES_SETTING;
+                    final int version = MATCHES_SETTING; // WEB_LAF; //MATCHES_SETTING;
                     switch (version) {
                         case 1:
                             UIManager.setLookAndFeel(info.getClassName());
+                            
+                            // http://robertour.com/2016/04/25/quickly-improving-java-metal-look-feel/
+                            // https://thebadprogrammer.com/swing-uimanager-keys/
+                            if ("Metal".equals(name)) { // Metal, Nimbus, CDE/Motif, Windows , Windows Classic
+                                setUIFont( new javax.swing.plaf.FontUIResource("Segoe UI", Font.PLAIN, 14) );
+                                UIManager.put("Button.background",  Color.decode("#eeeeee"));
+                                UIManager.put("ToggleButton.background",  Color.decode("#eeeeee"));
+                                // UIManager.put("Button.border", new CompoundBorder(new LineBorder(new Color(200, 200, 200)), new EmptyBorder(2, 2, 2, 2)));
+                                // UIManager.put("ToggleButton.border", new CompoundBorder(new LineBorder(new Color(200, 200, 200)), new EmptyBorder(2, 2, 2, 2)));
+                            }
+                            
                             break;
                         case 2:
                             UIManager.setLookAndFeel("com.alee.laf.WebLookAndFeel"); // works but need to upgrade to 1.29 from 1.27
@@ -164,7 +175,7 @@ public Foundation init(uContext c) {
                         	switch (theme) {
                         	case 1: // this has been testedand works
                             	UIManager.setLookAndFeel( new com.nilo.plaf.nimrod.NimRODLookAndFeel());
-                        		break;
+                                break;
                         	case 2: // this has been tested and works
                         		nt = new NimRODTheme();
                         		// syracuse
@@ -182,16 +193,18 @@ public Foundation init(uContext c) {
                         		nt.setWhite( new Color(0x666666) ); // text bgnd
                         		nt.setFont(new Font("Consolas",Font.PLAIN,16));
                         		
-                        		NimRODLF = new NimRODLookAndFeel();
                         		NimRODLookAndFeel.setCurrentTheme(nt);
                         		UIManager.setLookAndFeel(NimRODLF);
                         		break;
-                        	case 3:                        		
-                        		// greyscale , blueberry , NimRODThemeFile_rix_mint_segoeui
-                        		// themes/nimrod/NimRODThemeFile_rix_mint_segoeui.theme
-                        		// themes/nimrod/NimRODThemeFile_rix_royale_calibri.theme
-                        		// themes/nimrod/NimRODThemeFile_ocean_light_segoe.theme
-                        		nt = new NimRODTheme("themes/nimrod/NimRODThemeFile_executive_calibri.theme");
+                        	case 3:                   
+                        	    String[] themes = {
+                          	             "themes/nimrod/NimRODThemeFile_rix_mint_segoeui.theme"     // 0
+                                        ,"themes/nimrod/NimRODThemeFile_rix_royale_calibri.theme"   // 1
+                                        ,"themes/nimrod/NimRODThemeFile_ocean_light_segoe.theme"    // 2
+                                        ,"themes/nimrod/NimRODThemeFile_executive_calibri.theme"    // 3
+                                        ,"themes/nimrod/NimRODThemeFile_greenonwhite_segoe.theme"   // 4
+                        	    };
+                        		nt = new NimRODTheme(themes[3]);
                         		NimRODLookAndFeel.setCurrentTheme(nt);
                         		UIManager.setLookAndFeel(NimRODLF);                        		
                         		break;
@@ -204,16 +217,6 @@ public Foundation init(uContext c) {
                         	break;
                     }
 
-                    // http://robertour.com/2016/04/25/quickly-improving-java-metal-look-feel/
-                    // https://thebadprogrammer.com/swing-uimanager-keys/
-                    if ("Metal".equals(name)) { // Metal, Nimbus, CDE/Motif, Windows , Windows Classic
-                        setUIFont( new javax.swing.plaf.FontUIResource("Segoe UI", Font.PLAIN, 14) );
-                        UIManager.put("Button.background",  Color.decode("#eeeeee"));
-                        UIManager.put("ToggleButton.background",  Color.decode("#eeeeee"));
-//                        UIManager.put("Button.border", new CompoundBorder(new LineBorder(new Color(200, 200, 200)), new EmptyBorder(2, 2, 2, 2)));
-//                        UIManager.put("ToggleButton.border", new CompoundBorder(new LineBorder(new Color(200, 200, 200)), new EmptyBorder(2, 2, 2, 2)));
-                    }
-                    
                     break;
                 }
 //                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
