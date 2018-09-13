@@ -45,6 +45,11 @@ public class CloseTabPanel extends JPanel implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         if (tabbedpane.getTabCount() < 2) {
+            JOptionPane.showMessageDialog(
+                    null, 
+                    "You Cannot Close The Last Tab",
+                    "Not Allowed",
+                    JOptionPane.ERROR_MESSAGE);
         } else {
             
             int i = tabbedpane.indexOfTabComponent(this);
