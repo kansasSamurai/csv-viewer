@@ -125,7 +125,9 @@ public class DataBrowser extends JPanel implements FileActionAware {
 
     private static final Border BORDER_ETCHED = BorderFactory.createEtchedBorder();
     
-    private static final Border BORDER_LINE = BorderFactory.createLineBorder(Color.red, 1);    
+    private static final Border BORDER_LINE = BorderFactory.createLineBorder(Color.black, 1);
+    
+    private static final Border BORDER_DEBUG = BorderFactory.createLineBorder(Color.red, 1);    
     
     private static final Border BORDER_DASHED = BorderFactory.createDashedBorder(null, 3.0f, 2.0f);
     
@@ -142,11 +144,13 @@ public class DataBrowser extends JPanel implements FileActionAware {
     private static final Border BORDER_DEBUG_OUTER = BorderFactory
     		.createCompoundBorder(
     				BORDER_DEBUG_INNER, 
-    				BORDER_LINE
+    				BORDER_DEBUG
     				);
     
     private static final Font FONT_SEGOE_UI = new Font("Segoe UI", Font.BOLD, 12);
 
+    private static final Font FONT_VERDANA = new Font("Verdana", Font.PLAIN, 14);
+    
     private static final Color COLOR_GREY_MED = new Color(136,136,136);
     
     private static final Color COLOR_EAST_TEXT = new Color(0xcdcdcd);
@@ -458,12 +462,17 @@ public class DataBrowser extends JPanel implements FileActionAware {
             north.add(fileinfoPanel(lblLinecount,txtLinecount));
 
         JLabel titlebar = new JLabel("DATA COLUMNS");
-            titlebar.setOpaque(true);
-            titlebar.setForeground(Color.white);
-            titlebar.setBackground(Color.black);
+//            titlebar.setOpaque(true);
+              titlebar.setForeground(new Color(0xcdcdcd));
+              titlebar.setFont(FONT_VERDANA);
+//            titlebar.setBackground(Color.black);
             titlebar.setHorizontalAlignment(SwingConstants.CENTER);
-            north.add(Utilities.allowMaxWidth(titlebar, north));            
-
+            
+        HorizontalGraphitePanel titlepanel = new HorizontalGraphitePanel();  
+            titlepanel.setLayout(new BorderLayout());
+            titlepanel.add(titlebar, BorderLayout.CENTER); //(Utilities.allowMaxWidth(titlebar, north));            
+            north.add(titlepanel);
+            
         JButton packButton = HorizontalGraphitePanel.createButton("PACK", null, null);
         JButton unpackButton = HorizontalGraphitePanel.createButton("UNPACK", null, null);
         final HorizontalGraphitePanel graphitepanel = HorizontalGraphitePanel
@@ -486,7 +495,7 @@ public class DataBrowser extends JPanel implements FileActionAware {
         JPanel panelptr = south;
         
         this.delimiterChooser = (DelimiterChooser) (this.textChooser = new DelimiterChooser());
-        //this.delimiterChooser.getUI().setBorder(BORDER_LINE);
+        //this.delimiterChooser.getUI().setBorder(BORDER_DEBUG);
         panelptr.add(this.delimiterChooser.getUI());
                 
         JToggleButton b = (JToggleButton) HorizontalGraphitePanel.decorateButton(new JToggleButton(), null, null);
@@ -556,8 +565,8 @@ public class DataBrowser extends JPanel implements FileActionAware {
         
         boolean debug = false;
         if (debug) {
-            p.setBorder(BORDER_LINE);
-            label.setBorder(BORDER_LINE);
+            p.setBorder(BORDER_DEBUG);
+            label.setBorder(BORDER_DEBUG);
         }
         
         return p;
