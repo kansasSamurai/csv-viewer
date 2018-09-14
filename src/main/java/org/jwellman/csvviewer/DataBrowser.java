@@ -35,6 +35,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SpringLayout;
+import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -53,6 +54,7 @@ import org.jwellman.foundation.swing.XButton;
 import org.jwellman.foundation.swing.XLabel;
 import org.jwellman.foundation.swing.XTextField;
 import org.jwellman.foundation.swing.XToggleButton;
+import org.jwellman.swing.Utilities;
 import org.jwellman.swing.actions.FileActionAware;
 import org.jwellman.swing.component.HorizontalGraphitePanel;
 import org.jwellman.swing.dnd.FileDropTarget;
@@ -84,16 +86,27 @@ public class DataBrowser extends JPanel implements FileActionAware {
 
     private static final long serialVersionUID = 1L;
     
+    // A reference to a callback object for data browser "events"
+    private DataBrowserAware dataBrowserAware;
+    
     private JTable tblCsvData = new JXTable(); // new JXTable(tableModel); // JTable(tableModel); // BetterJTable
+
+	private TableModel csvTableModel;
+    
+    private TableColumnManager csvTableColumnManager;
 
     private TextChooserAware textChooser;
     
     private DelimiterChooser delimiterChooser;
     
-	private TableModel csvTableModel;
+    private JLabel statusFilename;
     
-    private TableColumnManager csvTableColumnManager;
-
+    private JLabel txtFilename;
+    
+    private JLabel txtFilesize;
+    
+    private JLabel txtLinecount;
+    
 	private JButton btnGlassPane;
     
     private JPanel boxpnlColumns;
@@ -140,9 +153,11 @@ public class DataBrowser extends JPanel implements FileActionAware {
 
     private boolean printedCellSize = false;
     
-    public DataBrowser() {
+    public DataBrowser(DataBrowserAware aware) {
 
 		this.setLayout(new BorderLayout());		
+		
+		this.dataBrowserAware = aware;
 		
 		this.add(this.createFileDropTarget(), BorderLayout.CENTER);
 		
@@ -161,8 +176,8 @@ public class DataBrowser extends JPanel implements FileActionAware {
         statusBar.setLayout(new BoxLayout(statusBar, BoxLayout.X_AXIS));
         statusBar.setBorder(b);
         
-        JLabel filename = new JLabel(" C:/a/b/c/example.csv");
-        statusBar.add(filename);
+        this.statusFilename = new JLabel(" X:/.../........");
+        statusBar.add(this.statusFilename);
         
         return statusBar;
     }
@@ -386,7 +401,7 @@ public class DataBrowser extends JPanel implements FileActionAware {
         
         JPanel actions = new JPanel();
         actions.setLayout(new BorderLayout());
-        actions.setBorder( BORDER_COMPOUND );
+        actions.setBorder( BORDER_EMPTY );
 
         Font font = null;
         try {
@@ -404,7 +419,11 @@ public class DataBrowser extends JPanel implements FileActionAware {
         IconFontSwing.register(GoogleMaterialDesignIcons.getIconFont());
         
         JPanel center = new JPanel(new GridLayout(0,1));
-        center.setBorder(BorderFactory.createEmptyBorder(1, 1, 2, 2)); // fixes a small glitch caused by HorizontalGraphitePanel
+        center.setBorder( BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(0, 1, 2, 3)
+                ,BORDER_LINE
+                )
+            ); // fixes a small glitch caused by HorizontalGraphitePanel
         
         int designoption = 2;
         switch (designoption) {
@@ -423,44 +442,52 @@ public class DataBrowser extends JPanel implements FileActionAware {
             break;
         }
         
+        ///// ===== NORTH ===== /////
         JPanel north = new JPanel();
         north.setLayout(new BoxLayout(north, BoxLayout.Y_AXIS)); // (new GridLayout(4,1));
-        north.setBorder(BorderFactory.createEmptyBorder(1, 1, 2, 2)); // fixes a small glitch caused by HorizontalGraphitePanel
+        north.setBorder(BorderFactory.createEmptyBorder(1, 1, 0, 3)); // fixes a small glitch caused by HorizontalGraphitePanel
         
         JLabel lblFilename = (JLabel) XLabel.create().setFont(fontSmallLabel).setText("FILENAME:").get(); 
-        JLabel txtFilename = (JLabel) XLabel.create().setFont(fontSmallData).setText("example.csv").get(); 
+        txtFilename = (JLabel) XLabel.create().setFont(fontSmallData).setText("............").get(); 
             north.add(fileinfoPanel(lblFilename,txtFilename));
         JLabel lblFilesize = (JLabel) XLabel.create().setFont(fontSmallLabel).setText("FILESIZE:").get(); 
-        JLabel txtFilesize = (JLabel) XLabel.create().setFont(fontSmallData).setText("357 KB").get(); 
+        txtFilesize = (JLabel) XLabel.create().setFont(fontSmallData).setText("......").get(); 
             north.add(fileinfoPanel(lblFilesize,txtFilesize));
         JLabel lblLinecount = (JLabel) XLabel.create().setFont(fontSmallLabel).setText("LINES:").get();
-        JLabel txtLinecount = (JLabel) XLabel.create().setFont(fontSmallData).setText("12,356").get();
+        txtLinecount = (JLabel) XLabel.create().setFont(fontSmallData).setText("......").get();
             north.add(fileinfoPanel(lblLinecount,txtLinecount));
-        this.delimiterChooser = (DelimiterChooser) (this.textChooser = new DelimiterChooser());
-            //this.delimiterChooser.getUI().setBorder(BORDER_LINE);
-            north.add(this.delimiterChooser.getUI());
-        
+
+        JLabel titlebar = new JLabel("DATA COLUMNS");
+            titlebar.setOpaque(true);
+            titlebar.setForeground(Color.white);
+            titlebar.setBackground(Color.black);
+            titlebar.setHorizontalAlignment(SwingConstants.CENTER);
+            north.add(Utilities.allowMaxWidth(titlebar, north));            
+
         JButton packButton = HorizontalGraphitePanel.createButton("PACK", null, null);
         JButton unpackButton = HorizontalGraphitePanel.createButton("UNPACK", null, null);
         final HorizontalGraphitePanel graphitepanel = HorizontalGraphitePanel
                 .createDefault(Arrays.asList(packButton, unpackButton));
 //        north.add(graphitepanel);       
 
-
-        
+        ///// ===== SOUTH ===== /////
         JPanel south = new JPanel(); // 1,1,2,2
-        south.setBorder(BorderFactory.createEmptyBorder(0, 1, 0, 1)); // fixes a small glitch caused by HorizontalGraphitePanel
+        south.setBorder( BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(0, 1, 1, 3) // fixes a small glitch caused by HorizontalGraphitePanel
+                ,BORDER_LINE
+                )
+            ); 
+        // (BorderFactory.createEmptyBorder(0, 1, 0, 1)); // fixes a small glitch caused by HorizontalGraphitePanel
         
         LayoutManager southlayout = new BoxLayout(south, BoxLayout.Y_AXIS); // new GridLayout(0,1)
         south.setLayout(southlayout);
 
         // Use this reference to control where the following components are placed
-        JPanel panelptr = north;
+        JPanel panelptr = south;
         
-        //JPanel delimiter = this.createDelimiter();
-        //south.add(delimiter);
-//        this.delimiterChooser = (DelimiterChooser) (this.textChooser = new DelimiterChooser());
-//        south.add(this.delimiterChooser.getUI());
+        this.delimiterChooser = (DelimiterChooser) (this.textChooser = new DelimiterChooser());
+        //this.delimiterChooser.getUI().setBorder(BORDER_LINE);
+        panelptr.add(this.delimiterChooser.getUI());
                 
         JToggleButton b = (JToggleButton) HorizontalGraphitePanel.decorateButton(new JToggleButton(), null, null);
         b.setAction(new JTablePropertyAction("RESIZE MODE",  tblCsvData, JTablePropertyAction.ACTION_TOGGLE_AUTORESIZEMODE, null));
@@ -778,15 +805,21 @@ public class DataBrowser extends JPanel implements FileActionAware {
 
     @Override
     public void doSingleFileAction(File file) {
-                
+        
+        // Remove the existing center component
         final BorderLayout layout = (BorderLayout) this.getLayout();
         this.remove(layout.getLayoutComponent(BorderLayout.CENTER));
-        this.add(this.createCsvTable(file), BorderLayout.CENTER);
         
+        // Create/Add the JTable
+        this.add(this.createCsvTable(file), BorderLayout.CENTER);        
+        
+        // Put the checkboxes in our user interface
         for (JCheckBox checkbox : csvTableColumnManager.getListOfJCheckBox()) {
-            // checkbox.setFont(FONT_SEGOE_UI);
-        	Dimension d = checkbox.getPreferredSize(); d.width = Short.MAX_VALUE;
-        	checkbox.setMaximumSize(d);
+            // We want them to span the entire width of the container for usability
+            Utilities.allowMaxWidth(checkbox);
+//        	Dimension d = checkbox.getPreferredSize(); d.width = Short.MAX_VALUE;
+//        	checkbox.setMaximumSize(d);
+        	
             boxpnlColumns.add(checkbox);
         }
 
@@ -796,8 +829,16 @@ public class DataBrowser extends JPanel implements FileActionAware {
             final JXTable t = (JXTable) tblCsvData;
             t.setColumnControlVisible(false);
         }
+
+        // Set file properties on UI components
+        this.txtFilename.setText(file.getName());
+        this.txtFilesize.setText("" + file.length() / 1024 + " KB");
+        this.txtLinecount.setText("" + this.csvTableModel.getRowCount());
+        this.statusFilename.setText(" " + file.getAbsolutePath());
+
+        this.dataBrowserAware.updateFilename(file.getName());
         
-        this.updateRowHeights_fast();
+        // this.updateRowHeights_fast();
 
         this.validate();
     }
