@@ -36,12 +36,16 @@ import javax.swing.SpringLayout;
 import java.awt.*;
 
 /**
- * A 1.4 file that provides utility methods for
- * creating form- or grid-style layouts with SpringLayout.
- * These utilities are used by several programs, such as
- * SpringBox and SpringCompactGrid.
+ * A 1.4 file that provides utility methods for creating form- or grid-style layouts with SpringLayout.
+ * These utilities are used by several programs, such as SpringBox and SpringCompactGrid.
+ * 
+ * This is of modest utility and though I do not use it much, I thought it would be good to capture it;
+ * if only for proof of concept and ideating. As of 3rd QTR 2018, this was located at:
+ * https://docs.oracle.com/javase/tutorial/uiswing/examples/layout/SpringGridProject/src/layout/SpringUtilities.java 
+ * 
  */
 public class SpringUtilities {
+    
     /**
      * A debugging utility that prints to stdout the component's
      * minimum, preferred, and maximum sizes.
@@ -53,10 +57,8 @@ public class SpringUtilities {
     }
 
     /**
-     * Aligns the first <code>rows</code> * <code>cols</code>
-     * components of <code>parent</code> in
-     * a grid. Each component is as big as the maximum
-     * preferred width and height of the components.
+     * Aligns the first <code>rows</code> * <code>cols</code> components of <code>parent</code> in a grid. 
+     * Each component is as big as the maximum preferred width and height of the components.
      * The parent is made just big enough to fit them all.
      *
      * @param rows number of rows
