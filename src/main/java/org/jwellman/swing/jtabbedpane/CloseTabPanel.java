@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
@@ -29,6 +30,8 @@ public class CloseTabPanel extends JPanel implements ActionListener {
     // TODO make this injectable which removes dependency on CloseIcon class
     private Icon closeIcon = new CloseIcon();
     
+    private Dimension dim = new Dimension(closeIcon.getIconWidth(), closeIcon.getIconHeight());
+    
     public CloseTabPanel(JTabbedPane pane, int index) {
         this.setOpaque(false);
         this.tabbedpane = pane;        
@@ -36,7 +39,7 @@ public class CloseTabPanel extends JPanel implements ActionListener {
         this.add(jlabel = new JLabel(pane.getTitleAt(index), pane.getIconAt(index), JLabel.LEFT));
         
         JButton btClose = new JButton(closeIcon);
-        btClose.setPreferredSize(new Dimension(closeIcon.getIconWidth(), closeIcon.getIconHeight()));
+        btClose.setPreferredSize(dim);
         btClose.addActionListener(this);
         this.add(btClose);
         
@@ -48,7 +51,7 @@ public class CloseTabPanel extends JPanel implements ActionListener {
             JOptionPane.showMessageDialog(
                     null, 
                     "You Cannot Close The Last Tab",
-                    "Not Allowed",
+                    "Action Not Allowed",
                     JOptionPane.ERROR_MESSAGE);
         } else {
             

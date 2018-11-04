@@ -15,11 +15,11 @@ public class CloseIcon implements Icon {
     }
 
     public int getIconWidth() {
-        return 17;
+        return 15; // 17
     }
 
     public int getIconHeight() {
-        return 17;
+        return 15;
     }
     
 }

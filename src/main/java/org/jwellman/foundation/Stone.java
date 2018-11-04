@@ -145,7 +145,7 @@ public Foundation init(uContext c) {
                             
                             // http://robertour.com/2016/04/25/quickly-improving-java-metal-look-feel/
                             // https://thebadprogrammer.com/swing-uimanager-keys/
-                            if ("Metal".equals(name)) { // Metal, Nimbus, CDE/Motif, Windows , Windows Classic
+                            if ("aaa".equals(name)) { // Metal, Nimbus, CDE/Motif, Windows , Windows Classic
                                 setUIFont( new javax.swing.plaf.FontUIResource("Segoe UI", Font.PLAIN, 14) );
                                 UIManager.put("Button.background",  Color.decode("#eeeeee"));
                                 UIManager.put("ToggleButton.background",  Color.decode("#eeeeee"));
