@@ -1,5 +1,6 @@
 package org.jwellman.swing.jtabbedpane;
 
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,11 +27,11 @@ public class CloseTabPanel extends JPanel implements ActionListener {
     private JTabbedPane tabbedpane;
 
     private JLabel jlabel;
+
+    private static final Cursor HAND = new Cursor(Cursor.HAND_CURSOR);
     
     // TODO make this injectable which removes dependency on CloseIcon class
     private Icon closeIcon = new CloseIcon();
-    
-    private Dimension dim = new Dimension(closeIcon.getIconWidth(), closeIcon.getIconHeight());
     
     public CloseTabPanel(JTabbedPane pane, int index) {
         this.setOpaque(false);
@@ -39,7 +40,8 @@ public class CloseTabPanel extends JPanel implements ActionListener {
         this.add(jlabel = new JLabel(pane.getTitleAt(index), pane.getIconAt(index), JLabel.LEFT));
         
         JButton btClose = new JButton(closeIcon);
-        btClose.setPreferredSize(dim);
+        btClose.setFocusable(false); btClose.setBorderPainted(false); btClose.setContentAreaFilled(false); btClose.setCursor(HAND);
+        btClose.setPreferredSize(new Dimension(closeIcon.getIconWidth(), closeIcon.getIconHeight()));
         btClose.addActionListener(this);
         this.add(btClose);
         
@@ -51,7 +53,7 @@ public class CloseTabPanel extends JPanel implements ActionListener {
             JOptionPane.showMessageDialog(
                     null, 
                     "You Cannot Close The Last Tab",
-                    "Action Not Allowed",
+                    "Not Allowed",
                     JOptionPane.ERROR_MESSAGE);
         } else {
             
