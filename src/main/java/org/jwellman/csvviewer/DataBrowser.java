@@ -186,20 +186,20 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
     }
     
     private void initJTable() {
-        final int tabletype = 1;
+        final int tabletype = 3;
         switch (tabletype) {
         case 1:
             tblCsvData = new JTable();
-            tblCsvData.setAutoCreateRowSorter(true);
             break;
         case 2:
             tblCsvData = new BetterJTable();
             break;
         case 3:
-            JXTable xtable = (JXTable) (tblCsvData = new JXTable()); // new JXTable(tableModel); // JTable(tableModel); // BetterJTable           
-            xtable.addHighlighter( new ColorHighlighter(HighlightPredicate.ROLLOVER_ROW, new Color(0x3A87AD), new Color(0xD9EDF7)) );
-            xtable.setColumnControlVisible(true);
-            xtable.setFillsViewportHeight(false);
+            tblCsvData = new XTable();
+            break;
+        case 4:
+            JXTable xtable = (JXTable) (tblCsvData = new JXTable()); // new JXTable(tableModel); // JTable(tableModel); // BetterJTable            
+            xtable.addHighlighter( new ColorHighlighter(HighlightPredicate.ROLLOVER_ROW, new Color(0x3A87AD), new Color(0xD9EDF7)) );  
             break;
         }
     }
