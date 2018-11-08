@@ -20,6 +20,9 @@ import javax.swing.table.TableModel;
 
 /**
  * https://explodingpixels.wordpress.com/2009/05/18/creating-a-better-jtable/
+ * This is informative for how to customize a JTable but
+ * I find it not very open to further extension. 
+ * Keeping for posterity and reference.
  * 
  * @author rwellman
  *

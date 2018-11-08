@@ -5,7 +5,7 @@
 
 	<groupId>org.jwellman</groupId>
 	<artifactId>csv-viewer</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>csv-viewer</name>
@@ -99,7 +99,13 @@
             <artifactId>nimrod</artifactId>
             <version>1.2d</version>
         </dependency>
-	    	
+
+		<dependency>	
+			<groupId>com.jtattoo</groupId>	
+			<artifactId>JTattoo</artifactId>	
+			<version>1.6.11</version>	
+		</dependency>          
+                   
 	</dependencies>
 
 	<build>

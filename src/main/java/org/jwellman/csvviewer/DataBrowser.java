@@ -48,6 +48,8 @@ import jiconfont.icons.FontAwesome;
 import jiconfont.icons.GoogleMaterialDesignIcons;
 
 import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.decorator.ColorHighlighter;
+import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jwellman.csvviewer.interfaces.TextChooserAware;
 import org.jwellman.csvviewer.models.Person;
 import org.jwellman.foundation.swing.XButton;
@@ -82,14 +84,14 @@ import ca.odell.glazedlists.swing.EventTableModel;
  *
  */
 @SuppressWarnings({"unused", "deprecation"})
-public class DataBrowser extends JPanel implements FileActionAware {
+public class DataBrowser extends JPanel implements FileActionAware, SwingConstants {
 
     private static final long serialVersionUID = 1L;
     
     // A reference to a callback object for data browser "events"
     private DataBrowserAware dataBrowserAware;
     
-    private JTable tblCsvData = new JXTable(); // new JXTable(tableModel); // JTable(tableModel); // BetterJTable
+    private JTable tblCsvData;
 
 	private TableModel csvTableModel;
     
@@ -123,6 +125,8 @@ public class DataBrowser extends JPanel implements FileActionAware {
     
     private static final Border BORDER_EMPTY = BorderFactory.createEmptyBorder(5, 5, 5, 5);
 
+    private static final Border BORDER_MATTE = BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(249,249,249));
+    
     private static final Border BORDER_ETCHED = BorderFactory.createEtchedBorder();
     
     private static final Border BORDER_LINE = BorderFactory.createLineBorder(Color.black, 1);
@@ -146,13 +150,21 @@ public class DataBrowser extends JPanel implements FileActionAware {
     				BORDER_DEBUG_INNER, 
     				BORDER_DEBUG
     				);
-    
-    private static final Font FONT_SEGOE_UI = new Font("Segoe UI", Font.BOLD, 12);
 
+    private static final Font FONT_SEGOE_UI = new Font("Segoe UI", Font.PLAIN, 12);
+    
+    private static final Font FONT_SEGOE_UI_BOLD = new Font("Segoe UI", Font.BOLD, 12);
+    
+    private static final Font FONT_CALIBRI_BOLD = new Font("Calibri", Font.BOLD, 14);
+ 
+    private static final Font FONT_CALIBRI = new Font("Calibri", Font.PLAIN, 12);
+   
     private static final Font FONT_VERDANA = new Font("Verdana", Font.PLAIN, 14);
-    
+   
     private static final Color COLOR_GREY_MED = new Color(136,136,136);
-    
+   
+    private static final Color COLOR_GREY_DARKEST = new Color(64,64,64);
+   
     private static final Color COLOR_EAST_TEXT = new Color(0xcdcdcd);
 
     private boolean printedCellSize = false;
@@ -163,13 +175,35 @@ public class DataBrowser extends JPanel implements FileActionAware {
 		
 		this.dataBrowserAware = aware;
 		
+		this.initJTable();
+		
 		this.add(this.createFileDropTarget(), BorderLayout.CENTER);
 		
 		this.add(this.createEasternPanel(), BorderLayout.EAST);
 		
 		this.add(this.createStatusBar(), BorderLayout.SOUTH);
+		
     }
     
+    private void initJTable() {
+        final int tabletype = 1;
+        switch (tabletype) {
+        case 1:
+            tblCsvData = new JTable();
+            tblCsvData.setAutoCreateRowSorter(true);
+            break;
+        case 2:
+            tblCsvData = new BetterJTable();
+            break;
+        case 3:
+            JXTable xtable = (JXTable) (tblCsvData = new JXTable()); // new JXTable(tableModel); // JTable(tableModel); // BetterJTable           
+            xtable.addHighlighter( new ColorHighlighter(HighlightPredicate.ROLLOVER_ROW, new Color(0x3A87AD), new Color(0xD9EDF7)) );
+            xtable.setColumnControlVisible(true);
+            xtable.setFillsViewportHeight(false);
+            break;
+        }
+    }
+ 
     private Component createStatusBar() {
         Border b = BorderFactory.createCompoundBorder(
             BorderFactory.createEmptyBorder(0,5,1,5),
@@ -324,21 +358,44 @@ public class DataBrowser extends JPanel implements FileActionAware {
 
     private JComponent createCsvTableV2(File file) {
         
-        final JScrollPane pane = (tblCsvData instanceof BetterJTable) 
-                ? BetterJTable.createStripedJScrollPane(tblCsvData) 
-                : new JScrollPane(tblCsvData);
+        final JScrollPane pane = (tblCsvData instanceof BetterJTable)
+                ? BetterJTable.createStripedJScrollPane(tblCsvData)
+                : new JScrollPane(tblCsvData);       
+
+        pane.setBorder(BorderFactory.createCompoundBorder(
+                BORDER_EMPTY,
+                BorderFactory.createLineBorder(COLOR_GREY_MED) ) // BORDER_LINE
+                ); // (BORDER_EMPTY); //( BORDER_COMPOUND );
         
         if (tblCsvData instanceof BetterJTable) {
             // do nothing (yet?)
         } else {
         }
-        
-        pane.setBorder( BORDER_COMPOUND );
 
         tblCsvData.setModel(csvTableModel = new DelimitedFileTableModel(file, this.textChooser.getText()));
-		tblCsvData.setShowVerticalLines(false);
-		tblCsvData.setRowMargin(1); tblCsvData.getColumnModel().setColumnMargin(0);
-        
+        tblCsvData.setShowVerticalLines(false);
+        tblCsvData.setFont(FONT_CALIBRI); // (fontSmallData);
+        tblCsvData.setRowMargin(1); tblCsvData.getColumnModel().setColumnMargin(0);
+        tblCsvData.setFillsViewportHeight(true);           
+
+        boolean solarized = false;
+        if (solarized) {           
+            boolean lightScheme = false;
+           
+            tblCsvData.setForeground(lightScheme ? new Color(0x657b83) : new Color(0x839496)); // (COLOR_GREY_MED); // 0x073642 is solarized base02
+            tblCsvData.setBackground(lightScheme ? new Color(0xfdf6e3) : new Color(0x002b36));
+           
+            tblCsvData.setSelectionForeground(lightScheme ? new Color(0x839496) : new Color(0x657b83));
+            tblCsvData.setSelectionBackground(lightScheme ? new Color(0x002b36) : new Color(0xfdf6e3));
+           
+        } else {
+            tblCsvData.setForeground(COLOR_GREY_DARKEST);
+            // tblCsvData.setBackground(lightScheme ? new Color(0xfdf6e3) : new Color(0x002b36));
+            
+            tblCsvData.setSelectionForeground( new Color(0x3A87AD) );
+            tblCsvData.setSelectionBackground( new Color(0xD9EDF7) );
+        }
+
         csvTableColumnManager = new TableColumnManager(tblCsvData);
         
         boolean fillpanel = false;
@@ -365,33 +422,33 @@ public class DataBrowser extends JPanel implements FileActionAware {
         	}
         }
 
-        boolean customizeHeader = false;
+        boolean customizeHeader = true;
         if (customizeHeader) {
             final NumberCellRenderer hdrRenderer = new NumberCellRenderer("Consolas", "dummy");
-            // hdrRenderer.setForeground(Color.white);
-            // hdrRenderer.setBackground(COLOR_GREY_MED);        
+            hdrRenderer.setForeground(new Color(249,249,249));
+            hdrRenderer.setBackground(COLOR_GREY_DARKEST);        
             // hdrRenderer.setFont(FONT_SEGOE_UI);
-            hdrRenderer.setBorder(BORDER_ETCHED); // DefaultTableCellRenderer does not honor a user Border :(
-            hdrRenderer.setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
-            hdrRenderer.setVerticalAlignment(DefaultTableCellRenderer.BOTTOM);
+            // hdrRenderer.setBorder(BORDER_ETCHED); // DefaultTableCellRenderer does not honor a user Border :(
+            
+            hdrRenderer.setCellBorder(BORDER_MATTE); // This works but I don't like the look
+            
+            hdrRenderer.setHorizontalAlignment(CENTER);
+            hdrRenderer.setVerticalAlignment(BOTTOM);
+            
             tblCsvData.getTableHeader().setDefaultRenderer(hdrRenderer);
-            tblCsvData.getTableHeader().setBorder(BORDER_ETCHED);
+            //tblCsvData.getTableHeader().setBorder(BORDER_ETCHED);
         	//csvTable.setBorder(BORDER_ETCHED);
+        } else {
+            tblCsvData.getTableHeader().setFont(FONT_CALIBRI_BOLD);
+            tblCsvData.getTableHeader().setForeground(COLOR_GREY_DARKEST);
+            tblCsvData.getTableHeader().setBackground(new Color(249,249,249));
         }
-//        // csvTable.getTableHeader().setFont(cellRenderer.getFont());
-//        csvTable.getTableHeader().setForeground(Color.white);
-//        csvTable.getTableHeader().setBackground(COLOR_GREY_MED);
-//        csvTable.getTableHeader().setFont(FONT_SEGOE_UI);
 
         if (tblCsvData instanceof JTable) {
-            this.resizeColumnWidth(tblCsvData);
-            
+            this.resizeColumnWidth(tblCsvData);            
         } else if (tblCsvData instanceof JXTable) {
             final JXTable t = (JXTable) tblCsvData;
             t.packAll();
-            t.setFillsViewportHeight(false);
-            t.setColumnControlVisible(true);
-            
         }
 
         return pane;
@@ -453,13 +510,13 @@ public class DataBrowser extends JPanel implements FileActionAware {
         
         JLabel lblFilename = (JLabel) XLabel.create().setFont(fontSmallLabel).setText("FILENAME:").get(); 
         txtFilename = (JLabel) XLabel.create().setFont(fontSmallData).setText("............").get(); 
-            north.add(fileinfoPanel(lblFilename,txtFilename));
+//            north.add(fileinfoPanel(lblFilename,txtFilename));
         JLabel lblFilesize = (JLabel) XLabel.create().setFont(fontSmallLabel).setText("FILESIZE:").get(); 
         txtFilesize = (JLabel) XLabel.create().setFont(fontSmallData).setText("......").get(); 
-            north.add(fileinfoPanel(lblFilesize,txtFilesize));
+//            north.add(fileinfoPanel(lblFilesize,txtFilesize));
         JLabel lblLinecount = (JLabel) XLabel.create().setFont(fontSmallLabel).setText("LINES:").get();
         txtLinecount = (JLabel) XLabel.create().setFont(fontSmallData).setText("......").get();
-            north.add(fileinfoPanel(lblLinecount,txtLinecount));
+//            north.add(fileinfoPanel(lblLinecount,txtLinecount));
 
         JLabel titlebar = new JLabel("DATA COLUMNS");
 //            titlebar.setOpaque(true);

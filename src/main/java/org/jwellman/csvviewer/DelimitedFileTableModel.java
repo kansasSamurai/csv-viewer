@@ -57,12 +57,11 @@ public class DelimitedFileTableModel extends AbstractTableModel implements DataH
 
 			records = csvReader.readAll();
 
-			boolean fix = true;
-			if (fix) {
+			boolean trim = true;
+			if (trim) {
 				for (String[] record : records) {
 					for (int i=0; i < record.length; i++) {
-						String field = record[i];
-						record[i] = field.trim();
+						record[i] = record[i].trim();
 					}
 				}
 			}
@@ -76,11 +75,14 @@ public class DelimitedFileTableModel extends AbstractTableModel implements DataH
 			dataHints.add(DataHint.NUMERIC); // though numeric, treat line numbers as strings
 			
 			final String[] record = records.get(0);
-			for (String field : record) {
+			for (String field : record) {				
+				System.out.print(field);
 				if (NumberUtils.isCreatable(field)) {
 					dataHints.add(DataHint.NUMERIC);
+					System.out.println(" appears to be NUMERIC");
 				} else {
 					dataHints.add(DataHint.STRING);
+					System.out.println(" appears to be ALPHABETIC");
 				}
 			}
 
@@ -108,16 +110,20 @@ public class DelimitedFileTableModel extends AbstractTableModel implements DataH
 	}
 
 	@Override
-	public int getColumnCount() {
-		return records.get(0).length + 1;
-	}
-
-	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		if (columnIndex == 0)
 			return rowIndex + 1;
+		
+		final String rawvalue = ((String[]) records.get(rowIndex))[columnIndex - 1];
+		if (this.getDataHints().get(columnIndex).equals(DataHint.NUMERIC))
+			return Float.parseFloat(rawvalue);
 		else
-			return ((String[]) records.get(rowIndex))[columnIndex - 1];
+			return rawvalue;
+	}
+
+	@Override
+	public int getColumnCount() {
+		return records.get(0).length + 1;
 	}
 
 	@Override
@@ -126,8 +132,21 @@ public class DelimitedFileTableModel extends AbstractTableModel implements DataH
 	}
 
 	@Override
+    public Class<?> getColumnClass(int index) {		
+		System.out.print("" + index);
+		final DataHint hint = this.getDataHints().get(index);
+		if (hint.equals(DataHint.NUMERIC)) {
+			System.out.println(" : gcc NUMERIC");
+			return Float.class;			
+		} else {
+			System.out.println(" : gcc ALPHABETIC");
+			return String.class;			
+		}
+    }
+	
+	@Override
 	public List<DataHint> getDataHints() {
 		return dataHints;
 	}
-	
+
 }

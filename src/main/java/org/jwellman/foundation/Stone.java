@@ -2,26 +2,32 @@ package org.jwellman.foundation;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Toolkit;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+//import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.plaf.metal.MetalTheme;
 
+//import net.sourceforge.napkinlaf.NapkinLookAndFeel;
+//import net.sourceforge.napkinlaf.NapkinTheme;
 import org.jwellman.foundation.swing.IWindow;
 import org.jwellman.foundation.swing.XFrame;
 import org.jwellman.foundation.swing.XInternalFrame;
 
+import com.jtattoo.plaf.aluminium.AluminiumLookAndFeel;
+import com.jtattoo.plaf.fast.FastLookAndFeel;
+import com.jtattoo.plaf.smart.SmartLookAndFeel;
 import com.nilo.plaf.nimrod.NimRODLookAndFeel;
 import com.nilo.plaf.nimrod.NimRODTheme;
 
@@ -30,6 +36,7 @@ import com.nilo.plaf.nimrod.NimRODTheme;
  *
  * @author Rick Wellman
  */
+@SuppressWarnings("unused")
 public class Stone {
 
 /** The user's entry point UI in a JPanel */
@@ -61,7 +68,6 @@ public Foundation init() {
     return init(null);
 }
 
-@SuppressWarnings("unused")
 public Foundation init(uContext c) {
 
     if (!isInitialized) {
@@ -75,52 +81,16 @@ public Foundation init(uContext c) {
             System.out.println(url.getFile());
         }
 
-        // Apply anti-aliasing for better rendering (particularly fonts)
-        //
+        // Apply anti-aliasing for better rendering (particulary fonts)
         // The following may have some subtle system dependent behavior:
         // http://stackoverflow.com/questions/179955/how-do-you-enable-anti-aliasing-in-arbitrary-java-apps
         // Try System.setProperty("awt.useSystemAAFontSettings", "lcd"); and you should get ClearType
 		// https://www.javalobby.org/java/forums/t98492.html
-        // Then, there is also this post:
-        // https://www.javalobby.org/java/forums/t14179.html by Romain Guy (explodingpixels)
-        // ... and also this post (also see Note 1 below): 
-        // http://wiki.netbeans.org/FaqFontRendering
-        
-// also reference: https://docs.oracle.com/javase/7/docs/api/java/awt/doc-files/DesktopProperties.html 
-//        Toolkit tk = Toolkit.getDefaultToolkit();
-//        Map map = (Map)(tk.getDesktopProperty("awt.font.desktophints"));
-//        if (map != null) {
-//            graphics2D.addRenderingHints(map);
-//        }
-        
-//        System.setProperty("awt.useSystemAAFontSettings","gasp");
-        
-        // This may be deprecated: https://bugs.openjdk.java.net/browse/JDK-6391267
-//        System.setProperty("swing.aatext", "true");
+		//      System.setProperty("awt.useSystemAAFontSettings","on");
+		//      System.setProperty("swing.aatext", "true");
 
-        /*
-         *  NetBeans uses the Swing text renderer. 
-         *  Since JDK 1.6 this renderer supports sub-pixel rendering in addition to standard anti-aliasing. 
-         *  The renderer supports several operating modes. According to
-
-            http://docs.oracle.com/javase/6/docs/technotes/guides/2d/flags.html#aaFonts
-            
-            If the antialiasing switch awt.useSystemAAFontSettings is not set, 
-            then Swing text renderer tries to detect the optimum setting for given system and use that. 
-            Since 1.6 the renderer implements the following options:
-            
-            off | false | default - meaning "do not override what has been auto-detected"
-            on - use anti-aliasing without sub-pixel rendering
-            gasp - use anti-aliasing wit sub-pixel rendering, intended for use both on CRT and LCD
-            lcd - use anti-aliasing wit sub-pixel rendering, optimized for LCD
-            lcd_hbgr - same as lcd, but with different distribution of sub pixels (monitor upside down)
-            lcd_vrgb - same as lcd, but with different distribution of sub pixels (monitor is vertical)
-            lcd_vbgr - same as lcd, but with different distribution of sub pixels (vertical again but on other side)
-         */
-        
-        // true := Make sure our window decorations come from the look and feel.
-        JFrame.setDefaultLookAndFeelDecorated(false); // false := I changed my mind... I think the OS frame makes more sense
-        // TODO ultimately, need to default to whatever I want but provide override mechanism (uContext)
+        // Make sure our window decorations come from the look and feel.
+        JFrame.setDefaultLookAndFeelDecorated(false); // I changed my mind... I think the OS frame makes more sense
 
         // Conditionally apply context settings...
         context = (c != null) ? c : uContext.createContext();
@@ -130,29 +100,66 @@ public Foundation init(uContext c) {
         try {
             for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 final String name = info.getName(); System.out.println(name);
-                if ("Metal".equals(name)) { // Metal, Nimbus, CDE/Motif, Windows , Windows Classic                    
+                if ("Metal".equals(name)) { // Metal, Nimbus, CDE/Motif, Windows , Windows Classic                   
 
-                	final int MATCHES_SETTING = 1;
-                	final int WEB_LAF = 2;
-                	final int TBD = 3;
-                	final int SYSTEM_LAF = 4;
-                	final int NIMROD_LAF = 5;
-                	
-                    final int version = MATCHES_SETTING; // WEB_LAF; //MATCHES_SETTING;
+                    final int MATCHES_SETTING = 1;
+                    final int WEB_LAF = 2;
+                    final int TBD = 3;
+                    final int SYSTEM_LAF = 4;
+                    final int NIMROD_LAF = 5;
+                    final int JTATTOO_LAF = 6;
+
+ 		            // Some LnF/Themes use properties (JTattoo, ...)
+		            Properties props = new Properties();
+
+          			final int version = JTATTOO_LAF; // WEB_LAF; //MATCHES_SETTING;
                     switch (version) {
                         case 1:
-                            UIManager.setLookAndFeel(info.getClassName());
-                            
                             // http://robertour.com/2016/04/25/quickly-improving-java-metal-look-feel/
                             // https://thebadprogrammer.com/swing-uimanager-keys/
-                            if ("aaa".equals(name)) { // Metal, Nimbus, CDE/Motif, Windows , Windows Classic
-                                setUIFont( new javax.swing.plaf.FontUIResource("Segoe UI", Font.PLAIN, 14) );
+                            if ("Metal".equals(name)) { // Metal, Nimbus, CDE/Motif, Windows , Windows Classic
+
+                            	// MetalLookAndFeel.setCurrentTheme(new RedTheme());
+
+                                // http://robertour.com/2016/04/25/quickly-improving-java-metal-look-feel/
+                                // https://thebadprogrammer.com/swing-uimanager-keys/                                                               
+                                UIManager.put("swing.boldMetal", Boolean.FALSE);
                                 UIManager.put("Button.background",  Color.decode("#eeeeee"));
                                 UIManager.put("ToggleButton.background",  Color.decode("#eeeeee"));
                                 // UIManager.put("Button.border", new CompoundBorder(new LineBorder(new Color(200, 200, 200)), new EmptyBorder(2, 2, 2, 2)));
                                 // UIManager.put("ToggleButton.border", new CompoundBorder(new LineBorder(new Color(200, 200, 200)), new EmptyBorder(2, 2, 2, 2)));
+
+                                // setUIFont( new javax.swing.plaf.FontUIResource("Segoe UI", Font.PLAIN, 14) );
+
                             }
+
+                            UIManager.setLookAndFeel(info.getClassName());
                             
+                            /*
+                             * From DefaultMetalTheme:
+                                private static final String[] defaultNames = {
+                                    "swing.plaf.metal.controlFont",
+                                    "swing.plaf.metal.systemFont",
+                                    "swing.plaf.metal.userFont",
+                                    "swing.plaf.metal.controlFont",
+                                    "swing.plaf.metal.controlFont",
+                                    "swing.plaf.metal.smallFont"
+                                };
+
+                                -Dswing.plaf.metal.userFont=Calibri-18
+                                -Dswing.plaf.metal.smallFont=Calibri-12
+                                -Dswing.plaf.metal.systemFont=Consolas-18
+                                -Dswing.plaf.metal.controlFont=Tahoma-24
+                             */
+
+//                            final MetalLookAndFeel lnf = ((MetalLookAndFeel)UIManager.getLookAndFeel());
+                            final MetalTheme currentmetaltheme = MetalLookAndFeel.getCurrentTheme();
+
+                            System.out.println("MetalTheme user font: " + currentmetaltheme.getUserTextFont().getFontName());
+                            System.out.println("MetalTheme small font: " + currentmetaltheme.getSubTextFont().getName());
+                            System.out.println("MetalTheme system font: " + currentmetaltheme.getSystemTextFont().getName());
+                            System.out.println("MetalTheme control font: " + currentmetaltheme.getControlTextFont().getName());
+
                             break;
                         case 2:
                             UIManager.setLookAndFeel("com.alee.laf.WebLookAndFeel"); // works but need to upgrade to 1.29 from 1.27
@@ -173,9 +180,9 @@ public Foundation init(uContext c) {
                         	
                         	int theme = 3;
                         	switch (theme) {
-                        	case 1: // this has been testedand works
-                            	UIManager.setLookAndFeel( new com.nilo.plaf.nimrod.NimRODLookAndFeel());
-                                break;
+                        	case 1: // this has been tested and works
+                            	UIManager.setLookAndFeel(NimRODLF);
+                            	break;
                         	case 2: // this has been tested and works
                         		nt = new NimRODTheme();
                         		// syracuse
@@ -193,18 +200,15 @@ public Foundation init(uContext c) {
                         		nt.setWhite( new Color(0x666666) ); // text bgnd
                         		nt.setFont(new Font("Consolas",Font.PLAIN,16));
                         		
+//                        		NimRODLF = new NimRODLookAndFeel();
                         		NimRODLookAndFeel.setCurrentTheme(nt);
                         		UIManager.setLookAndFeel(NimRODLF);
                         		break;
-                        	case 3:                   
-                        	    String[] themes = {
-                          	             "themes/nimrod/NimRODThemeFile_rix_mint_segoeui.theme"     // 0
-                                        ,"themes/nimrod/NimRODThemeFile_rix_royale_calibri.theme"   // 1
-                                        ,"themes/nimrod/NimRODThemeFile_ocean_light_segoe.theme"    // 2
-                                        ,"themes/nimrod/NimRODThemeFile_executive_calibri.theme"    // 3
-                                        ,"themes/nimrod/NimRODThemeFile_greenonwhite_segoe.theme"   // 4
-                        	    };
-                        		nt = new NimRODTheme(themes[3]);
+                        	case 3:                        		
+                        		// greyscale , blueberry , NimRODThemeFile_rix_mint_segoeui
+                        		// themes/nimrod/NimRODThemeFile_rix_mint_segoeui.theme
+                        		nt = new NimRODTheme("themes/nimrod/NimRODThemeFile_rix_royale_calibri.theme");
+                        		//NimRODLF = new NimRODLookAndFeel();
                         		NimRODLookAndFeel.setCurrentTheme(nt);
                         		UIManager.setLookAndFeel(NimRODLF);                        		
                         		break;
@@ -213,6 +217,120 @@ public Foundation init(uContext c) {
                         			
                         	}
                             break;
+                        case 6: // JTATTOO_LAF
+
+                            boolean useTattooTheme = true;
+
+                            if (useTattooTheme) {
+
+                               
+
+                                boolean demo = false;
+
+                                if (demo) {
+
+                                    props.put("logoString", "my company");
+
+                                    props.put("licenseKey", "INSERT YOUR LICENSE KEY HERE");
+
+                                   
+
+                                    props.put("selectionBackgroundColor", "180 240 197");
+
+                                    props.put("menuSelectionBackgroundColor", "180 240 197");
+
+                                    
+
+                                    props.put("controlColor", "218 254 230");
+
+                                    props.put("controlColorLight", "218 254 230");
+
+                                    props.put("controlColorDark", "180 240 197");
+
+ 
+
+                                    props.put("buttonColor", "218 230 254");
+
+                                    props.put("buttonColorLight", "255 255 255");
+
+                                    props.put("buttonColorDark", "244 242 232");
+
+ 
+
+                                    props.put("rolloverColor", "218 254 230");
+
+                                    props.put("rolloverColorLight", "218 254 230");
+
+                                    props.put("rolloverColorDark", "180 240 197");
+
+ 
+
+                                    props.put("windowTitleForegroundColor", "0 0 0");
+
+                                    props.put("windowTitleBackgroundColor", "180 240 197");
+
+                                    props.put("windowTitleColorLight", "218 254 230");
+
+                                    props.put("windowTitleColorDark", "180 240 197");
+
+                                    props.put("windowBorderColor", "218 254 230");                                   
+
+                                }
+
+                                props.put("subTextFont", "Calibri PLAIN 10");
+
+                                props.put("userTextFont", "Calibri PLAIN 14"); // Labels, Tab Titles, ... // Aluminium only respects:  TableHeaders, Checkboxes, (I assume RadioButtons), ...
+
+                                props.put("menuTextFont", "Calibri PLAIN 12");
+
+                                props.put("systemTextFont", "Consolas PLAIN 34");
+
+                                props.put("controlTextFont", "Consolas PLAIN 34"); // Aluminium does not respect this... well... maybe it does, I just don't know what components it affects yet?
+
+                                props.put("windowTitleFont", "Calibri PLAIN 16");
+
+                               
+
+                                // set your theme
+
+                                // SmartLookAndFeel.setCurrentTheme(props);                                                              
+
+                            }
+
+                           
+
+                            final int tattooLNF = 1;
+
+                            switch (tattooLNF) {
+
+                            case 1:
+
+                                if (useTattooTheme) FastLookAndFeel.setCurrentTheme(props);
+
+                                UIManager.setLookAndFeel("com.jtattoo.plaf.fast.FastLookAndFeel");                            
+
+                                break;
+
+                            case 2:
+
+                                if (useTattooTheme) SmartLookAndFeel.setCurrentTheme(props);
+
+                               UIManager.setLookAndFeel("com.jtattoo.plaf.smart.SmartLookAndFeel");
+
+                                break;
+
+                            case 3:
+
+                                UIManager.setLookAndFeel("com.jtattoo.plaf.aluminium.AluminiumLookAndFeel");                            
+
+                                if (useTattooTheme) AluminiumLookAndFeel.setCurrentTheme(props);
+
+                                break;
+
+                            }
+
+                            break;
+
                         default:
                         	break;
                     }
@@ -238,25 +356,12 @@ public Foundation init(uContext c) {
 private static void setUIFont (javax.swing.plaf.FontUIResource f){
     final Enumeration<?> keys = UIManager.getDefaults().keys();
     while (keys.hasMoreElements()) {
-        Object key = keys.nextElement();
-        Object value = UIManager.get (key);
-        if (value != null && value instanceof javax.swing.plaf.FontUIResource) UIManager.put (key, f);
+        final Object key = keys.nextElement();
+        final Object value = UIManager.get (key);
+        if (value != null 
+        		&& value instanceof javax.swing.plaf.FontUIResource) 
+        	UIManager.put (key, f);
     }
-}
-
-/**
- * Not using this but I wanted to capture it in case it is ever useful.
- * https://stackoverflow.com/questions/179955/how-do-you-enable-anti-aliasing-in-arbitrary-java-apps
- */
-@SuppressWarnings("unused")
-private static void olderAntiAliasHint() {
-//    if (desktopHints == null) { 
-//        Toolkit tk = Toolkit.getDefaultToolkit(); 
-//        desktopHints = (Map) (tk.getDesktopProperty("awt.font.desktophints")); 
-//    }
-//    if (desktopHints != null) { 
-//        g2d.addRenderingHints(desktopHints); 
-//    } 
 }
 
 public IWindow useDesktop(JPanel ui) {
@@ -316,7 +421,8 @@ public void showGUI() {
                     internalFrame.setVisible(true);
                 }
             });
-    } else if (frame != null) {
+    }
+    else if (frame != null) {
         // Start the GUI on the Event Dispatch Thread (EDT)
         javax.swing.SwingUtilities.invokeLater(
             new Runnable() { @Override public void run() {
@@ -329,30 +435,9 @@ public void showGUI() {
 
             } }
         );
-    } else {
+    }
+    else {
         throw new RuntimeException("You have not chosen a window type: useWindow() or useDesktop() ");
-    }
-
-    // Dump all properties now that system and app have been fully initialized.
-    System.out.println("======= System Initialized : JVM Property Listing =======");
-    Properties systemProperties = System.getProperties();
-    
-    List<String> keys = new ArrayList (systemProperties.keySet());
-    Collections.sort(keys);
-    for (String key : keys) {
-        System.out.println(key + ": " + systemProperties.getProperty(key));        
-    }
-    
-    Toolkit tk = Toolkit.getDefaultToolkit();
-    Map map = (Map)(tk.getDesktopProperty("awt.font.desktophints"));
-    if (map != null) {
-        System.out.println("------- Desktop Property : awt.font.desktophints -------");
-        keys = new ArrayList (map.keySet());
-        System.out.println(map);
-// For some reason, the keys are not Strings :( but the println prints the map nicely
-//        for (String key : keys) {
-//            System.out.println(key + ": " + map.get(key));        
-//        }
     }
 
 } // end method
