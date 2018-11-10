@@ -277,58 +277,36 @@ public Foundation init(uContext c) {
 
                                 }
 
-                                props.put("subTextFont", "Calibri PLAIN 10");
+                                props.put("subTextFont", "Consolas BOLD 10"); // ???
+                                props.put("userTextFont", "Calibri PLAIN 14"); // JLabel, JCheckbox, Tab Titles, ... // Aluminium only respects:  TableHeaders, Checkboxes, (I assume RadioButtons), ...
+                                props.put("menuTextFont", "Calibri PLAIN 12"); // JMenu, ...
+                                props.put("systemTextFont", "Baskerville BOLD 24"); 
+                                props.put("controlTextFont", "Calibri PLAIN 14"); // JButton, ... // Aluminium does not respect this... well... maybe it does, I just don't know what components it affects yet?
+                                props.put("windowTitleFont", "Calibri PLAIN 16"); // JFrame, (JInternalFrame I asume), ...
 
-                                props.put("userTextFont", "Calibri PLAIN 14"); // Labels, Tab Titles, ... // Aluminium only respects:  TableHeaders, Checkboxes, (I assume RadioButtons), ...
-
-                                props.put("menuTextFont", "Calibri PLAIN 12");
-
-                                props.put("systemTextFont", "Consolas PLAIN 34");
-
-                                props.put("controlTextFont", "Consolas PLAIN 34"); // Aluminium does not respect this... well... maybe it does, I just don't know what components it affects yet?
-
-                                props.put("windowTitleFont", "Calibri PLAIN 16");
-
-                               
-
-                                // set your theme
-
+				// set your theme
                                 // SmartLookAndFeel.setCurrentTheme(props);                                                              
 
                             }
-
                            
-
                             final int tattooLNF = 1;
-
                             switch (tattooLNF) {
-
                             case 1:
-
                                 if (useTattooTheme) FastLookAndFeel.setCurrentTheme(props);
-
                                 UIManager.setLookAndFeel("com.jtattoo.plaf.fast.FastLookAndFeel");                            
-
                                 break;
 
                             case 2:
-
                                 if (useTattooTheme) SmartLookAndFeel.setCurrentTheme(props);
-
-                               UIManager.setLookAndFeel("com.jtattoo.plaf.smart.SmartLookAndFeel");
-
+                                UIManager.setLookAndFeel("com.jtattoo.plaf.smart.SmartLookAndFeel");
                                 break;
 
                             case 3:
-
-                                UIManager.setLookAndFeel("com.jtattoo.plaf.aluminium.AluminiumLookAndFeel");                            
-
                                 if (useTattooTheme) AluminiumLookAndFeel.setCurrentTheme(props);
-
+                                UIManager.setLookAndFeel("com.jtattoo.plaf.aluminium.AluminiumLookAndFeel");                            
                                 break;
 
                             }
-
                             break;
 
                         default:
