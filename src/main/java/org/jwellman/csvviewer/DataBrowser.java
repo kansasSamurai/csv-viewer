@@ -190,12 +190,14 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         switch (tabletype) {
         case 1:
             tblCsvData = new JTable();
+            tblCsvData.setAutoCreateRowSorter(true);
             break;
         case 2:
             tblCsvData = new BetterJTable();
             break;
         case 3:
             tblCsvData = new XTable();
+            tblCsvData.setAutoCreateRowSorter(true);
             break;
         case 4:
             JXTable xtable = (JXTable) (tblCsvData = new JXTable()); // new JXTable(tableModel); // JTable(tableModel); // BetterJTable            
@@ -379,18 +381,22 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         tblCsvData.setFillsViewportHeight(true);           
 
         boolean solarized = false;
-        if (solarized) {           
-            boolean lightScheme = false;
-           
+        boolean lightScheme = false;        
+        if (solarized) {
+            // Note:  When using solarized, your table (i.e. XTable) must not use rowstriping
+            tblCsvData.setGridColor(lightScheme ? new Color(0x657b83) : new Color(0x839496)); // (COLOR_GREY_MED); // 0x073642 is solarized base02
+            
             tblCsvData.setForeground(lightScheme ? new Color(0x657b83) : new Color(0x839496)); // (COLOR_GREY_MED); // 0x073642 is solarized base02
             tblCsvData.setBackground(lightScheme ? new Color(0xfdf6e3) : new Color(0x002b36));
-           
+            
             tblCsvData.setSelectionForeground(lightScheme ? new Color(0x839496) : new Color(0x657b83));
             tblCsvData.setSelectionBackground(lightScheme ? new Color(0x002b36) : new Color(0xfdf6e3));
-           
+            
         } else {
+            tblCsvData.setGridColor(COLOR_GREY_DARKEST);
+
             tblCsvData.setForeground(COLOR_GREY_DARKEST);
-            // tblCsvData.setBackground(lightScheme ? new Color(0xfdf6e3) : new Color(0x002b36));
+            tblCsvData.setBackground(Color.WHITE); 
             
             tblCsvData.setSelectionForeground( new Color(0x3A87AD) );
             tblCsvData.setSelectionBackground( new Color(0xD9EDF7) );
