@@ -1,7 +1,5 @@
 package org.jwellman.csvviewer;
 
-import javax.swing.JFrame;
-
 import org.jwellman.foundation.Foundation;
 import org.jwellman.foundation.uContext;
 import org.jwellman.foundation.extend.SimpleMain;

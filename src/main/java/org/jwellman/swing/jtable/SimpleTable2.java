@@ -1,4 +1,4 @@
-package com.gg.tablerownumbers;
+package org.jwellman.swing.jtable;
 
 import java.awt.*;
 import javax.swing.*;
