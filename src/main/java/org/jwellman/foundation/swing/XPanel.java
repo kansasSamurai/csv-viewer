@@ -5,7 +5,7 @@ import javax.swing.JPanel;
 
 /**
  *
- * @author Rick
+ * @author rwellman
  */
 public class XPanel extends javax.swing.JPanel {
 

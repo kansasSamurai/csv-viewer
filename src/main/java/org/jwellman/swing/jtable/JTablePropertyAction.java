@@ -36,6 +36,8 @@ public class JTablePropertyAction extends AbstractAction {
 	public static final int ACTION_DECREASE_COLUMN_MARGIN = 72;
 	public static final int ACTION_INCREASE_ROW_MARGIN = 73;
 	public static final int ACTION_DECREASE_ROW_MARGIN = 74;
+	public static final int ACTION_INCREASE_ROW_HEIGHT = 75;
+	public static final int ACTION_DECREASE_ROW_HEIGHT = 76;
 	public static final int ACTION_TOGGLE_COLUMNSELECTION = 77;
 
 	/**
@@ -124,6 +126,14 @@ public class JTablePropertyAction extends AbstractAction {
             	target
             	  .getColumnModel()
             	    .setColumnMargin(Limit.decrementOf(i).to(0));
+            	break;
+            case ACTION_INCREASE_ROW_HEIGHT:
+            	i = target.getRowHeight();
+            	target.setRowHeight(++i);
+            	break;
+            case ACTION_DECREASE_ROW_HEIGHT:
+            	i = target.getRowHeight();
+            	target.setRowHeight(--i);
             	break;
             case ACTION_TOGGLE_COLUMNSELECTION:
             	final boolean ison = target.getColumnSelectionAllowed();

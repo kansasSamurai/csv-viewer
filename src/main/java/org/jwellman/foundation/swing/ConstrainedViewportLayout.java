@@ -8,8 +8,10 @@ import javax.swing.ViewportLayout;
  * Derived from http://stackoverflow.com/questions/11587292/jscrollpane-not-wide-enough-when-vertical-scrollbar-appears
  * Usage: scrollPane.getViewport().setLayout(new ConstrainedViewPortLayout());
  *
- * @author Rick
+ * @author Rick Wellman
+ * 
  */
+@SuppressWarnings("serial")
 public class ConstrainedViewportLayout extends ViewportLayout {
 
     @Override

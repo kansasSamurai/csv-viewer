@@ -3,6 +3,7 @@ package org.jwellman.csvviewer;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import com.opencsv.CSVReaderBuilder;
 /**
  * TODO Option to fix/trim leading/trailing whitespace
  * TODO Option to treat first line as headings
+ * TODO Organize data "anomalies" by column; i.e. numerics that do not parse, etc.
  * 
  * @author rwellman
  *
@@ -68,7 +70,7 @@ public class DelimitedFileTableModel extends AbstractTableModel implements DataH
 			
 			// assume first record is column headings
 			List<String> columnHeadings = new ArrayList<>(records.get(0).length);
-			columnHeadings.add("Line#");
+			columnHeadings.add("--");
 			columnHeadings.addAll(Arrays.asList(records.get(0)));			
 			columns.addAll(columnHeadings);
 			records.remove(0); // remove the column headings record
@@ -113,12 +115,16 @@ public class DelimitedFileTableModel extends AbstractTableModel implements DataH
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		if (columnIndex == 0)
 			return rowIndex + 1;
-		
+
 		final String rawvalue = ((String[]) records.get(rowIndex))[columnIndex - 1];
-		if (this.getDataHints().get(columnIndex).equals(DataHint.NUMERIC))
-			return Float.parseFloat(rawvalue);
-		else
-			return rawvalue;
+		if (this.getDataHints().get(columnIndex).equals(DataHint.NUMERIC)) {
+			try {
+				return new BigDecimal(rawvalue); // Float.parseFloat(rawvalue);
+			} catch(Exception e) {
+				return BigDecimal.ZERO;
+			}				
+		} else return rawvalue;
+		
 	}
 
 	@Override

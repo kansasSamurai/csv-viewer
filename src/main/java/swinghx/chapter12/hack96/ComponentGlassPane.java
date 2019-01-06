@@ -79,7 +79,7 @@ public class ComponentGlassPane extends JComponent implements ActionListener {
 		//        });
 
         frame.pack();
-        frame.show();
+        frame.setVisible(true);
     }
 
     /**
@@ -132,7 +132,7 @@ public class ComponentGlassPane extends JComponent implements ActionListener {
 
         final boolean isContainer = comp instanceof Container; // so ... everything is a Container in Swing
         final Container cont = isContainer ? (Container)comp : null;
-        final boolean hasChildren = isContainer ? (cont.getComponentCount() > 0) : false;
+        // final boolean hasChildren = isContainer ? (cont.getComponentCount() > 0) : false;
 
         System.out.print(".");
 

@@ -112,7 +112,7 @@ public Foundation init(uContext c) {
  		            // Some LnF/Themes use properties (JTattoo, ...)
 		            Properties props = new Properties();
 
-          			final int version = JTATTOO_LAF; // WEB_LAF; //MATCHES_SETTING;
+          			final int version = MATCHES_SETTING; // WEB_LAF; //MATCHES_SETTING;
                     switch (version) {
                         case 1:
                             // http://robertour.com/2016/04/25/quickly-improving-java-metal-look-feel/
@@ -204,10 +204,10 @@ public Foundation init(uContext c) {
                         		NimRODLookAndFeel.setCurrentTheme(nt);
                         		UIManager.setLookAndFeel(NimRODLF);
                         		break;
-                        	case 3:                        		
-                        		// greyscale , blueberry , NimRODThemeFile_rix_mint_segoeui
-                        		// themes/nimrod/NimRODThemeFile_rix_mint_segoeui.theme
-                        		nt = new NimRODTheme("themes/nimrod/NimRODThemeFile_rix_royale_calibri.theme");
+                        	case 3:
+                        		// themes/nimrod/*.theme
+                        		// NimRODThemeFile_rix_mint_segoeui.theme, NimRODThemeFile_rix_royale_calibri.theme
+                        		nt = new NimRODTheme("themes/nimrod/NimRODThemeFile_executive_calibri.theme");
                         		//NimRODLF = new NimRODLookAndFeel();
                         		NimRODLookAndFeel.setCurrentTheme(nt);
                         		UIManager.setLookAndFeel(NimRODLF);                        		
@@ -220,61 +220,34 @@ public Foundation init(uContext c) {
                         case 6: // JTATTOO_LAF
 
                             boolean useTattooTheme = true;
-
                             if (useTattooTheme) {
-
                                
-
                                 boolean demo = false;
-
                                 if (demo) {
 
                                     props.put("logoString", "my company");
-
                                     props.put("licenseKey", "INSERT YOUR LICENSE KEY HERE");
-
                                    
-
                                     props.put("selectionBackgroundColor", "180 240 197");
-
                                     props.put("menuSelectionBackgroundColor", "180 240 197");
-
                                     
-
                                     props.put("controlColor", "218 254 230");
-
                                     props.put("controlColorLight", "218 254 230");
-
                                     props.put("controlColorDark", "180 240 197");
-
  
-
                                     props.put("buttonColor", "218 230 254");
-
                                     props.put("buttonColorLight", "255 255 255");
-
                                     props.put("buttonColorDark", "244 242 232");
 
- 
-
                                     props.put("rolloverColor", "218 254 230");
-
                                     props.put("rolloverColorLight", "218 254 230");
-
                                     props.put("rolloverColorDark", "180 240 197");
-
  
-
                                     props.put("windowTitleForegroundColor", "0 0 0");
-
                                     props.put("windowTitleBackgroundColor", "180 240 197");
-
                                     props.put("windowTitleColorLight", "218 254 230");
-
                                     props.put("windowTitleColorDark", "180 240 197");
-
                                     props.put("windowBorderColor", "218 254 230");                                   
-
                                 }
 
                                 props.put("subTextFont", "Consolas BOLD 10"); // ???
@@ -284,12 +257,12 @@ public Foundation init(uContext c) {
                                 props.put("controlTextFont", "Calibri PLAIN 14"); // JButton, ... // Aluminium does not respect this... well... maybe it does, I just don't know what components it affects yet?
                                 props.put("windowTitleFont", "Calibri PLAIN 16"); // JFrame, (JInternalFrame I asume), ...
 
-				// set your theme
+                                // set your theme
                                 // SmartLookAndFeel.setCurrentTheme(props);                                                              
 
                             }
                            
-                            final int tattooLNF = 1;
+                            final int tattooLNF = 3;
                             switch (tattooLNF) {
                             case 1:
                                 if (useTattooTheme) FastLookAndFeel.setCurrentTheme(props);

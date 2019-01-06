@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.GridBagLayout;
@@ -61,6 +62,7 @@ import org.jwellman.swing.actions.FileActionAware;
 import org.jwellman.swing.component.HorizontalGraphitePanel;
 import org.jwellman.swing.dnd.FileDropTarget;
 import org.jwellman.swing.font.FontFactory;
+import org.jwellman.swing.jpanel.RestrictedHeightPanel;
 import org.jwellman.swing.jtable.BetterJTable;
 import org.jwellman.swing.jtable.JTablePropertyAction;
 import org.jwellman.swing.jtable.TableColumnManager;
@@ -171,9 +173,10 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
     
     public DataBrowser(DataBrowserAware aware) {
 
-		this.setLayout(new BorderLayout());		
-		
+    	// TODO Perhaps eventually there should be a list of DataBrowserAware
 		this.dataBrowserAware = aware;
+
+		this.setLayout(new BorderLayout());				
 		
 		this.initJTable();
 		
@@ -364,10 +367,19 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
                 ? BetterJTable.createStripedJScrollPane(tblCsvData)
                 : new JScrollPane(tblCsvData);       
 
-        pane.setBorder(BorderFactory.createCompoundBorder(
-                BORDER_EMPTY,
-                BorderFactory.createLineBorder(COLOR_GREY_MED) ) // BORDER_LINE
-                ); // (BORDER_EMPTY); //( BORDER_COMPOUND );
+        boolean usingTexturedLAF = false;
+        if (usingTexturedLAF) {
+        	pane.setOpaque(false);
+        	pane.getViewport().setOpaque(false);
+        	pane.setBorder(BORDER_EMPTY);
+        } else {
+    		// JTattoo Aluminium theme does not handle this border well
+		    pane.setBorder(
+		    	BorderFactory.createCompoundBorder(
+		            BORDER_EMPTY,
+		            BorderFactory.createLineBorder(COLOR_GREY_MED) ) // BORDER_LINE
+		            ); // (BORDER_EMPTY); //( BORDER_COMPOUND );	
+		}
         
         if (tblCsvData instanceof BetterJTable) {
             // do nothing (yet?)
@@ -428,7 +440,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         	}
         }
 
-        boolean customizeHeader = true;
+        boolean customizeHeader = false;
         if (customizeHeader) {
             final NumberCellRenderer hdrRenderer = new NumberCellRenderer("Consolas", "dummy");
             hdrRenderer.setForeground(new Color(249,249,249));
@@ -447,7 +459,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         } else {
             tblCsvData.getTableHeader().setFont(FONT_CALIBRI_BOLD);
             tblCsvData.getTableHeader().setForeground(COLOR_GREY_DARKEST);
-            tblCsvData.getTableHeader().setBackground(new Color(249,249,249));
+            tblCsvData.getTableHeader().setBackground(new Color(0xDEDEDE));
         }
 
         if (tblCsvData instanceof JTable) {
@@ -589,13 +601,13 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(d, e, f)));
 
         final Dimension dimicon = new Dimension(30,1);
-        JButton g = HorizontalGraphitePanel.createButton(null, null, dimicon);
-        g.setAction(new JTablePropertyAction("CMARGIN+",  tblCsvData, JTablePropertyAction.ACTION_INCREASE_COLUMN_MARGIN, null));
+        JButton g = HorizontalGraphitePanel.createButton(null, null, dimicon); // ACTION_INCREASE_COLUMN_MARGIN
+        g.setAction(new JTablePropertyAction("CMARGIN+",  tblCsvData, JTablePropertyAction.ACTION_INCREASE_ROW_HEIGHT, null));
         g.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_INDENT_INCREASE, 14, COLOR_EAST_TEXT));
         g.setText("");
         
-        JButton h = HorizontalGraphitePanel.createButton(null, null, dimicon);
-        h.setAction(new JTablePropertyAction("CMARGIN-",  tblCsvData, JTablePropertyAction.ACTION_DECREASE_COLUMN_MARGIN, null));
+        JButton h = HorizontalGraphitePanel.createButton(null, null, dimicon); // ACTION_DECREASE_COLUMN_MARGIN
+        h.setAction(new JTablePropertyAction("CMARGIN-",  tblCsvData, JTablePropertyAction.ACTION_DECREASE_ROW_HEIGHT, null));
         h.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_INDENT_DECREASE, 14, COLOR_EAST_TEXT));
         h.setText("");
         
@@ -648,10 +660,6 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 			e1.printStackTrace();
 		}
 		
-		// TODO move this to global initialization
-		IconFontSwing.register(FontAwesome.getIconFont());
-		IconFontSwing.register(GoogleMaterialDesignIcons.getIconFont());
-		
 		JPanel actions = new JPanel();
 		actions.setLayout(new BorderLayout()); //(new BoxLayout(actions, BoxLayout.PAGE_AXIS));
 		actions.setBorder( BorderFactory.createCompoundBorder(BORDER_EMPTY, BORDER_ETCHED) );
@@ -696,10 +704,13 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 		LayoutManager southlayout = new BoxLayout(south, BoxLayout.Y_AXIS); // new GridLayout(0,1)
 		south.setLayout(southlayout);
 
-		//JPanel delimiter = this.createDelimiter();
-		//south.add(delimiter);
-		this.delimiterChooser = (DelimiterChooser) (this.textChooser = new DelimiterChooser());
-		south.add(this.delimiterChooser.getUI());
+		boolean includeDelimiterChooser = false;
+		if (includeDelimiterChooser) {
+			//JPanel delimiter = this.createDelimiter();
+			//south.add(delimiter);
+			this.delimiterChooser = (DelimiterChooser) (this.textChooser = new DelimiterChooser());
+			south.add(this.delimiterChooser.getUI());			
+		}
 				
         JToggleButton b = (JToggleButton) HorizontalGraphitePanel.decorateButton(new JToggleButton(), null, null);
         b.setAction(new JTablePropertyAction("RESIZE MODE",  tblCsvData, JTablePropertyAction.ACTION_TOGGLE_AUTORESIZEMODE, null));
@@ -749,8 +760,11 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 
         south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(h, g, j, i)));        
                 
-        this.btnGlassPane = HorizontalGraphitePanel.decorateButton(new JButton("GLASS PANE"), null, null);
-        south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(this.btnGlassPane)));
+        boolean includeGlassPaneAction = false;
+        if (includeGlassPaneAction) {
+            this.btnGlassPane = HorizontalGraphitePanel.decorateButton(new JButton("GLASS PANE"), null, null);
+            south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(this.btnGlassPane)));        	
+        }
 
         actions.add(north, BorderLayout.NORTH);
         actions.add(south, BorderLayout.SOUTH);
@@ -883,16 +897,23 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         this.remove(layout.getLayoutComponent(BorderLayout.CENTER));
         
         // Create/Add the JTable
-        this.add(this.createCsvTable(file), BorderLayout.CENTER);        
+        this.add(this.createCsvTable(file), BorderLayout.CENTER);
         
+        JPanel p = new RestrictedHeightPanel(new FlowLayout(FlowLayout.LEFT));
+        p.add(new JCheckBox(" "));
+        p.add(new JCheckBox("Select All"));
+        boxpnlColumns.add(p); 
+
         // Put the checkboxes in our user interface
         for (JCheckBox checkbox : csvTableColumnManager.getListOfJCheckBox()) {
             // We want them to span the entire width of the container for usability
             Utilities.allowMaxWidth(checkbox);
-//        	Dimension d = checkbox.getPreferredSize(); d.width = Short.MAX_VALUE;
-//        	checkbox.setMaximumSize(d);
+            
+            p = new RestrictedHeightPanel(new FlowLayout(FlowLayout.LEFT));
+            p.add(new JCheckBox(" "));
+        	p.add(checkbox);
         	
-            boxpnlColumns.add(checkbox);
+            boxpnlColumns.add(p);
         }
 
         if (tblCsvData instanceof JTable) {
@@ -910,7 +931,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 
         this.dataBrowserAware.updateFilename(file.getName());
         
-        // this.updateRowHeights_fast();
+        this.updateRowHeights();
 
         this.validate();
     }
@@ -922,7 +943,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 
     private void updateRowHeights() {
     	boolean fastest = true;
-    	boolean enable = false;
+    	boolean enable = true;
     	if (enable) {
     		if (fastest) 
     			updateRowHeights_fast();
@@ -948,8 +969,8 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
     }
     
     private void updateRowHeights_fast() {
-        for (int row = 0; row < tblCsvData.getRowCount(); row++)
-        {
+        for (int row = 0; row < tblCsvData.getRowCount(); row++) {
+        	
             int rowHeight = tblCsvData.getRowHeight(); 
             if (!printedCellSize)
                 System.out.print("row height before: " + rowHeight);
@@ -957,7 +978,9 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
             //assume first column is sufficient to adjust the entire row
             for (int column = 0; column < 1; column++) {
                 Component comp = tblCsvData.prepareRenderer(tblCsvData.getCellRenderer(row, column), row, column);
-                rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);
+                int compareHeight = comp.getPreferredSize().height;
+                
+                rowHeight = Math.max(rowHeight, compareHeight);
             }
 
             if (!printedCellSize)

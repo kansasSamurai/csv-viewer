@@ -1,5 +1,9 @@
 package org.jwellman.csvviewer;
 
+import jiconfont.icons.FontAwesome;
+import jiconfont.icons.GoogleMaterialDesignIcons;
+import jiconfont.swing.IconFontSwing;
+
 import org.jwellman.foundation.Foundation;
 import org.jwellman.foundation.uContext;
 import org.jwellman.foundation.extend.SimpleMain;
@@ -8,8 +12,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration;
-
-import swinghx.chapter12.hack96.ComponentGlassPane;
 
 @SpringBootApplication
 @EnableAutoConfiguration(exclude = WebMvcAutoConfiguration.class)
@@ -20,6 +22,10 @@ public class CsvViewerApplication extends SimpleMain implements uiCustomTheme {
 		SpringApplication app = new SpringApplication(CsvViewerApplication.class);
 		app.setWebEnvironment(false);
 		// app.run(args);
+		
+		// TODO move this to global initialization
+		IconFontSwing.register(FontAwesome.getIconFont());
+		IconFontSwing.register(GoogleMaterialDesignIcons.getIconFont());
 		
 		new CsvViewerApplication().startup(true, args);
 	}
