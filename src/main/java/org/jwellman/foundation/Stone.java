@@ -112,7 +112,7 @@ public Foundation init(uContext c) {
  		            // Some LnF/Themes use properties (JTattoo, ...)
 		            Properties props = new Properties();
 
-          			final int version = MATCHES_SETTING; // WEB_LAF; //MATCHES_SETTING;
+          			final int version = JTATTOO_LAF; // WEB_LAF; //MATCHES_SETTING;
                     switch (version) {
                         case 1:
                             // http://robertour.com/2016/04/25/quickly-improving-java-metal-look-feel/
@@ -217,7 +217,7 @@ public Foundation init(uContext c) {
                         			
                         	}
                             break;
-                        case 6: // JTATTOO_LAF
+                        case JTATTOO_LAF:
 
                             boolean useTattooTheme = true;
                             if (useTattooTheme) {
