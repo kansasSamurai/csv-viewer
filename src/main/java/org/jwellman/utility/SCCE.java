@@ -4,11 +4,11 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 import org.jwellman.foundation.Foundation;
-import org.jwellman.foundation.extend.SimpleMain;
+import org.jwellman.foundation.extend.AbstractSimpleMain;
 
 import java.awt.*;
 
-public class SCCE extends SimpleMain {
+public class SCCE extends AbstractSimpleMain {
 	
   JTable table;
   

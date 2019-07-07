@@ -6,7 +6,7 @@ import jiconfont.swing.IconFontSwing;
 
 import org.jwellman.foundation.Foundation;
 import org.jwellman.foundation.uContext;
-import org.jwellman.foundation.extend.SimpleMain;
+import org.jwellman.foundation.extend.AbstractSimpleMain;
 import org.jwellman.foundation.interfaces.uiCustomTheme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -15,7 +15,7 @@ import org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration;
 
 @SpringBootApplication
 @EnableAutoConfiguration(exclude = WebMvcAutoConfiguration.class)
-public class CsvViewerApplication extends SimpleMain implements uiCustomTheme {
+public class CsvViewerApplication extends AbstractSimpleMain implements uiCustomTheme {
 
 	public static void main(String[] args) {
 		
@@ -38,8 +38,7 @@ public class CsvViewerApplication extends SimpleMain implements uiCustomTheme {
         context.setDimension(85);
 
         // Step 1 - Initialize Swing
-        final Foundation f = Foundation.get();
-        f.init(context); // context
+        final Foundation f = Foundation.init(context); // context
 
         // Step 2 - Create your UIs in JPanel(s)
         mainui = f.registerUI("viewer", new DocumentManager()); // new DataBrowser());

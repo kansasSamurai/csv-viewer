@@ -1,10 +1,13 @@
-package org.jwellman.foundation.extend;
+package org.jwellman.farchive.extend;
 
 import org.jwellman.foundation.swing.IWindow;
 import org.jwellman.foundation.swing.XPanel;
 
 /**
  * A base class providing common variables needed for basic Foundation app.
+ * 
+ * Refactor Notes:  Do not use/modify this old class... it was moved into
+ * Foundation as .../extend/AbstractSimpleMain.java
  * 
  * @author Rick
  *
