@@ -24,7 +24,7 @@ public class SCCE extends AbstractSimpleMain {
   public SCCE() {
 	  
     // Step 1 - Initialize Swing
-	final Foundation f = Foundation.get().init();
+	final Foundation f = Foundation.init(null);
 	
     // Step 2 - Create your UIs in JPanel(s)
     mainui = f.registerUI("viewer", new ThisPanel());
