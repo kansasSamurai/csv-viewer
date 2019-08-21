@@ -70,7 +70,7 @@ public class DelimitedFileTableModel extends AbstractTableModel implements DataH
 			
 			// assume first record is column headings
 			List<String> columnHeadings = new ArrayList<>(records.get(0).length);
-			columnHeadings.add("--");
+			columnHeadings.add("<#>");
 			columnHeadings.addAll(Arrays.asList(records.get(0)));			
 			columns.addAll(columnHeadings);
 			records.remove(0); // remove the column headings record
