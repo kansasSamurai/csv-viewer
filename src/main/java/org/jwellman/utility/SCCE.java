@@ -36,7 +36,7 @@ public class SCCE extends AbstractSimpleMain {
     window.setResizable(true);
     
     // Step 5 - Display your User Interface
-    f.showGUI();
+    f.showGUI(window);
     
   }
     
