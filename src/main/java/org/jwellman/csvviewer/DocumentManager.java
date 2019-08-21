@@ -91,6 +91,11 @@ public class DocumentManager extends JPanel implements DataBrowserAware, ActionL
     }
 
 	@Override
+	public String getDelimiter() {
+		return this.delimiterChooser.getText();
+	}
+    
+	@Override
 	public void actionPerformed(ActionEvent e) {
 
 		switch (e.getActionCommand()) {
@@ -116,5 +121,5 @@ public class DocumentManager extends JPanel implements DataBrowserAware, ActionL
 		}
         
 	}
-    
+
 }
