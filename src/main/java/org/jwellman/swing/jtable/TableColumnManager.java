@@ -4,6 +4,8 @@ import java.awt.Component;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
@@ -45,7 +47,7 @@ import javax.swing.table.TableColumnModel;
  * 
  */
 public class TableColumnManager 
-    implements MouseListener, ActionListener, TableColumnModelListener, PropertyChangeListener {
+    implements MouseListener, ActionListener, ItemListener, TableColumnModelListener, PropertyChangeListener {
     
 	// The JTable whose columns will be managed
     private JTable table;
@@ -180,8 +182,9 @@ public class TableColumnManager
      *            table
      */
     public void hideColumn(TableColumn column) {
-        if (tableColumnModel.getColumnCount() == 1)
-            return;
+    	
+    	// TODO make this an option; turning off for csv viewer only for now
+        // if (tableColumnModel.getColumnCount() == 1) return;
 
         // Ignore changes to the TableColumnModel made by the TableColumnManager
         tableColumnModel.removeColumnModelListener(this);
@@ -339,6 +342,7 @@ public class TableColumnManager
      */
     @Override
     public void actionPerformed(ActionEvent event) {
+		System.out.print("ActionPerformed");
 
         String columnName = null;
         boolean isSelected = false;
@@ -356,11 +360,45 @@ public class TableColumnManager
             isSelected = box.isSelected();
 
         }
+        System.out.println(", column " + columnName + ", " + isSelected);
        
         if (isSelected) showColumn(columnName); else hideColumn(columnName);
 
     }
 
+    /**
+     * This is experimental... 8/17/2019 trying to integrate a select all feature.
+     * 
+     * This works... 8/18/2019 just make sure that a component is 
+     * either an ItemStateListener, or ActionListener, but not both.
+     *  
+     */
+	@Override
+	public void itemStateChanged(ItemEvent event) {
+		System.out.print("ItemStateChanged");
+
+		String columnName = null;
+        boolean isSelected = false;
+
+        if (event.getSource() instanceof JMenuItem) {
+
+            final JMenuItem item = (JMenuItem) event.getSource();
+            columnName = item.getText();
+            isSelected = item.isSelected();
+
+        } else if (event.getSource() instanceof JCheckBox) {
+
+            final JCheckBox box = (JCheckBox) event.getSource();
+            columnName = box.getText();
+            isSelected = box.isSelected();
+
+        }
+        System.out.println(", column " + columnName + ", " + isSelected);
+        
+        if (isSelected) showColumn(columnName); else hideColumn(columnName);
+
+	}
+    
     // === Implement TableColumnModelListener Interface ===
     
     @Override
@@ -458,7 +496,8 @@ public class TableColumnManager
             for (TableColumn tableColumn : allColumns) {
                 final Object value = tableColumn.getHeaderValue();
                 final JCheckBox item = new JCheckBox(value.toString(), true); // assume selected/visible (may have to change this later)
-                item.addActionListener(this);
+                // item.addActionListener(this);
+                item.addItemListener(this); // experimental
 
                 listOfJCheckBox.add(item);
             }
@@ -467,5 +506,5 @@ public class TableColumnManager
 
         return listOfJCheckBox;
     }
-    
+
 }
