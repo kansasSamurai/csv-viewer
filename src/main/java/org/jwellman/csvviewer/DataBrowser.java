@@ -25,6 +25,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -59,6 +60,7 @@ import org.jwellman.foundation.swing.XTextField;
 import org.jwellman.foundation.swing.XToggleButton;
 import org.jwellman.swing.Utilities;
 import org.jwellman.swing.actions.FileActionAware;
+import org.jwellman.swing.actions.SelectAllCheckBox;
 import org.jwellman.swing.component.HorizontalGraphitePanel;
 import org.jwellman.swing.dnd.FileDropTarget;
 import org.jwellman.swing.font.FontFactory;
@@ -386,7 +388,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         } else {
         }
 
-        tblCsvData.setModel(csvTableModel = new DelimitedFileTableModel(file, this.textChooser.getText()));
+        tblCsvData.setModel(csvTableModel = new DelimitedFileTableModel(file, this.dataBrowserAware.getDelimiter()) ); // this.textChooser.getText()));
         tblCsvData.setShowVerticalLines(false);
         tblCsvData.setFont(FONT_CALIBRI); // (fontSmallData);
         tblCsvData.setRowMargin(1); tblCsvData.getColumnModel().setColumnMargin(0);
@@ -493,9 +495,9 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
             e1.printStackTrace();
         }
         
-        // TODO move this to global initialization
-        IconFontSwing.register(FontAwesome.getIconFont());
-        IconFontSwing.register(GoogleMaterialDesignIcons.getIconFont());
+        // DONE move this to global initialization
+        // IconFontSwing.register(FontAwesome.getIconFont());
+        // IconFontSwing.register(GoogleMaterialDesignIcons.getIconFont());
         
         JPanel center = new JPanel(new GridLayout(0,1));
         center.setBorder( BorderFactory.createCompoundBorder(
@@ -569,9 +571,11 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         // Use this reference to control where the following components are placed
         JPanel panelptr = south;
         
-        this.delimiterChooser = (DelimiterChooser) (this.textChooser = new DelimiterChooser());
-        //this.delimiterChooser.getUI().setBorder(BORDER_DEBUG);
-        panelptr.add(this.delimiterChooser.getUI());
+        // Aug. 2019 - This works (visually but not datawise)
+        // Removing from the UI here because it is available in the global toolbar
+        // this.delimiterChooser = (DelimiterChooser) (this.textChooser = new DelimiterChooser());
+        // this.delimiterChooser.getUI().setBorder(BORDER_DEBUG);
+        // panelptr.add(this.delimiterChooser.getUI());
                 
         JToggleButton b = (JToggleButton) HorizontalGraphitePanel.decorateButton(new JToggleButton(), null, null);
         b.setAction(new JTablePropertyAction("RESIZE MODE",  tblCsvData, JTablePropertyAction.ACTION_TOGGLE_AUTORESIZEMODE, null));
@@ -900,18 +904,102 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         this.add(this.createCsvTable(file), BorderLayout.CENTER);
         
         JPanel p = new RestrictedHeightPanel(new FlowLayout(FlowLayout.LEFT));
-        p.add(new JCheckBox(" "));
-        p.add(new JCheckBox("Select All"));
+
+        // This is just visual UI sandboxing... not yet an actual feature
+        final Color green = new Color(0x106022);
+        final Color red = new Color(0x801F15);
+        final Color grey = Color.lightGray;
+        
+        Icon bugGrey = IconFontSwing.buildIcon(FontAwesome.BUG, 13, grey);
+        Icon bugBlack = IconFontSwing.buildIcon(FontAwesome.BUG, 13, Color.black);
+        Icon bugFixed = IconFontSwing.buildIcon(FontAwesome.BUG, 13, green);                
+        
+        Icon crosshairs = IconFontSwing.buildIcon(FontAwesome.CROSSHAIRS, 13, Color.black);
+        Icon database = IconFontSwing.buildIcon(FontAwesome.DATABASE, 12, Color.black);
+
+        Icon filterGrey = IconFontSwing.buildIcon(FontAwesome.FILTER, 13, grey);
+        Icon filterBlack = IconFontSwing.buildIcon(FontAwesome.FILTER, 13, Color.black);
+        Icon filterGreen = IconFontSwing.buildIcon(FontAwesome.FILTER, 13, green);        
+        
+        Icon squareo = IconFontSwing.buildIcon(FontAwesome.SQUARE_O, 13, Color.black);        
+
+        Icon analytics = IconFontSwing.buildIcon(FontAwesome.PIE_CHART, 13, grey);        
+        Icon analyticsBlack = IconFontSwing.buildIcon(FontAwesome.PIE_CHART, 13, Color.black);        
+        Icon analyticsGreen = IconFontSwing.buildIcon(FontAwesome.PIE_CHART, 13, green);        
+        
+        JCheckBox lyticsheader = new JCheckBox();
+        lyticsheader.setIcon(analyticsBlack); // TODO restore to analytics
+        lyticsheader.setSelectedIcon(analyticsBlack);
+        p.add(lyticsheader);
+        
+        JCheckBox filterheader = new JCheckBox();
+        filterheader.setIcon(filterBlack);
+        filterheader.setSelectedIcon(filterBlack);
+        p.add(filterheader);
+        
+        JCheckBox bugcheck = new JCheckBox();
+        bugcheck.setIcon(bugBlack);
+        bugcheck.setSelectedIcon(bugBlack);
+        
+        // Different LAFs have slightly different JCheckBox behavior with icons
+        // There is a most common use case but I create the others here as documentation.
+        int laf = 99;
+        switch (laf) {
+        default:
+            //bugcheck.setRolloverIcon(bugCritical);        
+            bugcheck.setSelectedIcon(bugBlack);
+            //bugcheck.setRolloverSelectedIcon(bugFixed);
+            //bugcheck.setPressedIcon(crosshairs);
+        	break;
+        case 1:
+            bugcheck.setRolloverIcon(bugBlack);        
+            bugcheck.setSelectedIcon(bugFixed);
+            bugcheck.setRolloverSelectedIcon(bugFixed);
+            bugcheck.setPressedIcon(crosshairs);
+        	break;
+        }
+        
+        JButton b = new JButton();
+        b.setIcon(bugFixed);
+        //d.setFont(font); 
+        //d.setText("\uf0ab\uf039\uf038\uf13d"); d.setForeground(Color.white);
+        //d.setAction(new JTablePropertyAction("GRID",  tblCsvData, JTablePropertyAction.ACTION_TOGGLE_GRID, null));
+
+        // JLabel buglabel = new JLabel(bugFixed);
+        // p.add(buglabel); // this works, just do not want to see it anymore
+        p.add(bugcheck);        
+        //p.add(b); // this works also, just also do not want to see it
+        //p.add(new JCheckBox(" "));
+        
+        JCheckBox chkSelectAll = new JCheckBox("Toggle All", true);
+        SelectAllCheckBox action = new SelectAllCheckBox(chkSelectAll);
+        p.add(chkSelectAll);
         boxpnlColumns.add(p); 
 
         // Put the checkboxes in our user interface
+        // This is just visual UI sandboxing... not yet an actual feature
         for (JCheckBox checkbox : csvTableColumnManager.getListOfJCheckBox()) {
             // We want them to span the entire width of the container for usability
             Utilities.allowMaxWidth(checkbox);
+        
+            JCheckBox lytbox = new JCheckBox();
+            lytbox.setIcon(analytics);
+            lytbox.setSelectedIcon(analyticsGreen);
             
+            JCheckBox filbox = new JCheckBox();
+            filbox.setIcon(filterGrey);
+            filbox.setSelectedIcon(filterGreen);
+            
+            JCheckBox bugbox = new JCheckBox();
+            bugbox.setIcon(bugGrey);
+            bugbox.setSelectedIcon(bugFixed);
+            // bugbox.setPressedIcon(crosshairs);
+
             p = new RestrictedHeightPanel(new FlowLayout(FlowLayout.LEFT));
-            p.add(new JCheckBox(" "));
-        	p.add(checkbox);
+            p.add(lytbox);
+            p.add(filbox);
+            p.add(bugbox); // TODO what's the visual diff between "" vs. " "
+        	p.add(action.register(checkbox));
         	
             boxpnlColumns.add(p);
         }

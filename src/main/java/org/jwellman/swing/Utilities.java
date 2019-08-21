@@ -32,8 +32,8 @@ public class Utilities {
      * Same as allowMaxWidth(JComponent c) except that sometimes we need to know the container
      * so that we can use its layout setting to get proper behavior. 
      * 
-     * @param titlebar
-     * @param north
+     * @param c the JComponent
+     * @param p the JPanel containing the JComponent
      * @return
      */
     public static Component allowMaxWidth(JComponent c, JPanel p) {
