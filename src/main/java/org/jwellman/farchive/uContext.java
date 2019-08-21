@@ -1,7 +1,7 @@
 package org.jwellman.farchive;
 
 import java.awt.Dimension;
-import org.jwellman.foundation.interfaces.uiCustomTheme;
+import org.jwellman.foundation.interfaces.uiThemeProvider;
 
 /**
  *
@@ -18,11 +18,11 @@ public class uContext {
     }
 
     /** An object that implements the theme-ing interface */
-    private uiCustomTheme theme;
+    private uiThemeProvider theme;
 
-    public void setTheme(uiCustomTheme x) { theme = x; }
+    public void setTheme(uiThemeProvider x) { theme = x; }
 
-    public uiCustomTheme getTheme() { return theme; }
+    public uiThemeProvider getTheme() { return theme; }
 
 
     /** A dimension object for the window (w/ default value) */

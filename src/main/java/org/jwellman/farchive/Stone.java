@@ -94,7 +94,7 @@ public Foundation init(uContext c) {
 
         // Conditionally apply context settings...
         context = (c != null) ? c : uContext.createContext();
-        if (context.getTheme() != null) { context.getTheme().doCustomTheme(); }
+        if (context.getTheme() != null) { context.getTheme().doTheme(); }
 
         // Prefer Nimbus over default look and feel.
         try {
