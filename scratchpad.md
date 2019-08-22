@@ -2,13 +2,46 @@
 As the filename implies, this is a scratchpad... its contents will vary over time
 and are to be considered unimportant to the build/execution of this application.
 
+## 8/22/2019
+### DataBrowser
+```
+        case 4: // case 3 but refactored to use glazed lists column sorting
+        {
+        	GlazedListTableModel tm = new GlazedListTableModel(file, this.dataBrowserAware.getDelimiter());
+        	dataHintAware = tm;
+
+        	final SortedList sorted = new SortedList(tm.getEventList(), new DataComparator());
+        	
+        	final FilterList filtered = new FilterList(sorted, new TextComponentMatcherEditor(txtFilter, new DataTextFilterator(dataHintAware)));
+        	
+        	AdvancedTableModel etm = GlazedListsSwing.eventTableModelWithThreadProxyList(filtered, tm);
+        	csvTableModel = etm;
+            tblCsvData.setModel(csvTableModel); // for the next line to work, you must set the model first
+
+        	TableComparatorChooser<Object> tcc = TableComparatorChooser.install(tblCsvData, sorted, TableComparatorChooser.SINGLE_COLUMN);
+
+        }
+        	break;
+        default:
+        	;
+        }
+        
+        switch(modeldesign) {
+        case 4:
+        	// already setModel() in case 4 above
+        	break;
+        default:
+        	tblCsvData.setModel(csvTableModel);
+        }
+```
+
 ## 8/21/2019
 Filtered JTable
 * new GlazedListTableModel (org.jwellman.csvviewer)
 * new DataTextFilterator (org.jwellman.csvviewer.glazed)
 * mod DataBrowser
 
-## DataBrowser
+### DataBrowser
 ```
 	private TableModel csvTableModel;
 	
@@ -52,7 +85,7 @@ Filtered JTable
 
 ```
 
-## org.jwellman.csvviewer.GlazedListTableModel
+### org.jwellman.csvviewer.GlazedListTableModel
 ```
 package org.jwellman.csvviewer;
 
@@ -200,7 +233,7 @@ public class GlazedListTableModel implements DataHintAware, TableFormat<Object> 
 }
 ```
 
-## org.jwellman.csvviewer.glazed.DataTextFilterator
+### org.jwellman.csvviewer.glazed.DataTextFilterator
 ```
 package org.jwellman.csvviewer.glazed;
 
