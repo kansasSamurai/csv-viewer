@@ -3,6 +3,13 @@ As the filename implies, this is a scratchpad... its contents will vary over tim
 and are to be considered unimportant to the build/execution of this application.
 
 ## 8/22/2019
+
+https://www.javaworld.com/article/2073002/jtable-filtering-with-glazed-lists.html
+### EventSelectionModel
+Java's DefaultListSelectionModel has a flaw that prevents it from cooperating with filtering. When a row is inserted into a JTable, it becomes selected if immediately inserted before a selected row. This proves problematic if the rows of a JTable are selected when its filter changes. When the filter is removed, some restored rows may incorrectly become selected.
+
+Glazed Lists includes EventSelectionModel, which has more predictable behavior. This class also has a method, getEventList(), which contains the JTable's current selection. As rows are selected, the corresponding elements are automatically added to that list.
+
 ### DataBrowser
 ```
         case 4: // case 3 but refactored to use glazed lists column sorting
