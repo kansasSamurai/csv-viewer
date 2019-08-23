@@ -52,6 +52,7 @@ import jiconfont.icons.GoogleMaterialDesignIcons;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
+import org.jwellman.csvviewer.glazed.DataTextFilterator;
 import org.jwellman.csvviewer.interfaces.TextChooserAware;
 import org.jwellman.csvviewer.models.Person;
 import org.jwellman.foundation.swing.XButton;
@@ -78,9 +79,15 @@ import org.jwellman.utility.Limit;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.FilterList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.gui.TableFormat;
+import ca.odell.glazedlists.matchers.Matcher;
+import ca.odell.glazedlists.swing.AdvancedTableModel;
+import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.EventTableModel;
+import ca.odell.glazedlists.swing.GlazedListsSwing;
+import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
 
 /**
  * 
@@ -101,10 +108,16 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
     
     private TableColumnManager csvTableColumnManager;
 
-    private TextChooserAware textChooser;
+	// This was not originally present; however, with the addition of glazed lists
+	// it became necessary to differentiate between DelimitedFileTableModel and GlazedListTableModel
+	private DataHintAware dataHintAware;
+
+	private TextChooserAware textChooser;
     
     private DelimiterChooser delimiterChooser;
     
+    private JTextField txtFilter;
+
     private JLabel statusFilename;
     
     private JLabel txtFilename;
@@ -388,7 +401,46 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         } else {
         }
 
-        tblCsvData.setModel(csvTableModel = new DelimitedFileTableModel(file, this.dataBrowserAware.getDelimiter()) ); // this.textChooser.getText()));
+        int modeldesign = 4;
+        switch(modeldesign) {
+        case 1:
+        	csvTableModel = new DelimitedFileTableModel(file, this.dataBrowserAware.getDelimiter());
+        	dataHintAware = (DataHintAware) csvTableModel;
+
+        	break;
+        case 2:
+        {
+        	GlazedListTableModel tm = new GlazedListTableModel(file, this.dataBrowserAware.getDelimiter());
+        	dataHintAware = tm;
+        	DefaultEventTableModel etm = new DefaultEventTableModel(tm.getEventList(), tm);
+        	csvTableModel = etm;
+        }
+        	break;
+        case 3: // case 2 + filter list
+        {
+        	GlazedListTableModel tm = new GlazedListTableModel(file, this.dataBrowserAware.getDelimiter());
+        	dataHintAware = tm;
+        	FilterList filteredData = new FilterList(tm.getEventList(), new TextComponentMatcherEditor(txtFilter, new DataTextFilterator(dataHintAware)));
+        	DefaultEventTableModel etm = new DefaultEventTableModel(filteredData, tm);
+        	csvTableModel = etm;
+        }
+        	break;
+        case 4: // basically case 3 but using latest glazed list tutorial as reference
+        {
+        	GlazedListTableModel tm = new GlazedListTableModel(file, this.dataBrowserAware.getDelimiter());
+        	dataHintAware = tm;
+        	FilterList filteredData = new FilterList(tm.getEventList(), new TextComponentMatcherEditor(txtFilter, new DataTextFilterator(dataHintAware)));
+        	//DefaultEventTableModel etm = new DefaultEventTableModel(filteredData, tm);
+        	AdvancedTableModel atm = 
+        			GlazedListsSwing.eventTableModelWithThreadProxyList(filteredData, tm);
+        	csvTableModel = atm;
+        }
+        	break;
+        default:
+        	;
+        }
+        
+        tblCsvData.setModel(csvTableModel);
         tblCsvData.setShowVerticalLines(false);
         tblCsvData.setFont(FONT_CALIBRI); // (fontSmallData);
         tblCsvData.setRowMargin(1); tblCsvData.getColumnModel().setColumnMargin(0);
@@ -432,7 +484,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         // following are interesting (* = not monospaced):
         // OCR A Extended , HP Simplified* , LuzSans-Book* , Rockwell* , Roboto*
         // Sitka Text* , X-Files*
-        final List<DataHint> hints = ((DataHintAware) csvTableModel).getDataHints();
+        final List<DataHint> hints = dataHintAware.getDataHints();
         for (int i=0; i<tblCsvData.getColumnCount(); i++) {
             final String cname = tblCsvData.getColumnName(i);
         	if (hints.get(i).equals(DataHint.NUMERIC)) {
@@ -495,10 +547,6 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
             e1.printStackTrace();
         }
         
-        // DONE move this to global initialization
-        // IconFontSwing.register(FontAwesome.getIconFont());
-        // IconFontSwing.register(GoogleMaterialDesignIcons.getIconFont());
-        
         JPanel center = new JPanel(new GridLayout(0,1));
         center.setBorder( BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(0, 1, 2, 3)
@@ -538,6 +586,41 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         txtLinecount = (JLabel) XLabel.create().setFont(fontSmallData).setText("......").get();
 //            north.add(fileinfoPanel(lblLinecount,txtLinecount));
 
+        // Since this panel creates many widgets, create some reusable references:
+        JLabel jlabel = null;
+        HorizontalGraphitePanel graphitepanel = null; 
+ 
+        jlabel = (JLabel) XLabel.create().setFont(FONT_VERDANA).setText("FILTER").setForeground(COLOR_EAST_TEXT).get();
+               jlabel.setHorizontalAlignment(SwingConstants.CENTER);
+               graphitepanel = new HorizontalGraphitePanel();
+              
+               {   int design = 1;
+                      switch(design) {
+                      case 1:
+                             graphitepanel.setLayout(new BorderLayout());
+                             graphitepanel.add(jlabel, BorderLayout.CENTER);
+                           break;
+                      case 2:
+                             graphitepanel.setLayout(new BoxLayout(graphitepanel, BoxLayout.X_AXIS));
+                             graphitepanel.add(jlabel);
+                             graphitepanel.add(new JTextField("enter-filter-here"));
+                           break;
+                      case 3:
+                             graphitepanel.setLayout(new BorderLayout());
+                             graphitepanel.add(jlabel, BorderLayout.WEST);
+                            
+                             JPanel c = new JPanel(new GridBagLayout());
+                             c.add(new JTextField("enter-filter-here"));
+                             graphitepanel.add(c, BorderLayout.CENTER);
+                             
+                           break;
+                      }                
+               }
+              
+               north.add(graphitepanel);              
+        
+       	    north.add(txtFilter = new JTextField());
+
         JLabel titlebar = new JLabel("DATA COLUMNS");
 //            titlebar.setOpaque(true);
               titlebar.setForeground(new Color(0xcdcdcd));
@@ -552,8 +635,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
             
         JButton packButton = HorizontalGraphitePanel.createButton("PACK", null, null);
         JButton unpackButton = HorizontalGraphitePanel.createButton("UNPACK", null, null);
-        final HorizontalGraphitePanel graphitepanel = HorizontalGraphitePanel
-                .createDefault(Arrays.asList(packButton, unpackButton));
+        graphitepanel = HorizontalGraphitePanel.createDefault(Arrays.asList(packButton, unpackButton));
 //        north.add(graphitepanel);       
 
         ///// ===== SOUTH ===== /////
