@@ -2,6 +2,53 @@
 As the filename implies, this is a scratchpad... its contents will vary over time
 and are to be considered unimportant to the build/execution of this application.
 
+## 8/23/2019
+
+https://github.com/aterai/java-swing-tips/tree/master/DragSelectDropReordering/src/java/example
+
+http://coderazzi.net/tablefilter/download.html
+
+http://repo2.maven.org/maven2/net/coderazzi/tablefilter-swing/5.5.1/tablefilter-swing-5.5.1.pom
+```
+    <groupId>net.coderazzi</groupId>
+    <artifactId>tablefilter-swing</artifactId>
+    <packaging>jar</packaging>
+    <version>5.5.1</version>
+```
+
+https://tips4java.wordpress.com/2008/11/18/row-number-table/
+
+https://www.codejava.net/java-se/swing/6-techniques-for-sorting-jtable-you-should-know
+
+https://www.aspose.com/   
+^^^ File Format APIs ; this looks very good; not sure about price yet
+
+### DataBrowser.java
+```
+    private void updateRowHeights_fast() {
+    	int rowcount = 1; // tblCsvData.getRowCount()
+        for (int row = 0; row < rowcount; row++)
+        {
+            int rowHeight = tblCsvData.getRowHeight(); 
+            if (!printedCellSize)
+                System.out.print("row height before: " + rowHeight);
+
+            //assume first column is sufficient to adjust the entire row
+            for (int column = 0; column < 1; column++) {
+                Component comp = tblCsvData.prepareRenderer(tblCsvData.getCellRenderer(row, column), row, column);
+                rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);
+            }
+
+            if (!printedCellSize)
+                System.out.println(", after: " + rowHeight);
+            
+            tblCsvData.setRowHeight(rowHeight); tblCsvData.setRowHeight(row, rowHeight);
+
+            printedCellSize = true;
+        }
+    }
+```
+
 ## 8/22/2019
 
 https://www.javaworld.com/article/2073002/jtable-filtering-with-glazed-lists.html
