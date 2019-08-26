@@ -29,9 +29,9 @@ public class DataTextFilterator implements TextFilterator {
 		
 		int column = 0;
 		for (DataHint hint : hints) {
-			if (hint == DataHint.STRING) {
-				indices.add(column);
-			}
+//			if (hint == DataHint.STRING) indices.add(column);
+			if (column > 0) indices.add(column);
+
 			column++;
 		}
 		

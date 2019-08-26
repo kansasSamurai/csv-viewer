@@ -52,6 +52,7 @@ import jiconfont.icons.GoogleMaterialDesignIcons;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
+import org.jwellman.csvviewer.glazed.DataComparator;
 import org.jwellman.csvviewer.glazed.DataTextFilterator;
 import org.jwellman.csvviewer.interfaces.TextChooserAware;
 import org.jwellman.csvviewer.models.Person;
@@ -81,12 +82,14 @@ import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.FilterList;
 import ca.odell.glazedlists.GlazedLists;
+import ca.odell.glazedlists.SortedList;
 import ca.odell.glazedlists.gui.TableFormat;
 import ca.odell.glazedlists.matchers.Matcher;
 import ca.odell.glazedlists.swing.AdvancedTableModel;
 import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.EventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
+import ca.odell.glazedlists.swing.TableComparatorChooser;
 import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
 
 /**
@@ -215,7 +218,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
             break;
         case 3:
             tblCsvData = new XTable();
-            tblCsvData.setAutoCreateRowSorter(true);
+            // tblCsvData.setAutoCreateRowSorter(true);
             break;
         case 4:
             JXTable xtable = (JXTable) (tblCsvData = new JXTable()); // new JXTable(tableModel); // JTable(tableModel); // BetterJTable            
@@ -402,6 +405,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         }
 
         int modeldesign = 4;
+        FilterList filteredData = null;
         switch(modeldesign) {
         case 1:
         	csvTableModel = new DelimitedFileTableModel(file, this.dataBrowserAware.getDelimiter());
@@ -420,27 +424,41 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         {
         	GlazedListTableModel tm = new GlazedListTableModel(file, this.dataBrowserAware.getDelimiter());
         	dataHintAware = tm;
-        	FilterList filteredData = new FilterList(tm.getEventList(), new TextComponentMatcherEditor(txtFilter, new DataTextFilterator(dataHintAware)));
+        	filteredData = new FilterList(tm.getEventList(), new TextComponentMatcherEditor(txtFilter, new DataTextFilterator(dataHintAware)));
         	DefaultEventTableModel etm = new DefaultEventTableModel(filteredData, tm);
         	csvTableModel = etm;
         }
         	break;
-        case 4: // basically case 3 but using latest glazed list tutorial as reference
+        case 4: // case 3 but refactored to use glazed lists column sorting
         {
         	GlazedListTableModel tm = new GlazedListTableModel(file, this.dataBrowserAware.getDelimiter());
         	dataHintAware = tm;
-        	FilterList filteredData = new FilterList(tm.getEventList(), new TextComponentMatcherEditor(txtFilter, new DataTextFilterator(dataHintAware)));
-        	//DefaultEventTableModel etm = new DefaultEventTableModel(filteredData, tm);
-        	AdvancedTableModel atm = 
-        			GlazedListsSwing.eventTableModelWithThreadProxyList(filteredData, tm);
-        	csvTableModel = atm;
+
+        	final SortedList sorted = new SortedList(tm.getEventList(), new DataComparator());
+        	
+        	final FilterList filtered = new FilterList(sorted, new TextComponentMatcherEditor(txtFilter, new DataTextFilterator(dataHintAware)));
+        	
+        	AdvancedTableModel etm = GlazedListsSwing.eventTableModelWithThreadProxyList(filtered, tm);
+        	csvTableModel = etm;
+            tblCsvData.setModel(csvTableModel); // for the next line to work, you must set the model first
+
+        	TableComparatorChooser<Object> tcc = TableComparatorChooser.install(tblCsvData, sorted, TableComparatorChooser.SINGLE_COLUMN);
+
         }
         	break;
         default:
         	;
         }
         
-        tblCsvData.setModel(csvTableModel);
+        switch(modeldesign) {
+        case 4:
+        	// already setModel() in case 4 above
+        	break;
+        default:
+        	tblCsvData.setModel(csvTableModel);
+        }
+
+        
         tblCsvData.setShowVerticalLines(false);
         tblCsvData.setFont(FONT_CALIBRI); // (fontSmallData);
         tblCsvData.setRowMargin(1); tblCsvData.getColumnModel().setColumnMargin(0);
@@ -1156,7 +1174,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
             if (!printedCellSize)
                 System.out.println(", after: " + rowHeight);
             
-            tblCsvData.setRowHeight(row, rowHeight);
+            tblCsvData.setRowHeight(rowHeight);
 
             printedCellSize = true;
         }
