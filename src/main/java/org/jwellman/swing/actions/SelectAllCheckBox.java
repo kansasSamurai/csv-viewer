@@ -9,6 +9,18 @@ import javax.swing.AbstractButton;
 import javax.swing.JCheckBox;
 import javax.swing.SwingUtilities;
 
+/**
+ * This action is intended to be attached to a JCheckBox (via the constructor).
+ * 
+ * The state of the JCheckBox, when clicked, will be reflected into all JCheckBox
+ * that have previously been "registered" via the register() method.
+ * 
+ * If you want the registered JCheckBox to "do something" when this action
+ * changes its state, then you must create and add an ItemListener.
+ *  
+ * @author rwellman
+ *
+ */
 @SuppressWarnings("serial")
 public class SelectAllCheckBox extends AbstractAction implements Runnable {
 

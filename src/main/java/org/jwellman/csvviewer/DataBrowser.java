@@ -52,6 +52,7 @@ import jiconfont.icons.GoogleMaterialDesignIcons;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
+import org.jwellman.csvviewer.actions.ActionSetFilterColumn;
 import org.jwellman.csvviewer.glazed.DataComparator;
 import org.jwellman.csvviewer.glazed.DataTextFilterator;
 import org.jwellman.csvviewer.interfaces.TextChooserAware;
@@ -188,6 +189,15 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
     private static final Color COLOR_EAST_TEXT = new Color(0xcdcdcd);
 
     private boolean printedCellSize = false;
+
+    // ===== Glazed Lists =====
+    
+    private DataTextFilterator dataTextFilterator;
+    
+    
+    
+    
+    
     
     public DataBrowser(DataBrowserAware aware) {
 
@@ -424,7 +434,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         {
         	GlazedListTableModel tm = new GlazedListTableModel(file, this.dataBrowserAware.getDelimiter());
         	dataHintAware = tm;
-        	filteredData = new FilterList(tm.getEventList(), new TextComponentMatcherEditor(txtFilter, new DataTextFilterator(dataHintAware)));
+        	filteredData = new FilterList(tm.getEventList(), new TextComponentMatcherEditor(txtFilter, dataTextFilterator = new DataTextFilterator(dataHintAware)));
         	DefaultEventTableModel etm = new DefaultEventTableModel(filteredData, tm);
         	csvTableModel = etm;
         }
@@ -436,7 +446,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 
         	final SortedList sorted = new SortedList(tm.getEventList(), new DataComparator());
         	
-        	final FilterList filtered = new FilterList(sorted, new TextComponentMatcherEditor(txtFilter, new DataTextFilterator(dataHintAware)));
+        	final FilterList filtered = new FilterList(sorted, new TextComponentMatcherEditor(txtFilter, dataTextFilterator = new DataTextFilterator(dataHintAware)));
         	
         	AdvancedTableModel etm = GlazedListsSwing.eventTableModelWithThreadProxyList(filtered, tm);
         	csvTableModel = etm;
@@ -1078,6 +1088,8 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 
         // Put the checkboxes in our user interface
         // This is just visual UI sandboxing... not yet an actual feature
+        // assume that order of checkboxes in the list matches the index in the underlying table model; this assumption may prove invalid in the future
+        int i = 0;
         for (JCheckBox checkbox : csvTableColumnManager.getListOfJCheckBox()) {
             // We want them to span the entire width of the container for usability
             Utilities.allowMaxWidth(checkbox);
@@ -1089,6 +1101,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
             JCheckBox filbox = new JCheckBox();
             filbox.setIcon(filterGrey);
             filbox.setSelectedIcon(filterGreen);
+            filbox.addActionListener(new ActionSetFilterColumn(filbox, txtFilter, dataTextFilterator, i++));
             
             JCheckBox bugbox = new JCheckBox();
             bugbox.setIcon(bugGrey);

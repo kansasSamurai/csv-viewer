@@ -19,9 +19,11 @@ import ca.odell.glazedlists.TextFilterator;
  * @author rwellman
  *
  */
-public class DataTextFilterator implements TextFilterator {
+public class DataTextFilterator implements TextFilterator<String[]> {
 
 	private Integer[] textidx;
+	
+	private List<Integer> filteridx = new ArrayList<>();
 	
 	public DataTextFilterator(DataHintAware aware) {
 		final List<Integer> indices = new ArrayList<>();		
@@ -39,11 +41,25 @@ public class DataTextFilterator implements TextFilterator {
 	}
 	
 	@Override
-	public void getFilterStrings(List baseList, Object element) {
-		final String[] asarray = (String[]) element;
-		for (int ptr : textidx) {
-			baseList.add(asarray[ptr-1]); // the hints are 1 greater than the data array because of the "line number"
+	public void getFilterStrings(List<String> baseList, String[] element) {
+
+		if (filteridx.isEmpty()) {
+			for (int ptr : textidx) {
+				baseList.add(element[ptr-1]); // the hints are 1 greater than the data array because of the "line number"
+			}			
+		} else {
+			for (int ptr : filteridx) {
+				baseList.add(element[ptr-1]); // the hints are 1 greater than the data array because of the "line number"
+			}
 		}
+	}
+
+	public void add(int index) {
+		filteridx.add(index);
+	}
+
+	public void remove(int index) {
+		filteridx.remove(filteridx.indexOf(index));
 	}
 
 }
