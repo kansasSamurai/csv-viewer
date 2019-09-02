@@ -76,6 +76,7 @@ public class DelimitedFileTableModel extends AbstractTableModel implements DataH
 			records.remove(0); // remove the column headings record
 			dataHints.add(DataHint.NUMERIC); // though numeric, treat line numbers as strings
 			
+			// Determine data hint for remaining columns;
 			final String[] record = records.get(0);
 			for (String field : record) {				
 				System.out.print(field);

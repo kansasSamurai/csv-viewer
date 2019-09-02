@@ -3,6 +3,7 @@ package org.jwellman.csvviewer;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -82,10 +83,13 @@ public class GlazedListTableModel implements DataHintAware, TableFormat<Object> 
 			// Determine data hint for remaining columns;
 			final String[] record = records.get(0);
 			for (String field : record) {
+				System.out.print(field);
 				if (NumberUtils.isCreatable(field)) {
 					dataHints.add(DataHint.NUMERIC);
+					System.out.println(" appears to be NUMERIC");
 				} else {
 					dataHints.add(DataHint.STRING);
+					System.out.println(" appears to be ALPHABETIC");
 				}
 			}
 
@@ -109,11 +113,10 @@ public class GlazedListTableModel implements DataHintAware, TableFormat<Object> 
 		}
 
 	}
+	
+	// getRowCount() is handled by GlazedList base class
 
-	@Override
-	public List<DataHint> getDataHints() {
-		return dataHints;
-	}
+	// getValueAt() is handled by GlazedList base class; see getColumnValue() below
 
 	@Override
 	public int getColumnCount() {
@@ -125,6 +128,8 @@ public class GlazedListTableModel implements DataHintAware, TableFormat<Object> 
 		return (columns != null) ? columns.get(col) : "TBD";
 	}
 
+	// getColumnClass is handled by GlazedLists
+	
 	@Override
 	public Object getColumnValue(Object baseObject, int column) {
 		if (column == 0)
@@ -132,9 +137,35 @@ public class GlazedListTableModel implements DataHintAware, TableFormat<Object> 
 			// idea; probably have to modify each underlying String[] object to have the record number
 			// not really what I *want* to do, but it might now be my only option
 		else {
-			String[] asarray = (String[])baseObject;
-			return asarray[column - 1]; 			
+			final String[] asarray = (String[])baseObject;
+			final String rawvalue = asarray[column - 1];
+			
+			// Eventually there will be at least one more datahint "date"
+			// since we have to compare to at least one datahint, we choose
+			// string to very slightly optimize this since it is "anecdotally"
+			// the most common type -- obviously certain files may be different.
+			if (this.getDataHints().get(column).equals(DataHint.STRING)) {
+				return rawvalue;
+			} else { // DataHint.NUMERIC
+				boolean respectLeadingZeroes = false;
+				if (respectLeadingZeroes) {					
+					return rawvalue;
+				}
+				
+				try {
+					return new BigDecimal(rawvalue); // Float.parseFloat(rawvalue);
+				} catch(Exception e) {
+					System.out.println("Error converting > " + rawvalue + " < to a numeric/BigDecimal");
+					return BigDecimal.ZERO;
+				}				
+			}
+
 		}
+	}
+
+	@Override
+	public List<DataHint> getDataHints() {
+		return dataHints;
 	}
 
 	public EventList<Object> getEventList() {
