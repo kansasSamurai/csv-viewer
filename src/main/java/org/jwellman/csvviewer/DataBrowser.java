@@ -174,9 +174,9 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 
     private static final Font FONT_SEGOE_UI = new Font("Segoe UI", Font.PLAIN, 12);
     
-    private static final Font FONT_SEGOE_UI_BOLD = new Font("Segoe UI", Font.BOLD, 12);
+    private static final Font FONT_SEGOE_UI_BOLD = new Font("Segoe UI", Font.BOLD, 18);
     
-    private static final Font FONT_CALIBRI_BOLD = new Font("Calibri", Font.BOLD, 14);
+    private static final Font FONT_CALIBRI_BOLD = new Font("Calibri", Font.BOLD, 12);
  
     private static final Font FONT_CALIBRI = new Font("Calibri", Font.PLAIN, 12);
    
@@ -539,7 +539,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
             //tblCsvData.getTableHeader().setBorder(BORDER_ETCHED);
         	//csvTable.setBorder(BORDER_ETCHED);
         } else {
-            tblCsvData.getTableHeader().setFont(FONT_CALIBRI_BOLD);
+            tblCsvData.getTableHeader().setFont(FONT_SEGOE_UI_BOLD); // (FONT_CALIBRI_BOLD)
             tblCsvData.getTableHeader().setForeground(COLOR_GREY_DARKEST);
             tblCsvData.getTableHeader().setBackground(new Color(0xDEDEDE));
         }
@@ -1020,16 +1020,16 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         final Color red = new Color(0x801F15);
         final Color grey = Color.lightGray;
         
-        Icon bugGrey = IconFontSwing.buildIcon(FontAwesome.BUG, 13, grey);
-        Icon bugBlack = IconFontSwing.buildIcon(FontAwesome.BUG, 13, Color.black);
-        Icon bugFixed = IconFontSwing.buildIcon(FontAwesome.BUG, 13, green);                
+        Icon bugGrey = IconFontSwing.buildIcon(FontAwesome.FILTER, 13, grey);
+        Icon bugBlack = IconFontSwing.buildIcon(FontAwesome.FILTER, 13, Color.black);
+        Icon bugFixed = IconFontSwing.buildIcon(FontAwesome.FILTER, 13, green);                
         
         Icon crosshairs = IconFontSwing.buildIcon(FontAwesome.CROSSHAIRS, 13, Color.black);
         Icon database = IconFontSwing.buildIcon(FontAwesome.DATABASE, 12, Color.black);
 
-        Icon filterGrey = IconFontSwing.buildIcon(FontAwesome.FILTER, 13, grey);
-        Icon filterBlack = IconFontSwing.buildIcon(FontAwesome.FILTER, 13, Color.black);
-        Icon filterGreen = IconFontSwing.buildIcon(FontAwesome.FILTER, 13, green);        
+        Icon filterGrey = IconFontSwing.buildIcon(FontAwesome.SEARCH, 13, grey);
+        Icon filterBlack = IconFontSwing.buildIcon(FontAwesome.SEARCH, 13, Color.black);
+        Icon filterGreen = IconFontSwing.buildIcon(FontAwesome.SEARCH, 13, green);        
         
         Icon squareo = IconFontSwing.buildIcon(FontAwesome.SQUARE_O, 13, Color.black);        
 
@@ -1082,6 +1082,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         //p.add(new JCheckBox(" "));
         
         JCheckBox chkSelectAll = new JCheckBox("Toggle All", true);
+        chkSelectAll.setFont(FONT_CALIBRI);
         SelectAllCheckBox action = new SelectAllCheckBox(chkSelectAll);
         p.add(chkSelectAll);
         boxpnlColumns.add(p); 
@@ -1093,7 +1094,8 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         for (JCheckBox checkbox : csvTableColumnManager.getListOfJCheckBox()) {
             // We want them to span the entire width of the container for usability
             Utilities.allowMaxWidth(checkbox);
-        
+            checkbox.setFont(FONT_CALIBRI);
+            
             JCheckBox lytbox = new JCheckBox();
             lytbox.setIcon(analytics);
             lytbox.setSelectedIcon(analyticsGreen);

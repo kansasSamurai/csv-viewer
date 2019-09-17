@@ -18,7 +18,9 @@ import javax.swing.SwingConstants;
  * Further, if you are using a JLabel (particularly its JTable
  * extension DefaultTableCellRenderer), and want a "right aligned"
  * composite icon, then give this object a reference to your JLabel
- * by calling setLabel().  If your JLabel instance has ...
+ * by calling setLabel().  
+ * 
+ * If your JLabel instance has getHorizontalAlignment() == LEFT
  * then this class will right align to the JLabel right edge
  * instead of the default.
  * 
@@ -76,8 +78,11 @@ public class CompositeIcon implements Icon, SwingConstants {
 		int hbase = 0; // default
 		if (this.label != null) {
 			if (this.label.getHorizontalAlignment() == LEFT) {
-				this.label.setHorizontalTextPosition(LEFT);
-				hbase = this.label.getWidth() - this.getIconWidth() - margin.right - margin.left;
+				// I commented this out on 9/15/2019... it doesn't seem to make
+				// a difference in a JTable... will have to research why I
+				// did this... maybe for a non-JTable use case?
+//				this.label.setHorizontalTextPosition(LEFT);
+//				hbase = this.label.getWidth() - this.getIconWidth() - margin.right - margin.left;
 			} else {
 				// System.out.print("," + this.label.getHorizontalTextPosition());
 			}
@@ -149,6 +154,7 @@ public class CompositeIcon implements Icon, SwingConstants {
 
 	public void setLabel(JLabel label) {
 		this.label = label;
+		label.setIcon(this);
 	}
 
 }

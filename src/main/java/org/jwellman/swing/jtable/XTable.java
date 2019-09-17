@@ -136,10 +136,10 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
         	// (regardless of the vertical alignment setting)
         	
         	column = this.convertColumnIndexToModel(column); //this.convertColumnIndexToView(column);
-            if ( column == 0 || column == 4 ) {
-            	CompositeIcon icon = (column == 4) ? decOne : decTwo;
+            if ( column == 0 || column == 6 ) {
+            	CompositeIcon icon = (column == 6) ? decOne : decTwo;
             	icon.setLabel(label);
-            	label.setIcon(icon);        	
+            	// label.setIcon(icon); // this has been added inside CompositeIcon.setLabel as a convenience        	
             } else {
             	label.setIcon(null);
             }
