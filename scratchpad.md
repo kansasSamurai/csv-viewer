@@ -5,7 +5,7 @@ and are to be considered unimportant to the build/execution of this application.
 ## 8/27/2019 (update)
 
 ```
-package org.rwellman.demo.aterai;
+package org.jwellman.swing.mouse;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -43,6 +43,8 @@ public class RubberBandingListener extends MouseInputAdapter {
 	private final Path2D rubberBand = new Path2D.Double();
 
 	private static final AlphaComposite ALPHA = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .1f);
+	
+	private enum SwingComponent { UNKNOWN, JLIST, JTABLE };
 
 	/**
 	 * This class does not draw the rubberband, it just defines its dimensions.
@@ -55,10 +57,14 @@ public class RubberBandingListener extends MouseInputAdapter {
 	}
 	
 	/**
-	 * An example paint algorithm; this can be used if sufficient for your application.
-	 * If you decide to use a different algorithm, you can either put graphics natives
-	 * in your JList paintComponent() [suggested] or override this method in a subclass
-	 * if desired.
+	 * An example paint algorithm that can be called from your component's
+	 * paintComponent() method; this can be used if sufficient for your application.
+	 * 
+	 * If you decide you need a different algorithm, you have at least two obvious choices:
+	 * 1. You can put graphics natives in your JList paintComponent().
+	 *    I would probably recommened this as it keeps your custom code
+	 *    closer to where it is "needed".
+	 * 2. You can always override this method in a subclass.
 	 * 
 	 * @param g2
 	 * @param border
@@ -78,13 +84,20 @@ public class RubberBandingListener extends MouseInputAdapter {
 	
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		final JList<?> l = (JList<?>) e.getComponent();
-		if (l.getDragEnabled()) {
-			return;
-		}
-		
 		final Point destPoint = e.getPoint();
+		SwingComponent type = SwingComponent.UNKNOWN;
+
+		JList<?> jlist = null;
 		
+		// If a JList item is being dragged; short circuit this method and return.
+		if (e.getComponent() instanceof JList) {			
+			jlist = (JList<?>) e.getComponent();
+			if (jlist.getDragEnabled()) {
+				return;
+			}			
+			type = SwingComponent.JLIST;
+		}
+				
 		// Update the path based on "source point" vs. "event point"
 		Path2D rb = this.getRubberBand();
 		rb.reset();
@@ -94,51 +107,67 @@ public class RubberBandingListener extends MouseInputAdapter {
 		rb.lineTo(srcPoint.x, destPoint.y);
 		rb.closePath();
 
-		// JDK 1.7.0: l.setSelectedIndices(getIntersectsIcons(l, rubberBand));
-		int[] indices = IntStream.range( 0, l.getModel().getSize() )
-				.filter(i -> rb.intersects(l.getCellBounds(i, i))).toArray();
-		// System.out.println("idc: " + indices);
-		l.setSelectedIndices(indices); // << this may prove problematic if you have a list selection listener as I think it will fire with every mousedrag event
-		l.repaint();
+		switch (type) {
+		case JLIST:
+			// JDK 1.7.0: l.setSelectedIndices(getIntersectsIcons(l, rubberBand));
+			final JList<?> j = jlist;
+			int[] indices = IntStream.range( 0, j.getModel().getSize() )
+					.filter(i -> rb.intersects(j.getCellBounds(i, i))).toArray();
+			// System.out.println("idc: " + indices);
+			j.setSelectedIndices(indices); // << this may prove problematic if you have a list selection listener as I think it will fire with every mousedrag event
+
+			break;
+		default:
+			// nothing yet defined
+		}
+		
+		e.getComponent().repaint();
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		JList<?> l = (JList<?>) e.getComponent();
-		l.setFocusable(true);
-		// if (Objects.isNull(srcPoint) || !getDragEnabled()) {
-		// Component glassPane = l.getRootPane().getGlassPane();
-		// glassPane.setVisible(false);
-		// }
 		this.getRubberBand().reset();
-		l.setDragEnabled(l.getSelectedIndices().length > 0);
-		l.repaint();
+		
+		if (e.getComponent() instanceof JList) {			
+			JList<?> l = (JList<?>) e.getComponent();
+			l.setFocusable(true);
+			// if (Objects.isNull(srcPoint) || !getDragEnabled()) {
+			// Component glassPane = l.getRootPane().getGlassPane();
+			// glassPane.setVisible(false);
+			// }
+			l.setDragEnabled(l.getSelectedIndices().length > 0);
+		}
+		
+		e.getComponent().repaint();
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		JList<?> l = (JList<?>) e.getComponent();
-		int index = l.locationToIndex(e.getPoint());
-		Rectangle rect = l.getCellBounds(index, index);
-		if (rect.contains(e.getPoint())) {
-			l.setFocusable(true);
-			if (l.getDragEnabled()) {
-				return;
-			}
-			// System.out.println("ccc:" + startSelectedIndex);
-			l.setSelectedIndex(index);
-		} else {
-			l.clearSelection();
-			l.getSelectionModel().setAnchorSelectionIndex(-1);
-			l.getSelectionModel().setLeadSelectionIndex(-1);
-			l.setFocusable(false);
-			l.setDragEnabled(false);
+		
+		if (e.getComponent() instanceof JList) {			
+			JList<?> l = (JList<?>) e.getComponent();
+			int index = l.locationToIndex(e.getPoint());
+			final Rectangle rect = l.getCellBounds(index, index);
+			if (rect.contains(e.getPoint())) {
+				l.setFocusable(true);
+				if (l.getDragEnabled()) {
+					return;
+				}
+				// System.out.println("ccc:" + startSelectedIndex);
+				l.setSelectedIndex(index);
+			} else {
+				l.clearSelection();
+				l.getSelectionModel().setAnchorSelectionIndex(-1);
+				l.getSelectionModel().setLeadSelectionIndex(-1);
+				l.setFocusable(false);
+				l.setDragEnabled(false);
+			}			
 		}
 		
 		// By design, this is the only spot that srcPoint is initialized
 		srcPoint.setLocation(e.getPoint());
 		
-		l.repaint();
+		e.getComponent().repaint();
 	}
 
 	// // JDK 1.7.0
