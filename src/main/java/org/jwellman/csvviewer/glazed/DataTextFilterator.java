@@ -12,9 +12,12 @@ import ca.odell.glazedlists.TextFilterator;
  * An implementation of TextFilterator to support our generic data viewer.
  * 
  * Note: (From the glazed lists website...)
- * The getFilterStrings() method is awkward because the List of Strings is a parameter rather than the return type. This approach allows Glazed Lists to skip creating an ArrayList each time the method is invoked.
- * We're generally averse to this kind of micro-optimization. In this case this performance improvement is worthwhile because the method is used heavily while filtering.
- * 
+ * The getFilterStrings() method is awkward because 
+ * the List of Strings is a parameter rather than the return type. 
+ * This approach allows Glazed Lists to skip creating an ArrayList 
+ * each time the method is invoked. We're generally averse to this 
+ * kind of micro-optimization, however, in this case this performance 
+ * improvement is worthwhile because the method is used heavily while filtering.
  * 
  * @author rwellman
  *

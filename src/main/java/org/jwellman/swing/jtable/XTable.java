@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.event.MouseEvent;
 
@@ -28,6 +30,7 @@ import jiconfont.icons.FontAwesome;
 import jiconfont.swing.IconFontSwing;
 
 import org.jwellman.swing.icon.CompositeIcon;
+import org.jwellman.swing.mouse.RubberBandingListener;
 
 /**
  * An extension of JTable that supports row striping and rollover effects.
@@ -54,6 +57,8 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
     private Color rolloverBackground = new Color(0xDEDEDE);
     
     private Border debugcellborder = BorderFactory.createLineBorder(Color.cyan);
+    
+    private RubberBandingListener rbandListener = new RubberBandingListener();
 
     private Icon bookmark = IconFontSwing.buildIcon(FontAwesome.BOOKMARK, ICONSIZE, COLOR_GREY_DARKEST);
     
@@ -80,6 +85,9 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
     private void init() {
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
+        
+        this.addMouseListener(rbandListener);
+        this.addMouseMotionListener(rbandListener);
         
         int top = 2;
         decOne.setMargin(new Insets(0, 3, 0, 3));
@@ -169,6 +177,15 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
         return true;
     }
 
+    @Override
+    public void paintComponent(Graphics g) {
+    	super.paintComponent(g);
+    	
+    	final Graphics2D g2 = (Graphics2D)g.create(); {
+    		rbandListener.paint(g2, Color.MAGENTA, Color.BLUE);
+    	} g2.dispose();
+    }
+    
     @Override
     public void mouseClicked(MouseEvent e) {
     }
