@@ -138,11 +138,11 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
     
     private final Font fontSmallLabel = FontFactory.getFont("Segoe UI", Font.PLAIN, 12);
 
-    private final Font fontNormalGrid = FontFactory.getFont("Consolas", Font.PLAIN, 14);
-
-    private final NumberCellRenderer numRenderer = new NumberCellRenderer(fontNormalGrid);
-    
-    private final StringCellRenderer strRenderer = new StringCellRenderer(fontNormalGrid);
+//    private final Font fontNormalGrid = FontFactory.getFont("Consolas", Font.PLAIN, 14);
+//
+//    private final NumberCellRenderer numRenderer = new NumberCellRenderer(fontNormalGrid);
+//    
+//    private final StringCellRenderer strRenderer = new StringCellRenderer(fontNormalGrid);
     
     private static final Border BORDER_EMPTY = BorderFactory.createEmptyBorder(5, 5, 5, 5);
 
@@ -174,8 +174,8 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 
     private static final Font FONT_SEGOE_UI = new Font("Segoe UI", Font.PLAIN, 12);
     
-    private static final Font FONT_SEGOE_UI_BOLD = new Font("Segoe UI", Font.BOLD, 18);
-    
+//    private static final Font FONT_SEGOE_UI_BOLD = new Font("Segoe UI", Font.BOLD, 18);
+//    
     private static final Font FONT_CALIBRI_BOLD = new Font("Calibri", Font.BOLD, 12);
  
     private static final Font FONT_CALIBRI = new Font("Calibri", Font.PLAIN, 12);
@@ -217,13 +217,17 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
     }
     
     private void initJTable() {
+        // (3) is the best choice; 
+        // 6/27/2020 just trying the other values to see if the app still works.
         final int tabletype = 3;
         switch (tabletype) {
         case 1:
+            // 6/27/2020 this mostly works but there is an issue with the Search textfield
             tblCsvData = new JTable();
             tblCsvData.setAutoCreateRowSorter(true);
             break;
         case 2:
+            // 6/27/2020 - This works and has striped rows... I just like mine better
             tblCsvData = new BetterJTable();
             break;
         case 3:
@@ -231,6 +235,15 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
             // tblCsvData.setAutoCreateRowSorter(true);
             break;
         case 4:
+            // 6/27/2020 this also has an issue with the Search textfield
+            /*
+                Exception in thread "AWT-EventQueue-0" java.lang.ArrayIndexOutOfBoundsException: 79
+                at javax.swing.DefaultRowSorter.setModelToViewFromViewToModel(DefaultRowSorter.java:734)
+                at javax.swing.DefaultRowSorter.rowsInserted0(DefaultRowSorter.java:1063)
+                at javax.swing.DefaultRowSorter.rowsInserted(DefaultRowSorter.java:868)
+                at org.jdesktop.swingx.sort.DefaultSortController.rowsInserted(DefaultSortController.java:403)
+                ...
+             */
             JXTable xtable = (JXTable) (tblCsvData = new JXTable()); // new JXTable(tableModel); // JTable(tableModel); // BetterJTable            
             xtable.addHighlighter( new ColorHighlighter(HighlightPredicate.ROLLOVER_ROW, new Color(0x3A87AD), new Color(0xD9EDF7)) );  
             break;
@@ -311,6 +324,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         return createCsvTableV2(file);
     }
     
+    // This version is deprecated but left for comparison/reference
 	private JComponent createCsvTableV1(File file) {
         final JScrollPane pane = (tblCsvData instanceof BetterJTable) 
                 ? BetterJTable.createStripedJScrollPane(tblCsvData) 
@@ -389,6 +403,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 		return pane;
 	}
 
+	// This is the current version being used.
     private JComponent createCsvTableV2(File file) {
         
         final JScrollPane pane = (tblCsvData instanceof BetterJTable)
@@ -516,9 +531,9 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         for (int i=0; i<tblCsvData.getColumnCount(); i++) {
             final String cname = tblCsvData.getColumnName(i);
         	if (hints.get(i).equals(DataHint.NUMERIC)) {
-	            tblCsvData.getColumn(cname).setCellRenderer(numRenderer);
+	            tblCsvData.getColumn(cname).setCellRenderer(XTable.numRenderer);
         	} else {
-	            tblCsvData.getColumn(cname).setCellRenderer(strRenderer);        		
+	            tblCsvData.getColumn(cname).setCellRenderer(XTable.strRenderer);        		
         	}
         }
 
@@ -539,9 +554,10 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
             //tblCsvData.getTableHeader().setBorder(BORDER_ETCHED);
         	//csvTable.setBorder(BORDER_ETCHED);
         } else {
-            tblCsvData.getTableHeader().setFont(FONT_SEGOE_UI_BOLD); // (FONT_CALIBRI_BOLD)
-            tblCsvData.getTableHeader().setForeground(COLOR_GREY_DARKEST);
-            tblCsvData.getTableHeader().setBackground(new Color(0xDEDEDE));
+// These have been moved to XTable.
+//            tblCsvData.getTableHeader().setFont(FONT_SEGOE_UI_BOLD); // (FONT_CALIBRI_BOLD)
+//            tblCsvData.getTableHeader().setForeground(COLOR_GREY_DARKEST);
+//            tblCsvData.getTableHeader().setBackground(new Color(0xDEDEDE));
         }
 
         if (tblCsvData instanceof JTable) {
@@ -557,7 +573,8 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
     private JPanel createEasternPanel() {
         return createEasternPanel_new();
     }
-    
+
+    // This is the current version being used.
     private JPanel createEasternPanel_new() {
         
         JPanel actions = new JPanel();
@@ -699,16 +716,18 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         a.setAction(new JTablePropertyAction("CLEAR",  tblCsvData, JTablePropertyAction.ACTION_CLEAR_SELECTION, null));
         panelptr.add(HorizontalGraphitePanel.createDefault(Arrays.asList(c,a)));
 
+        // GRID_ON / OFF
         JToggleButton d = (JToggleButton) HorizontalGraphitePanel.createToggleButton(null, null, null);
         //d.setFont(font); 
         //d.setText("\uf0ab\uf039\uf038\uf13d"); d.setForeground(Color.white);
         d.setAction(new JTablePropertyAction("GRID",  tblCsvData, JTablePropertyAction.ACTION_TOGGLE_GRID, null));
         d.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.BORDER_ALL, 14, COLOR_EAST_TEXT));
-        // GRID_ON / OFF
+
         JToggleButton e = HorizontalGraphitePanel.createToggleButton(null, null, null);
         e.setAction(new JTablePropertyAction("HORZ",  tblCsvData, JTablePropertyAction.ACTION_TOGGLE_HORIZONTAL_LINES, null));
         e.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.BORDER_BOTTOM, 14, COLOR_EAST_TEXT));
         e.getModel().setSelected(true);
+        
         JToggleButton f = HorizontalGraphitePanel.createToggleButton(null, null, null);
         f.setAction(new JTablePropertyAction("VERT",  tblCsvData, JTablePropertyAction.ACTION_TOGGLE_VERTICAL_LINES, null));
         f.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.BORDER_VERTICAL, 14, COLOR_EAST_TEXT));
@@ -716,21 +735,21 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 
         final Dimension dimicon = new Dimension(30,1);
         JButton g = HorizontalGraphitePanel.createButton(null, null, dimicon); // ACTION_INCREASE_COLUMN_MARGIN
-        g.setAction(new JTablePropertyAction("CMARGIN+",  tblCsvData, JTablePropertyAction.ACTION_INCREASE_ROW_HEIGHT, null));
+        g.setAction(new JTablePropertyAction("CMARGIN+",  tblCsvData, JTablePropertyAction.ACTION_INCREASE_COLUMN_MARGIN, null));
         g.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_INDENT_INCREASE, 14, COLOR_EAST_TEXT));
         g.setText("");
         
         JButton h = HorizontalGraphitePanel.createButton(null, null, dimicon); // ACTION_DECREASE_COLUMN_MARGIN
-        h.setAction(new JTablePropertyAction("CMARGIN-",  tblCsvData, JTablePropertyAction.ACTION_DECREASE_ROW_HEIGHT, null));
+        h.setAction(new JTablePropertyAction("CMARGIN-",  tblCsvData, JTablePropertyAction.ACTION_DECREASE_COLUMN_MARGIN, null));
         h.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_INDENT_DECREASE, 14, COLOR_EAST_TEXT));
         h.setText("");
         
         JButton i = HorizontalGraphitePanel.createButton(null, null, dimicon);
-        i.setAction(new JTablePropertyAction(" +",  tblCsvData, JTablePropertyAction.ACTION_INCREASE_ROW_MARGIN, null));
+        i.setAction(new JTablePropertyAction("+",  tblCsvData, JTablePropertyAction.ACTION_INCREASE_ROW_MARGIN, null));
         i.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_LINE_SPACING, 14, COLOR_EAST_TEXT));
         
         JButton j = HorizontalGraphitePanel.createButton(null, null, dimicon);
-        j.setAction(new JTablePropertyAction(" -",  tblCsvData, JTablePropertyAction.ACTION_DECREASE_ROW_MARGIN, null));
+        j.setAction(new JTablePropertyAction("-",  tblCsvData, JTablePropertyAction.ACTION_DECREASE_ROW_MARGIN, null));
         j.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_LINE_SPACING, 14, COLOR_EAST_TEXT));
 
         south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(h, g, j, i)));        
@@ -761,6 +780,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         return p;
     }
     
+    // This version is deprecated.
 	private JPanel createEasternPanel_works() {
 		
 		Font font = null;
@@ -891,6 +911,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         return this.createDelimiterV3();
     }
     
+    // This version is deprecated.
 	private JPanel createDelimiterV1() {
         final JPanel p = new JPanel(new SpringLayout());
         p.add(new JLabel("Delimiter"));
@@ -909,6 +930,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         return p;
     }
 
+	// This version is deprecated.
     private JPanel createDelimiterV2() {
         final JPanel p = new JPanel(new SpringLayout());
         // Before: p.add(new JLabel("Delimiter").setFont(FONT_SEGOE_UI));
@@ -929,6 +951,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         return p;
     }
 
+    // This is the current version being used.
     private JPanel createDelimiterV3() {
         final JTextField tfield = (JTextField) XTextField.create().setFont(FONT_SEGOE_UI).get();
         tfield.setEditable(false);
@@ -1027,9 +1050,9 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         Icon crosshairs = IconFontSwing.buildIcon(FontAwesome.CROSSHAIRS, 13, Color.black);
         Icon database = IconFontSwing.buildIcon(FontAwesome.DATABASE, 12, Color.black);
 
-        Icon filterGrey = IconFontSwing.buildIcon(FontAwesome.SEARCH, 13, grey);
-        Icon filterBlack = IconFontSwing.buildIcon(FontAwesome.SEARCH, 13, Color.black);
-        Icon filterGreen = IconFontSwing.buildIcon(FontAwesome.SEARCH, 13, green);        
+        Icon searchGrey = IconFontSwing.buildIcon(FontAwesome.SEARCH, 13, grey);
+        Icon searchBlack = IconFontSwing.buildIcon(FontAwesome.SEARCH, 13, Color.black);
+        Icon searchGreen = IconFontSwing.buildIcon(FontAwesome.SEARCH, 13, green);        
         
         Icon squareo = IconFontSwing.buildIcon(FontAwesome.SQUARE_O, 13, Color.black);        
 
@@ -1043,8 +1066,8 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         p.add(lyticsheader);
         
         JCheckBox filterheader = new JCheckBox();
-        filterheader.setIcon(filterBlack);
-        filterheader.setSelectedIcon(filterBlack);
+        filterheader.setIcon(searchBlack);
+        filterheader.setSelectedIcon(searchBlack);
         p.add(filterheader);
         
         JCheckBox bugcheck = new JCheckBox();
@@ -1088,27 +1111,30 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         boxpnlColumns.add(p); 
 
         // Put the checkboxes in our user interface
-        // This is just visual UI sandboxing... not yet an actual feature
-        // assume that order of checkboxes in the list matches the index in the underlying table model; this assumption may prove invalid in the future
+        // Assume that order of checkboxes in the list matches the index in the 
+        // underlying table model; this assumption may prove invalid in the future.
         int i = 0;
         for (JCheckBox checkbox : csvTableColumnManager.getListOfJCheckBox()) {
+
             // We want them to span the entire width of the container for usability
             Utilities.allowMaxWidth(checkbox);
             checkbox.setFont(FONT_CALIBRI);
             
             JCheckBox lytbox = new JCheckBox();
             lytbox.setIcon(analytics);
+            lytbox.setPressedIcon(crosshairs);
             lytbox.setSelectedIcon(analyticsGreen);
             
             JCheckBox filbox = new JCheckBox();
-            filbox.setIcon(filterGrey);
-            filbox.setSelectedIcon(filterGreen);
+            filbox.setIcon(searchGrey);
+            filbox.setPressedIcon(crosshairs);
+            filbox.setSelectedIcon(searchGreen);
             filbox.addActionListener(new ActionSetFilterColumn(filbox, txtFilter, dataTextFilterator, i++));
             
             JCheckBox bugbox = new JCheckBox();
             bugbox.setIcon(bugGrey);
+            bugbox.setPressedIcon(crosshairs);
             bugbox.setSelectedIcon(bugFixed);
-            // bugbox.setPressedIcon(crosshairs);
 
             p = new RestrictedHeightPanel(new FlowLayout(FlowLayout.LEFT));
             p.add(lytbox);

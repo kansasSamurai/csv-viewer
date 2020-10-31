@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
@@ -30,10 +31,18 @@ import jiconfont.icons.FontAwesome;
 import jiconfont.swing.IconFontSwing;
 
 import org.jwellman.swing.icon.CompositeIcon;
+import org.jwellman.swing.jtable.renderer.NumberCellRenderer;
+import org.jwellman.swing.jtable.renderer.StringCellRenderer;
 import org.jwellman.swing.mouse.RubberBandingListener;
 
 /**
  * An extension of JTable that supports row striping and rollover effects.
+ * 
+ * TODO move this to a standalone JAR so that other projects can use it
+ *      ... this will require a refactor to remove the following dependencies: 
+ *      RubberBandingListener 
+ *      jiconfont.*
+ *      CompositeIcon
  * 
  * References:
  * Highlight JTable Rows on Rollover
@@ -46,20 +55,37 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
 
 	private static final long serialVersionUID = 1L;
 
-    private static final Color COLOR_GREY_DARKEST = new Color(0xDCDCDC); // << NOTICE... barely darker than rollover color >> 0xBDBDBD 0xC7C7C7 0xD5D5D5 < these are ok but maybe better
-
     private static final int ICONSIZE = 13;
+    
+    public static final Font fontNormalGrid = new Font("Consolas", Font.PLAIN, 14);
+
+    public static final Font FONT_SEGOE_UI = new Font("Segoe UI", Font.PLAIN, 12);
+    
+    public static final Font FONT_SEGOE_UI_BOLD = new Font("Segoe UI", Font.BOLD, 14);
+    
+    public static final Color stripe = new Color(249,249,249);
+    
+    public static final Color rolloverBackground = new Color(0xDEDEDE);
+    
+    public static final Color COLOR_GREY_DARKEST = new Color(0xDCDCDC); // << NOTICE... barely darker than rollover color >> 0xBDBDBD 0xC7C7C7 0xD5D5D5 < these are ok but maybe better
+
+    public static final NumberCellRenderer numRenderer = new NumberCellRenderer(fontNormalGrid);
+    
+    public static final StringCellRenderer strRenderer = new StringCellRenderer(fontNormalGrid);
+
+    // ====================================================================
     
     private int rollOverRowIndex;
     
-    private Color stripe = new Color(249,249,249);
+    private boolean rolloverEnabled = true;
     
-    private Color rolloverBackground = new Color(0xDEDEDE);
+    private boolean rowStripingEnabled = true;
     
     private Border debugcellborder = BorderFactory.createLineBorder(Color.cyan);
     
     private RubberBandingListener rbandListener = new RubberBandingListener();
 
+    @SuppressWarnings("unused")
     private Icon bookmark = IconFontSwing.buildIcon(FontAwesome.BOOKMARK, ICONSIZE, COLOR_GREY_DARKEST);
     
     private Icon bugFixed = IconFontSwing.buildIcon(FontAwesome.BUG, ICONSIZE, new Color(0x106022));
@@ -83,6 +109,21 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
     }
     
     private void init() {
+        
+        this.setGridColor(COLOR_GREY_DARKEST);
+
+        this.setForeground(COLOR_GREY_DARKEST);
+        this.setBackground(Color.WHITE); 
+        
+        this.setSelectionForeground( new Color(0x3A87AD) );
+        this.setSelectionBackground( new Color(0xD9EDF7) );
+        
+        this.getTableHeader().setFont(FONT_SEGOE_UI_BOLD); // (FONT_CALIBRI_BOLD)
+        this.getTableHeader().setForeground(COLOR_GREY_DARKEST);
+        this.getTableHeader().setBackground(new Color(0xDEDEDE));
+
+        // ===========================================================
+        
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
         
@@ -104,14 +145,38 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
         //decTwo.addIcon(date, top); // top-1
         
     }
-
+    
+    /**
+     * Thanks to:
+     * https://stackoverflow.com/questions/17627431/auto-resizing-the-jtable-column-widths
+     * 
+     */
+    public void resizeColumnWidth() {
+        final TableColumnModel columnModel = this.getColumnModel();
+        for (int column = 0; column < this.getColumnCount(); column++) {
+            int width = 15; // Min width
+            for (int row = 0; row < this.getRowCount(); row++) {
+                TableCellRenderer renderer = this.getCellRenderer(row, column);
+                Component comp = this.prepareRenderer(renderer, row, column);
+                width = Math.max(comp.getPreferredSize().width +1 , width);
+            }
+            //If using org.jwellman.utility, then you can use the following line:
+            //width = Limit.rangeOf(width).toRange(50,300); 
+            if(width > 300) width=300;
+            if(width < 50) width=50;
+            
+            columnModel.getColumn(column).setPreferredWidth(width);
+        }
+    }
+    
 	@Override
 	public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 
 		boolean debug = false;
 
-		Component c = super.prepareRenderer(renderer, row, column);
-		JLabel label = (c instanceof JLabel) ? (JLabel)c : null; 
+		final Component c = super.prepareRenderer(renderer, row, column);
+		
+		final JLabel label = (c instanceof JLabel) ? (JLabel)c : null; 
 		
 		if ( this.isCellSelected(row, column) ) {
             c.setForeground(this.getSelectionForeground());
@@ -123,6 +188,15 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
             c.setBackground(this.getBackground());
 	        if (this.isRowStripingEnabled() && row % 2 == 0) {
 	            c.setBackground( stripe );               
+	        } else {
+	            // This is actually important for two reasons:
+	            // 1. Just like the stripe color, I am setting the color
+	            //    of all table rows in a very opinionated manner.
+	            // 2. A very few look and feels (such as Napkin)
+	            //    actual use transparency by default which not only
+	            //    does not look very good (despite my love for Napkin in
+	            //    pretty much every other way), but... see point #1 :)
+	            c.setBackground(Color.white);
 	        }
 		}
 
@@ -144,7 +218,7 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
         	// (regardless of the vertical alignment setting)
         	
         	column = this.convertColumnIndexToModel(column); //this.convertColumnIndexToView(column);
-            if ( column == 0 || column == 6 ) {
+            if ( column == 3 || column == 6 ) {
             	CompositeIcon icon = (column == 6) ? decOne : decTwo;
             	icon.setLabel(label);
             	// label.setIcon(icon); // this has been added inside CompositeIcon.setLabel as a convenience        	
@@ -167,14 +241,20 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
 		return c;
 	}
 
-    // TODO provide setter
-    private boolean isRolloverEnabled() {
-        return true;
+	public void setRolloverEnabled(boolean enabled) {
+	    this.rolloverEnabled = enabled;
+	}
+
+	public boolean isRolloverEnabled() {
+        return this.rolloverEnabled;
     }
 
-    // TODO provide setter
-    private boolean isRowStripingEnabled() {
-        return true;
+	public void setRowStripingEnabled(boolean enabled) {
+	    this.rowStripingEnabled = enabled;
+	}
+
+    public boolean isRowStripingEnabled() {
+        return this.rowStripingEnabled;
     }
 
     @Override
@@ -213,8 +293,7 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        // System.out.print("d");
-        
+        // System.out.print("d");        
     }
 
     @Override
@@ -229,7 +308,7 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
 
     @Override
     public void addNotify() {
-        System.out.println("jtable addnotify");
+        // System.out.println("jtable addnotify");
         super.addNotify();
     }
 

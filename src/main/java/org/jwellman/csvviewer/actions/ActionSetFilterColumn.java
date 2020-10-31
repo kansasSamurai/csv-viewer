@@ -40,15 +40,26 @@ public class ActionSetFilterColumn extends AbstractAction implements Runnable {
 
 	@Override
 	public void run() {
-		//JOptionPane.showMessageDialog(this.component, "Your action works");
 		if (this.checkbox.isSelected()) {
 			filterator.add(this.index);
 		} else {
 			filterator.remove(this.index);
 		}
+		
+		// Update the "search" textfield to "trigger" the table update.
 		SwingUtilities.invokeLater(new DoSetText(this.textfield));
 	}
 	
+	/**
+	 * I almost forgot why I implemented this...
+	 * This is to "trigger" the setText() on the textfield which will in turn
+	 * "trigger" the table to "update" (possibly) based on the new indices
+	 * that were modified via filterator.add()/remove() in the run() method.
+	 * 
+	 * This seems like a "hack" so I'm not sure if this is the cleanest
+	 * implementation I could have come up with.  But it works so leaving it alone for now.
+	 *
+	 */
 	private class DoSetText implements Runnable {
 
 		private JTextField jtextfield;

@@ -59,7 +59,8 @@ public class SelectAllCheckBox extends AbstractAction implements Runnable {
 	// using doClick is "slow" because it emulates a "mouse press time".
 	// By simply setting the "selected" property as we do above,
 	// we rely on an ItemListener to implement the "action" logic.
-	private class DoClick implements Runnable {
+	@SuppressWarnings("unused")
+    private class DoClick implements Runnable {
 
 		private JCheckBox jcheckbox;
 		

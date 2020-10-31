@@ -24,37 +24,35 @@ import ca.odell.glazedlists.TextFilterator;
  */
 public class DataTextFilterator implements TextFilterator<String[]> {
 
-	private Integer[] textidx;
+    // The column indices of TEXT fields; initialized/final in the constructor 
+	private List<Integer> textidx = new ArrayList<>();
 	
+	// The column indices of "user chosen" fields; can expand/contract via the add()/remove() methods
 	private List<Integer> filteridx = new ArrayList<>();
 	
 	public DataTextFilterator(DataHintAware aware) {
-		final List<Integer> indices = new ArrayList<>();		
-		final List<DataHint> hints = aware.getDataHints();
-		
-		int column = 0;
+
+        int column = 0;
+		final List<DataHint> hints = aware.getDataHints();		
 		for (DataHint hint : hints) {
 //			if (hint == DataHint.STRING) indices.add(column);
-			if (column > 0) indices.add(column);
+// p.s.  This was originally ONLY the TEXT fields based on the DataHint(s);
+// however, it will be fairly common the want to search for numeric values
+// (which ARE actually Strings underneath) so this is really just ALL fields.
+			if (column > 0) textidx.add(column);
 
 			column++;
 		}
-		
-		textidx = indices.stream().toArray(Integer[] :: new);
+
 	}
 	
 	@Override
 	public void getFilterStrings(List<String> baseList, String[] element) {
-
-		if (filteridx.isEmpty()) {
-			for (int ptr : textidx) {
-				baseList.add(element[ptr-1]); // the hints are 1 greater than the data array because of the "line number"
-			}			
-		} else {
-			for (int ptr : filteridx) {
-				baseList.add(element[ptr-1]); // the hints are 1 greater than the data array because of the "line number"
-			}
-		}
+	    final List<Integer> listToUse = filteridx.isEmpty() ? textidx : filteridx; 
+        for (int ptr : listToUse) {
+            baseList.add(element[ptr]); // [ptr-1] the hints are 1 greater than the data array because of the "line number"
+            // 6/24/2020:  I think now that I have implemented line number in the grid/data, this needs to be [ptr]
+        }           
 	}
 
 	public void add(int index) {

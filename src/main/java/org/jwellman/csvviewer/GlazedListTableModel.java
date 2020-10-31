@@ -59,26 +59,32 @@ public class GlazedListTableModel implements DataHintAware, TableFormat<Object> 
 			.withCSVParser(parser)
 			.build();
 
-			records = csvReader.readAll();
+			List<String[]> raw = csvReader.readAll();
+			records = new ArrayList<>();
 
 			// TODO curious... how does this affect performance for large datasets?
 			boolean fix = true;
 			if (fix) {
-				for (String[] record : records) {
-					for (int i=0; i < record.length; i++) {
-						String field = record[i];
-						record[i] = field.trim();
-					}
+			    int recindex = 1;
+				for (String[] record : raw) {
+				    final int newlength = record.length + 1;
+				    final String[] fixed = new String[newlength];
+    				    fixed[0] = Integer.toString(recindex++);
+    					for (int i=1; i < newlength; i++) {
+    						fixed[i] = record[i-1].trim();
+    					}
+					records.add(fixed);
 				}
 			}
 			
 			// Assume first record is column headings; get them, remove them from dataset, specify NUMERIC data hint
-			List<String> columnHeadings = new ArrayList<>(records.get(0).length);
+			// TODO create application option for column headings
+			List<String> columnHeadings = new ArrayList<>();
 			columnHeadings.add("<#>"); // TODO make this an application property
-			columnHeadings.addAll(Arrays.asList(records.get(0)));			
+			columnHeadings.addAll(Arrays.asList(raw.get(0)));			
 			columns.addAll(columnHeadings);
 			records.remove(0); // remove the column headings record
-			dataHints.add(DataHint.NUMERIC); // though numeric, treat line numbers as strings
+			//dataHints.add(DataHint.NUMERIC);
 
 			// Determine data hint for remaining columns;
 			final String[] record = records.get(0);
@@ -120,7 +126,7 @@ public class GlazedListTableModel implements DataHintAware, TableFormat<Object> 
 
 	@Override
 	public int getColumnCount() {
-		return records.get(0).length + 1;
+		return records.get(0).length;
 	}
 
 	@Override
@@ -132,13 +138,13 @@ public class GlazedListTableModel implements DataHintAware, TableFormat<Object> 
 	
 	@Override
 	public Object getColumnValue(Object baseObject, int column) {
-		if (column == 0)
+		if (column == -1) // I have disabled this since I fixed line numbers
 			return 1; // TODO how to map to row index now that I'm using glazed lists?
 			// idea; probably have to modify each underlying String[] object to have the record number
 			// not really what I *want* to do, but it might now be my only option
 		else {
-			final String[] asarray = (String[])baseObject;
-			final String rawvalue = asarray[column - 1];
+			final String[] valuearray = (String[])baseObject;
+			final String rawvalue = valuearray[column]; // column - 1
 			
 			// Eventually there will be at least one more datahint "date"
 			// since we have to compare to at least one datahint, we choose
