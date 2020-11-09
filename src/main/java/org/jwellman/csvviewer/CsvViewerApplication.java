@@ -34,7 +34,7 @@ public class CsvViewerApplication extends AbstractSimpleMain implements uiThemeP
         // Prepare - User Interface Context
         final uContext context = uContext.createContext();
         context.setThemeProvider(this);
-        context.setDimension(85);
+        context.setDimension(160); //(85);
 
         // Step 1 - Initialize Swing
         final Foundation f = Foundation.init(context); // context

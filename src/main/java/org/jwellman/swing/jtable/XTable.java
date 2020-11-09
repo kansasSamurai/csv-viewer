@@ -43,7 +43,10 @@ import org.jwellman.swing.mouse.RubberBandingListener;
  *      RubberBandingListener 
  *      jiconfont.*
  *      CompositeIcon
- * 
+ * TODO the standalone jar will require the following classes:
+ *     NumberCellRenderer
+ *     StringCellRenderer
+ *     
  * References:
  * Highlight JTable Rows on Rollover
  * https://community.oracle.com/thread/1389010?start=0&tstart=0 
@@ -217,14 +220,21 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
         	// text and icon horizontally 
         	// (regardless of the vertical alignment setting)
         	
-        	column = this.convertColumnIndexToModel(column); //this.convertColumnIndexToView(column);
-            if ( column == 3 || column == 6 ) {
-            	CompositeIcon icon = (column == 6) ? decOne : decTwo;
-            	icon.setLabel(label);
-            	// label.setIcon(icon); // this has been added inside CompositeIcon.setLabel as a convenience        	
-            } else {
-            	label.setIcon(null);
-            }
+            CompositeIcon icon = null;            
+        	column = -1; // this.convertColumnIndexToModel(column); //this.convertColumnIndexToView(column);
+        	switch (column) {
+                case 3: icon = decTwo; icon.setLabel(label); break;
+                case 6: icon = decOne; icon.setLabel(label); break;
+                default: label.setIcon(null);
+        	}
+        	
+//            if ( column == 3 || column == 6 ) {
+//            	CompositeIcon icon = (column == 6) ? decOne : decTwo;
+//            	icon.setLabel(label);
+//            	// label.setIcon(icon); // this has been added inside CompositeIcon.setLabel as a convenience        	
+//            } else {
+//            	label.setIcon(null);
+//            }
         }
 //    	DelimitedFileTableModel tm = (DelimitedFileTableModel)this.getModel();
 //    	if (tm.getDataHints().get(column).equals(DataHint.NUMERIC)) {
