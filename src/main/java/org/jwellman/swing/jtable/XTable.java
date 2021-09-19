@@ -30,6 +30,7 @@ import javax.swing.table.TableModel;
 import jiconfont.icons.FontAwesome;
 import jiconfont.swing.IconFontSwing;
 
+import org.jwellman.swing.icon.ColorIcon ;
 import org.jwellman.swing.icon.CompositeIcon;
 import org.jwellman.swing.jtable.renderer.NumberCellRenderer;
 import org.jwellman.swing.jtable.renderer.StringCellRenderer;
@@ -60,21 +61,25 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
 
     private static final int ICONSIZE = 13;
     
-    public static final Font fontNormalGrid = new Font("Consolas", Font.PLAIN, 14);
+    public static final Font FONT_GRID = new Font("Consolas", Font.PLAIN, 14);
 
     public static final Font FONT_SEGOE_UI = new Font("Segoe UI", Font.PLAIN, 12);
     
     public static final Font FONT_SEGOE_UI_BOLD = new Font("Segoe UI", Font.BOLD, 14);
     
-    public static final Color stripe = new Color(249,249,249);
+    public static final Color COLOR_STRIPE = new Color(249,249,249); // VERY LIGHT GRAY
     
-    public static final Color rolloverBackground = new Color(0xDEDEDE);
+    public static final Color COLOR_ROLLOVER = new Color(0xDEDEDE); // LIGHT GRAY
     
-    public static final Color COLOR_GREY_DARKEST = new Color(0xDCDCDC); // << NOTICE... barely darker than rollover color >> 0xBDBDBD 0xC7C7C7 0xD5D5D5 < these are ok but maybe better
+    public static final Color COLOR_GREY_DARKEST = new Color(0xDCDCDC); // "GRAY" << NOTICE... barely darker than rollover color >> 0xBDBDBD 0xC7C7C7 0xD5D5D5 < these are ok but maybe better
 
-    public static final NumberCellRenderer numRenderer = new NumberCellRenderer(fontNormalGrid);
+    public static final Color COLOR_SELECTION_BLUE = new Color(0x3A87AD) ; // royal blue
+
+    public static final Color COLOR_SELECTION_LIGHTBLUE = new Color(0xD9EDF7) ; // sky blue
+
+    public static final NumberCellRenderer numRenderer = new NumberCellRenderer(FONT_GRID);
     
-    public static final StringCellRenderer strRenderer = new StringCellRenderer(fontNormalGrid);
+    public static final StringCellRenderer strRenderer = new StringCellRenderer(FONT_GRID);
 
     // ====================================================================
     
@@ -92,15 +97,19 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
     private Icon bookmark = IconFontSwing.buildIcon(FontAwesome.BOOKMARK, ICONSIZE, COLOR_GREY_DARKEST);
     
     private Icon bugFixed = IconFontSwing.buildIcon(FontAwesome.BUG, ICONSIZE, new Color(0x106022));
-    
+    //IconFontSwing.buildIcon(FontAwesome.BUG, ICONSIZE, new Color(0x106022));
+    //IconFontSwing.buildIcon(FontAwesome.USER_CIRCLE, 16, new Color(138, 109, 182) );
+
     private Icon bugCritical = IconFontSwing.buildIcon(FontAwesome.BUG, ICONSIZE, new Color(0x801F15));
     
     private Icon date = IconFontSwing.buildIcon(FontAwesome.CALENDAR_O, ICONSIZE, COLOR_GREY_DARKEST);
     
+    private Icon swatch = new ColorIcon(new Color(0x106022), 11);
+    
     private CompositeIcon decOne = new CompositeIcon();
     
     private CompositeIcon decTwo = new CompositeIcon();
-    
+
     public XTable() {
         super();
         init();
@@ -118,12 +127,12 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
         this.setForeground(COLOR_GREY_DARKEST);
         this.setBackground(Color.WHITE); 
         
-        this.setSelectionForeground( new Color(0x3A87AD) );
-        this.setSelectionBackground( new Color(0xD9EDF7) );
+        this.setSelectionForeground( COLOR_SELECTION_BLUE );
+        this.setSelectionBackground( COLOR_SELECTION_LIGHTBLUE );
         
         this.getTableHeader().setFont(FONT_SEGOE_UI_BOLD); // (FONT_CALIBRI_BOLD)
         this.getTableHeader().setForeground(COLOR_GREY_DARKEST);
-        this.getTableHeader().setBackground(new Color(0xDEDEDE));
+        this.getTableHeader().setBackground(COLOR_ROLLOVER);
 
         // ===========================================================
         
@@ -142,11 +151,13 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
         
         top = 4;
         decTwo.setMargin(new Insets(0, 3, 0, 3));
-        decTwo.setHorizontalGap(1);
+        decTwo.setHorizontalGap(1); 
+            ((ColorIcon)swatch).setMargin(new Insets(0,0,0,2));
+        decTwo.addIcon(swatch, top+1); 
         decTwo.addIcon(bugCritical, top);
         decTwo.addIcon(bugFixed, top);
         //decTwo.addIcon(date, top); // top-1
-        
+        // ((ColorIcon)swatch).setRoundedCorners(true);
     }
     
     /**
@@ -190,7 +201,7 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
 		    // Alternate row color
             c.setBackground(this.getBackground());
 	        if (this.isRowStripingEnabled() && row % 2 == 0) {
-	            c.setBackground( stripe );               
+	            c.setBackground( COLOR_STRIPE );               
 	        } else {
 	            // This is actually important for two reasons:
 	            // 1. Just like the stripe color, I am setting the color
@@ -205,7 +216,7 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
 
         // Mouse Rollover (trumps row striping)
         if (this.isRolloverEnabled() && row == rollOverRowIndex) {
-            c.setBackground(rolloverBackground);
+            c.setBackground(COLOR_ROLLOVER);
         }
 
         //
@@ -221,21 +232,16 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
         	// (regardless of the vertical alignment setting)
         	
             CompositeIcon icon = null;            
-        	column = -1; // this.convertColumnIndexToModel(column); //this.convertColumnIndexToView(column);
+        	column = this.convertColumnIndexToModel(column); //this.convertColumnIndexToView(column);
+        	//column = -1;
         	switch (column) {
                 case 3: icon = decTwo; icon.setLabel(label); break;
                 case 6: icon = decOne; icon.setLabel(label); break;
                 default: label.setIcon(null);
         	}
-        	
-//            if ( column == 3 || column == 6 ) {
-//            	CompositeIcon icon = (column == 6) ? decOne : decTwo;
-//            	icon.setLabel(label);
-//            	// label.setIcon(icon); // this has been added inside CompositeIcon.setLabel as a convenience        	
-//            } else {
-//            	label.setIcon(null);
-//            }
+
         }
+
 //    	DelimitedFileTableModel tm = (DelimitedFileTableModel)this.getModel();
 //    	if (tm.getDataHints().get(column).equals(DataHint.NUMERIC)) {
 //        } else {
