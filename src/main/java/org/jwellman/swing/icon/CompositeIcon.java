@@ -54,13 +54,7 @@ public class CompositeIcon implements Icon, SwingConstants {
 	}
 	
 	public void addHorizontalIcon(Icon icon) {
-		int base = this.getIconWidth() + this.getHorizontalGap();
-
-	    icons.add(icon);
-	    listX.add(base + 1);
-	    listY.add(0);
-	    
-	    this.width = base + icon.getIconWidth();
+	    this.addHorizontalIcon(icon, 0);
 	}
 	
 	public void addHorizontalIcon(Icon icon, int y){
