@@ -55,6 +55,7 @@ import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jwellman.csvviewer.actions.ActionSetFilterColumn;
 import org.jwellman.csvviewer.glazed.DataComparator;
 import org.jwellman.csvviewer.glazed.DataTextFilterator;
+import org.jwellman.csvviewer.glazed.GlazedListTableModel;
 import org.jwellman.csvviewer.interfaces.TextChooserAware;
 import org.jwellman.csvviewer.models.Person;
 import org.jwellman.foundation.swing.XButton;
@@ -635,7 +636,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         JLabel jlabel = null;
         HorizontalGraphitePanel graphitepanel = null; 
  
-        jlabel = (JLabel) XLabel.create().setFont(FONT_VERDANA).setText("FILTER").setForeground(COLOR_EAST_TEXT).get();
+        jlabel = (JLabel) XLabel.create().setFont(FONT_VERDANA).setText("SEARCH").setForeground(COLOR_EAST_TEXT).get();
                jlabel.setHorizontalAlignment(SwingConstants.CENTER);
                graphitepanel = new HorizontalGraphitePanel();
               
@@ -733,30 +734,39 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         f.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.BORDER_VERTICAL, 14, COLOR_EAST_TEXT));
         south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(d, e, f)));
 
-        final Dimension dimicon = new Dimension(30,1);
-        JButton g = HorizontalGraphitePanel.createButton(null, null, dimicon); // ACTION_INCREASE_COLUMN_MARGIN
-        g.setAction(new JTablePropertyAction("CMARGIN+",  tblCsvData, JTablePropertyAction.ACTION_INCREASE_COLUMN_MARGIN, null));
-        g.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_INDENT_INCREASE, 14, COLOR_EAST_TEXT));
-        g.setText("");
-        
-        JButton h = HorizontalGraphitePanel.createButton(null, null, dimicon); // ACTION_DECREASE_COLUMN_MARGIN
-        h.setAction(new JTablePropertyAction("CMARGIN-",  tblCsvData, JTablePropertyAction.ACTION_DECREASE_COLUMN_MARGIN, null));
-        h.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_INDENT_DECREASE, 14, COLOR_EAST_TEXT));
-        h.setText("");
-        
-        JButton i = HorizontalGraphitePanel.createButton(null, null, dimicon);
-        i.setAction(new JTablePropertyAction("+",  tblCsvData, JTablePropertyAction.ACTION_INCREASE_ROW_MARGIN, null));
-        i.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_LINE_SPACING, 14, COLOR_EAST_TEXT));
-        
-        JButton j = HorizontalGraphitePanel.createButton(null, null, dimicon);
-        j.setAction(new JTablePropertyAction("-",  tblCsvData, JTablePropertyAction.ACTION_DECREASE_ROW_MARGIN, null));
-        j.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_LINE_SPACING, 14, COLOR_EAST_TEXT));
+        if ( Settings.global().isUserMode() ) {
+            ButtonGroup bg = new ButtonGroup();
+            bg.add(d); bg.add(e); bg.add(f);
+        } else {
+            final Dimension dimicon = new Dimension(30,1);
 
-        south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(h, g, j, i)));        
+            // ================ MARGIN CONTROL =================
+            JButton g = HorizontalGraphitePanel.createButton(null, null, dimicon); // ACTION_INCREASE_COLUMN_MARGIN
+            g.setAction(new JTablePropertyAction("CMARGIN+",  tblCsvData, JTablePropertyAction.ACTION_INCREASE_COLUMN_MARGIN, null));
+            g.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_INDENT_INCREASE, 14, COLOR_EAST_TEXT));
+            g.setText("");
+            
+            JButton h = HorizontalGraphitePanel.createButton(null, null, dimicon); // ACTION_DECREASE_COLUMN_MARGIN
+            h.setAction(new JTablePropertyAction("CMARGIN-",  tblCsvData, JTablePropertyAction.ACTION_DECREASE_COLUMN_MARGIN, null));
+            h.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_INDENT_DECREASE, 14, COLOR_EAST_TEXT));
+            h.setText("");
+            
+            JButton i = HorizontalGraphitePanel.createButton(null, null, dimicon);
+            i.setAction(new JTablePropertyAction("+",  tblCsvData, JTablePropertyAction.ACTION_INCREASE_ROW_MARGIN, null));
+            i.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_LINE_SPACING, 14, COLOR_EAST_TEXT));
+            
+            JButton j = HorizontalGraphitePanel.createButton(null, null, dimicon);
+            j.setAction(new JTablePropertyAction("-",  tblCsvData, JTablePropertyAction.ACTION_DECREASE_ROW_MARGIN, null));
+            j.setIcon(IconFontSwing.buildIcon(GoogleMaterialDesignIcons.FORMAT_LINE_SPACING, 14, COLOR_EAST_TEXT));
+
+            south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(h, g, j, i)));                    
+
+            // ================ GLASS PANE =================
+            this.btnGlassPane = HorizontalGraphitePanel.decorateButton(new JButton("GLASS PANE"), null, null);
+            south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(this.btnGlassPane)));
+
+        }
                 
-        this.btnGlassPane = HorizontalGraphitePanel.decorateButton(new JButton("GLASS PANE"), null, null);
-        south.add(HorizontalGraphitePanel.createDefault(Arrays.asList(this.btnGlassPane)));
-
         actions.add(north, BorderLayout.NORTH);
         actions.add(south, BorderLayout.SOUTH);
         actions.add(center, BorderLayout.CENTER);

@@ -89,12 +89,12 @@
         <!-- 11/26/2020: Pretty sure these are only necessary as long
              as I have the original foundation implementation in the 
              "farchive" plugin.
+        <dependency>
+            <groupId>com.mgarin</groupId>
+            <artifactId>weblaf</artifactId>
+            <version>1.29</version>
+        </dependency>
          -->
-	    <dependency>
-	        <groupId>com.mgarin</groupId>
-	        <artifactId>weblaf</artifactId>
-	        <version>1.29</version>
-	    </dependency>
 	
 	    <!-- This is currently only necessary for weblaf (though I may keep) -->
 	    <dependency>
@@ -126,5 +126,21 @@
 			</plugin>
 		</plugins>
 	</build>
+
+  <repositories>
+
+      <repository>
+          <id>project.local</id>
+          <name>csv_viewer_project</name>
+          <url>file:\\\${project.basedir}\repo\</url>
+            <releases>
+              <enabled>true</enabled>
+            </releases>
+            <snapshots>
+              <enabled>false</enabled>
+            </snapshots>
+      </repository>
+
+  </repositories>
 
 </project>
