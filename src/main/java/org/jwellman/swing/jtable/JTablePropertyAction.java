@@ -3,10 +3,10 @@ package org.jwellman.swing.jtable;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.AbstractButton;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
+import org.jwellman.csvviewer.Settings;
 import org.jwellman.utility.Limit;
 
 /**
@@ -74,9 +74,7 @@ public class JTablePropertyAction extends AbstractAction {
     	int i = 0;
     	
         TableColumn column = null; // Reusable TableColumn reference
-        
-        AbstractButton button = null; // A lot of actions/properties can come only from buttons
-        
+
         if (target != null) {
             switch (this.action) {
             case ACTION_HIDE_COLUMN:
@@ -95,15 +93,63 @@ public class JTablePropertyAction extends AbstractAction {
                 target.setAutoResizeMode(isoff ? JTable.AUTO_RESIZE_ALL_COLUMNS : JTable.AUTO_RESIZE_OFF);
                 break;
             case ACTION_TOGGLE_GRID:
-                button = (AbstractButton) e.getSource();
-                target.setShowGrid(button.isSelected());
+                
+                if (Settings.global().isUserMode()) {
+                    target.setRowMargin(1);
+                    target.getColumnModel().setColumnMargin(1);
+
+                    // Reset the line settings 
+                    target.setShowHorizontalLines(true);
+                    target.setShowVerticalLines(true);
+                } else {
+                    boolean isShown = target.getShowHorizontalLines() && target.getShowVerticalLines();
+                    isShown = ! isShown; // we are toggling this value
+                    target.setShowGrid(isShown);                    
+                }
+
                 break;
             case ACTION_TOGGLE_HORIZONTAL_LINES:
-                target.setShowHorizontalLines(!target.getShowHorizontalLines());
+                
+                if (Settings.global().isUserMode()) {
+                    // This means horizontal only in user mode
+
+                    // Reset the line settings temporarily
+                    target.setShowHorizontalLines(false);
+                    target.setShowVerticalLines(false);
+
+                    target.setRowMargin(1);
+                    target.getColumnModel().setColumnMargin(0);
+
+                    // turn off vertical lines
+                    target.setShowVerticalLines(false);
+                    target.setShowHorizontalLines(true);
+                } else {
+                    target.setShowHorizontalLines(!target.getShowHorizontalLines());                    
+                }
+
                 break;
+
             case ACTION_TOGGLE_VERTICAL_LINES:
-                target.setShowVerticalLines(!target.getShowVerticalLines());
+                
+                if (Settings.global().isUserMode()) {
+                    // This means vertical only in user mode
+
+                    // Reset the line settings temporarily
+                    target.setShowHorizontalLines(false);
+                    target.setShowVerticalLines(false);
+
+                    target.setRowMargin(0);
+                    target.getColumnModel().setColumnMargin(1);
+                    
+                    // turn off horizontal lines
+                    target.setShowHorizontalLines(false);
+                    target.setShowVerticalLines(true);
+                } else {
+                    target.setShowVerticalLines(!target.getShowVerticalLines());
+                }
+
                 break;
+
             case ACTION_INCREASE_ROW_MARGIN:
             	i = target.getRowMargin();
             	target
