@@ -79,7 +79,7 @@ public class GlazedListTableModel implements DataHintAware, TableFormat<Object> 
 			// Assume first record is column headings; get them, remove them from dataset, specify NUMERIC data hint
 			// TODO create application option for column headings
 			List<String> columnHeadings = new ArrayList<>();
-			columnHeadings.add("<#>"); // TODO make this an application property
+			columnHeadings.add("<LINE>"); // TODO make this an application property
 			columnHeadings.addAll(Arrays.asList(raw.get(0)));			
 			columns.addAll(columnHeadings);
 			records.remove(0); // remove the column headings record
