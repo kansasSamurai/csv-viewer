@@ -29,7 +29,7 @@ import javax.swing.table.TableModel;
 
 import jiconfont.icons.FontAwesome;
 import jiconfont.swing.IconFontSwing;
-
+import org.jwellman.csvviewer.Settings;
 import org.jwellman.swing.icon.ColorIcon ;
 import org.jwellman.swing.icon.CompositeIcon;
 import org.jwellman.swing.jtable.renderer.NumberCellRenderer;
@@ -71,7 +71,9 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
     
     public static final Color COLOR_ROLLOVER = new Color(0xDEDEDE); // LIGHT GRAY
     
-    public static final Color COLOR_GREY_DARKEST = new Color(0xDCDCDC); // "GRAY" << NOTICE... barely darker than rollover color >> 0xBDBDBD 0xC7C7C7 0xD5D5D5 < these are ok but maybe better
+    public static final Color COLOR_ROLLOVER_HIGHLIGHT = new Color(0xDCDCDC); // "GRAY" << NOTICE... barely darker than rollover color >> 0xBDBDBD 0xC7C7C7 0xD5D5D5 < these are ok but maybe better
+
+    private static final Color COLOR_GREY_DARKEST = new Color(64,64,64);
 
     public static final Color COLOR_SELECTION_BLUE = new Color(0x3A87AD) ; // royal blue
 
@@ -94,7 +96,7 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
     private RubberBandingListener rbandListener = new RubberBandingListener();
 
     @SuppressWarnings("unused")
-    private Icon bookmark = IconFontSwing.buildIcon(FontAwesome.BOOKMARK, ICONSIZE, COLOR_GREY_DARKEST);
+    private Icon bookmark = IconFontSwing.buildIcon(FontAwesome.BOOKMARK, ICONSIZE, COLOR_ROLLOVER_HIGHLIGHT);
     
     private Icon bugFixed = IconFontSwing.buildIcon(FontAwesome.BUG, ICONSIZE, new Color(0x106022));
     //IconFontSwing.buildIcon(FontAwesome.BUG, ICONSIZE, new Color(0x106022));
@@ -102,7 +104,7 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
 
     private Icon bugCritical = IconFontSwing.buildIcon(FontAwesome.BUG, ICONSIZE, new Color(0x801F15));
     
-    private Icon date = IconFontSwing.buildIcon(FontAwesome.CALENDAR_O, ICONSIZE, COLOR_GREY_DARKEST);
+    private Icon date = IconFontSwing.buildIcon(FontAwesome.CALENDAR_O, ICONSIZE, COLOR_ROLLOVER_HIGHLIGHT);
     
     private Icon swatch = new ColorIcon(new Color(0x106022), 11);
     
@@ -122,17 +124,18 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
     
     private void init() {
         
-        this.setGridColor(COLOR_GREY_DARKEST);
+        this.setGridColor(COLOR_ROLLOVER_HIGHLIGHT);
 
-        this.setForeground(COLOR_GREY_DARKEST);
+        this.setForeground(COLOR_ROLLOVER_HIGHLIGHT);
         this.setBackground(Color.WHITE); 
         
         this.setSelectionForeground( COLOR_SELECTION_BLUE );
         this.setSelectionBackground( COLOR_SELECTION_LIGHTBLUE );
         
         this.getTableHeader().setFont(FONT_SEGOE_UI_BOLD); // (FONT_CALIBRI_BOLD)
-        this.getTableHeader().setForeground(COLOR_GREY_DARKEST);
-        this.getTableHeader().setBackground(COLOR_ROLLOVER);
+// 10/31/2021 : Allow look and feel defaults for font color/background (but leaving the code... I might change my mind again)
+//        this.getTableHeader().setForeground(COLOR_GREY_DARKEST);
+//        this.getTableHeader().setBackground(COLOR_ROLLOVER);
 
         // ===========================================================
         
@@ -183,6 +186,11 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
         }
     }
     
+    /**
+     * TODO The icon customization needs to be removed; at best, maybe add
+     * some sort of a callback for the icons but xtable by itself
+     * should not implement this.
+     */
 	@Override
 	public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 
@@ -222,32 +230,30 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
         //
         if (label != null) {
         	
-        	// This does not look right when there is an icon :(
-        	// label.setVerticalAlignment(BOTTOM);
-        	// TODO figure this out.
-        	// So... I don't think this can be fixed by just using
-        	// a JLabel/DefaultCellRenderer.  Because... any time
-        	// there is an icon in a JLabel, it centers the
-        	// text and icon horizontally 
-        	// (regardless of the vertical alignment setting)
-        	
-            CompositeIcon icon = null;            
-        	column = this.convertColumnIndexToModel(column); //this.convertColumnIndexToView(column);
-        	//column = -1;
-        	switch (column) {
-                case 3: icon = decTwo; icon.setLabel(label); break;
-                case 6: icon = decOne; icon.setLabel(label); break;
-                default: label.setIcon(null);
+        	if (Settings.global().isUserMode()) {
+
+        	} else {
+            	// This does not look right when there is an icon :(
+            	// label.setVerticalAlignment(BOTTOM);
+            	// TODO figure this out.
+            	// So... I don't think this can be fixed by just using
+            	// a JLabel/DefaultCellRenderer.  Because... any time
+            	// there is an icon in a JLabel, it centers the
+            	// text and icon horizontally 
+            	// (regardless of the vertical alignment setting)
+            	
+                CompositeIcon icon = null;
+            	column = this.convertColumnIndexToModel(column); //this.convertColumnIndexToView(column);
+            	//column = -1;
+            	switch (column) {
+                    case 3: icon = decTwo; icon.setLabel(label); break;
+                    case 6: icon = decOne; icon.setLabel(label); break;
+                    default: label.setIcon(null);
+            	}
         	}
 
         }
 
-//    	DelimitedFileTableModel tm = (DelimitedFileTableModel)this.getModel();
-//    	if (tm.getDataHints().get(column).equals(DataHint.NUMERIC)) {
-//        } else {
-//        	label.setIcon(null);
-//        }
-        
         if (debug) {
             if (c instanceof JComponent) {
                 ((JComponent) c).setBorder(debugcellborder);
