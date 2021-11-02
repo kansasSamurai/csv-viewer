@@ -148,23 +148,23 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 //    private final NumberCellRenderer numRenderer = new NumberCellRenderer(fontNormalGrid);
 //    
 //    private final StringCellRenderer strRenderer = new StringCellRenderer(fontNormalGrid);
-    
+
     private static final Border BORDER_EMPTY = BorderFactory.createEmptyBorder(5, 5, 5, 5);
 
     private static final Border BORDER_MATTE = BorderFactory.createMatteBorder(5, 1, 1, 1, new Color(249,249,249));
-    
+
     private static final Border BORDER_ETCHED = BorderFactory.createEtchedBorder();
-    
+
     private static final Border BORDER_LINE = BorderFactory.createLineBorder(Color.black, 1);
-    
+
     private static final Border BORDER_DEBUG = BorderFactory.createLineBorder(Color.red, 1);    
-    
+
     private static final Border BORDER_DASHED = BorderFactory.createDashedBorder(null, 3.0f, 2.0f);
-    
+
     private static final Border BORDER_COMPOUND = BorderFactory.createCompoundBorder(BORDER_EMPTY, BORDER_ETCHED);
-    
+
     private static final Border BORDER_FIX = BorderFactory.createEmptyBorder(6, 0, 0, 0);
-    
+
     private static final Border BORDER_DEBUG_INNER = BorderFactory
     		.createCompoundBorder(
     				BORDER_DASHED, 
@@ -428,9 +428,9 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 
         boolean usingTexturedLAF = false;
         if (usingTexturedLAF) {
-        	pane.setOpaque(false);
-        	pane.getViewport().setOpaque(false);
-        	pane.setBorder(BORDER_EMPTY);
+            pane.setOpaque(false);
+            pane.getViewport().setOpaque(false);
+            pane.setBorder(BORDER_EMPTY);
         } else {
     		// JTattoo Aluminium theme does not handle this border well
 		    pane.setBorder(
@@ -674,7 +674,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         tblCsvData.getModel().addTableModelListener(this);
 
         tblCsvData.setShowVerticalLines(false);
-        tblCsvData.setFont(FONT_LUCIDA); // (fontSmallData);
+        tblCsvData.setFont(FONT_CALIBRI); // (fontSmallData);
         tblCsvData.setRowMargin(1); tblCsvData.getColumnModel().setColumnMargin(0);
         tblCsvData.setFillsViewportHeight(true);           
 
@@ -719,11 +719,11 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         final List<DataHint> hints = dataHintAware.getDataHints();
         for (int i=0; i<tblCsvData.getColumnCount(); i++) {
             final String cname = tblCsvData.getColumnName(i);
-        	if (hints.get(i).equals(DataHint.NUMERIC)) {
-	            tblCsvData.getColumn(cname).setCellRenderer(XTable.numRenderer);
-        	} else {
-	            tblCsvData.getColumn(cname).setCellRenderer(XTable.strRenderer);        		
-        	}
+            if (hints.get(i).equals(DataHint.NUMERIC)) {
+                tblCsvData.getColumn(cname).setCellRenderer(XTable.numRenderer);
+            } else {
+                tblCsvData.getColumn(cname).setCellRenderer(XTable.strRenderer);
+            }
         }
 
         boolean customizeHeader = false;
@@ -758,47 +758,52 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 
         panel.add(pane); // center
         panel.add(this.footer =  new Footer(tblCsvData.getModel().getRowCount()), BorderLayout.SOUTH);
-        
+
         return panel;
     }
-    
+
     @SuppressWarnings("serial")
 	private class Footer extends JPanel {
 
     	final JPanel content = new JPanel();
-    	final JLabel prefix = new JLabel("Showing ");
-    	final JLabel displaycount = new JLabel("1");
-    	final JLabel separator = new JLabel(" of ");
-    	final JLabel totalcount = new JLabel("100");
-    	final JLabel suffix = new JLabel(" total rows.");
-    	
+    	final JLabel prefix = new JLabel("Full file: ");
+    	final JLabel totalcount = new JLabel("???");
+    	final JLabel separator = new JLabel(" data rows, Search Results: ");
+    	final JLabel displaycount = new JLabel("?");
+    	final JLabel suffix = new JLabel(" found.");
+
+    	// totalrows does not change after construction
     	int totalrows = 0;
+
+    	// displayedrows is only less than total after search
     	int displayedrows = 0;
-    	
-    	public Footer(int rows) {
-    		this.setLayout(new BorderLayout());
 
-    		this.totalrows = this.displayedrows = rows;
-    		totalcount.setText(Integer.toString(totalrows));
-    		displaycount.setText(Integer.toString(displayedrows));
+        public Footer(int rows) {
+            this.setLayout(new BorderLayout());
+            this.setBorder(BORDER_EMPTY);
 
-    		content.setLayout(new BoxLayout(content, BoxLayout.LINE_AXIS));
-        	content.setBorder(BorderFactory.createEtchedBorder());
-        	this.add(content, BorderLayout.NORTH);
+            this.totalrows = this.displayedrows = rows;
+            totalcount.setText(Integer.toString(totalrows));
+            displaycount.setText(Integer.toString(displayedrows));
 
-        	content.add(prefix);
-        	content.add(displaycount);
-        	content.add(separator);
-        	content.add(totalcount);
-        	content.add(suffix);
-        	
-    	}
+            content.setLayout(new BoxLayout(content, BoxLayout.LINE_AXIS));
+            // content.setBorder(BorderFactory.createEtchedBorder());
+            this.add(content, BorderLayout.NORTH);
 
-		public void setDisplayedRows(int rowCount) {
-			this.displayedrows = rowCount;
-    		displaycount.setText(Integer.toString(displayedrows));			
-		}
-    	
+            content.add(Box.createHorizontalStrut(2));
+            content.add(prefix);
+            content.add(totalcount);
+            content.add(separator);
+            content.add(displaycount);
+            content.add(suffix);
+            
+        }
+
+        public void setDisplayedRows(int rowCount) {
+            this.displayedrows = rowCount;
+            displaycount.setText(Integer.toString(displayedrows));			
+        }
+
     }
 
 	private JPanel createEasternPanel() {
