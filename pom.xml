@@ -5,11 +5,11 @@
 
 	<groupId>org.jwellman</groupId>
 	<artifactId>csv-viewer</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+	<version>0.0.2</version>
 	<packaging>jar</packaging>
 
 	<name>csv-viewer</name>
-	<description>Demo project for Spring Boot</description>
+	<description>A desktop app for viewing delimited data files</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -114,8 +114,8 @@
 			<groupId>com.jtattoo</groupId>	
 			<artifactId>JTattoo</artifactId>	
 			<version>1.6.11</version>	
-		</dependency>          
-                   
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -123,11 +123,24 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+						<configuration>
+							<classifier>spring-boot</classifier>
+							<mainClass>
+								org.jwellman.csvviewer.CsvViewerApplication
+							</mainClass>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
 
-  <repositories>
+	<repositories>
 
       <repository>
           <id>project.local</id>
@@ -141,6 +154,6 @@
             </snapshots>
       </repository>
 
-  </repositories>
+	</repositories>
 
 </project>
