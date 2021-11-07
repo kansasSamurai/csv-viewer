@@ -22,12 +22,12 @@ public class NumberCellRenderer extends AbstractTableCellRenderer  {
 	public NumberCellRenderer() {
 		this(null);
 	}
-	
+
 	public NumberCellRenderer(Font font) {
-    	super(font);
-    	setHorizontalAlignment(SwingConstants.RIGHT);	
+		super(font);
+		setHorizontalAlignment(SwingConstants.RIGHT);	
 	}
-	
+
 	/**
 	 * Sets the font based on the given name.
 	 * It will use a PLAIN font sized at 12 points.
@@ -41,5 +41,5 @@ public class NumberCellRenderer extends AbstractTableCellRenderer  {
 	public NumberCellRenderer(String fontname, String notused) {
 		this(FontFactory.getFont(fontname, Font.PLAIN, 12));
 	}
-	
+
 }

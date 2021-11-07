@@ -3,10 +3,13 @@ package org.jwellman.csvviewer.glazed;
 import java.util.Comparator;
 
 /**
+ * This really does not compare data generically; rather it compares the line numbers
+ * as they are the default sort order for the table used here.
  * 
  * @author rwellman
  *
  */
+@SuppressWarnings("rawtypes")
 public class DataComparator implements Comparator {
 
 	@Override
@@ -15,16 +18,11 @@ public class DataComparator implements Comparator {
 		String[] objectB = (String[]) o2;
 		
 		int comparison = 0;
-		try {
 			// index 0 is the line number (once I implement line numbers in the underlying data)
 			Integer intA = Integer.parseInt( objectA[0] );
 			Integer intB = Integer.parseInt( objectB[0] );
 			comparison = intA - intB;
-		} catch (Throwable t) {
-			// If it is not a number, it's a string
-			comparison = objectA[0].compareTo(objectB[0]);
-		}
-		
+
 		return comparison;
 	}
 

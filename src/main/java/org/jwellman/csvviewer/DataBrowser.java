@@ -264,35 +264,35 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         // All table types above extend JTable
 
     }
- 
+
     private Component createStatusBar() {
         Border b = BorderFactory.createCompoundBorder(
             BorderFactory.createEmptyBorder(0,5,1,5),
             BORDER_ETCHED
         );
-        
+
         final JPanel statusBar = new JPanel();
         statusBar.setLayout(new BoxLayout(statusBar, BoxLayout.X_AXIS));
         statusBar.setBorder(b);
-        
-        this.statusFilename = new JLabel(" X:/.../........");
+
+        this.statusFilename = new JLabel(" [The full file path will go here when you open the file]");
         statusBar.add(this.statusFilename);
-        
+
         return statusBar;
     }
 
     private Component createFileDropTarget() {
-    	
+
     	final JPanel panel = new JPanel(new GridBagLayout()); // (new GridBagLayout());
     	panel.setBorder( BORDER_COMPOUND ); // BORDER_EMPTY ;
         // final DropTarget target = 
         new DropTarget(panel, new FileDropTarget(panel, this));
-    	
+
         final String calltoaction = "Drop a file here to open it...";
         final Font font = new Font("Roboto", Font.PLAIN, calcPointSize(20));
         final Color foreground = new Color(0x92b0b3);
-    	boolean uselabel = true;
-    	if (uselabel) {
+        boolean uselabel = true;
+        if (uselabel) {
             final JLabel label = new JLabel(calltoaction);
             label.setBorder(BORDER_EMPTY);
             label.setHorizontalAlignment(JLabel.CENTER);
@@ -329,16 +329,16 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
      * @return
      */
     private int calcPointSize(int pixelSize) {
-    	final double fontSize= pixelSize * Toolkit.getDefaultToolkit().getScreenResolution() / 72.0;
+        final double fontSize= pixelSize * Toolkit.getDefaultToolkit().getScreenResolution() / 72.0;
         System.out.println("Given pixel size of " + pixelSize + ", font size = " + fontSize);
-        
-		return (int) fontSize;
+
+        return (int) fontSize;
 	}
 
     private JComponent createCsvTable(File file) {
         return createCsvTableV3(file);
     }
-    
+
     // This version is deprecated but left for comparison/reference
 	private JComponent createCsvTableV1(File file) {
         final JScrollPane pane = (tblCsvData instanceof BetterJTable) 
@@ -470,20 +470,22 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         	csvTableModel = etm;
         }
         	break;
-        case 4: // case 3 but refactored to use glazed lists column sorting
-        {
-        	GlazedListTableModel tm = new GlazedListTableModel(file, this.dataBrowserAware.getDelimiter());
-        	dataHintAware = tm;
+		case 4: // case 3 but refactored to use glazed lists column sorting
+		{
+			GlazedListTableModel tm = new GlazedListTableModel(file, this.dataBrowserAware.getDelimiter());
+			dataHintAware = tm;
 
-        	final SortedList sorted = new SortedList(tm.getEventList(), new DataComparator());
-        	
-        	final FilterList filtered = new FilterList(sorted, new TextComponentMatcherEditor(txtFilter, dataTextFilterator = new DataTextFilterator(dataHintAware)));
-        	
-        	AdvancedTableModel etm = GlazedListsSwing.eventTableModelWithThreadProxyList(filtered, tm);
-        	csvTableModel = etm;
-            tblCsvData.setModel(csvTableModel); // for the next line to work, you must set the model first
+			final SortedList sorted = new SortedList(tm.getEventList(), new DataComparator());
 
-        	TableComparatorChooser<Object> tcc = TableComparatorChooser.install(tblCsvData, sorted, TableComparatorChooser.SINGLE_COLUMN);
+			final FilterList filtered =
+					new FilterList(sorted, new TextComponentMatcherEditor(txtFilter,
+							dataTextFilterator = new DataTextFilterator(dataHintAware)));
+
+			final AdvancedTableModel etm = GlazedListsSwing.eventTableModelWithThreadProxyList(filtered, tm);
+
+			tblCsvData.setModel(csvTableModel = etm); // for the next line to work, you must set the // model first
+
+			TableComparatorChooser<Object> tcc = TableComparatorChooser.install(tblCsvData, sorted, TableComparatorChooser.MULTIPLE_COLUMN_MOUSE);
 
         }
         	break;
@@ -589,6 +591,31 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 	// 10/31/2021, this is a newer version being tried to create a table footer/status
     // It's exactly the same as v2 except returns a JPanel instead of a JScrollPane
     // plus the new components to make the table footer.
+    /**
+     * Though this method name is a little misleading [1], its real function
+     * is to populate the JTable with the actual data after the user has
+     * chosen the file.  It also does most of the visual tweaking necessary
+     * to make the JTable look like I want it to.<p>  
+     * [1] i.e. this method does not create the JTable itself; that has already been done.<p>
+     * Overall, it does everything
+     * in the following order:<p>
+     * <ol>
+     * <li>Create table striping if the underlying JTable extension does not.</li>
+     * <li>Adjust the border on the scrollpane; conditionally, based on the LAF.</li>
+     * <li>Create the table model. (including advanced GlazedLists configuration)</li>
+     * <li>Set the table model into the JTable.</li>
+     * <li>Initialize the JTable font, internal margins, and cell border.</li>
+     * <li>(optional - off) Support for solarized color scheme; light and dark.</li>
+     * <li>Installs a table column manager for hide/show of table columns via right-click on the table header.</li>
+     * <li>setAutoResizeMode(JTable.AUTO_RESIZE_OFF)</li>
+     * <li>Set table column cell renderer based on the column's data type.</li>
+     * <li>(optional - off)Further customization of the table header(s).</li>
+     * <li>Adjust column widths based on data.</li>
+     * <li>Create the table footer.</li>
+     * </ol>
+     * @param file
+     * @return
+     */
     @SuppressWarnings({"rawtypes", "unchecked"})
 	private JComponent createCsvTableV3(File file) {
         final JPanel panel = new JPanel(new BorderLayout());
@@ -640,21 +667,24 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         	DefaultEventTableModel etm = new DefaultEventTableModel(filteredData, tm);
         	csvTableModel = etm;
         }
-        	break;
-        case 4: // case 3 but refactored to use glazed lists column sorting
-        {
-        	GlazedListTableModel tm = new GlazedListTableModel(file, this.dataBrowserAware.getDelimiter());
-        	dataHintAware = tm;
+            break;
+		case 4: // case 3 but refactored to use glazed lists column sorting
+		{
+			GlazedListTableModel tm = new GlazedListTableModel(file, this.dataBrowserAware.getDelimiter());
+			dataHintAware = tm;
 
-        	final SortedList sorted = new SortedList(tm.getEventList(), new DataComparator());
-        	
-        	final FilterList filtered = new FilterList(sorted, new TextComponentMatcherEditor(txtFilter, dataTextFilterator = new DataTextFilterator(dataHintAware)));
-        	
-        	AdvancedTableModel etm = GlazedListsSwing.eventTableModelWithThreadProxyList(filtered, tm);
-        	csvTableModel = etm;
-            tblCsvData.setModel(csvTableModel); // for the next line to work, you must set the model first
+			final SortedList sorted = new SortedList(tm.getEventList(), new DataComparator());
 
-        	TableComparatorChooser<Object> tcc = TableComparatorChooser.install(tblCsvData, sorted, TableComparatorChooser.SINGLE_COLUMN);
+			final FilterList filtered =
+					new FilterList(sorted, new TextComponentMatcherEditor(txtFilter,
+							dataTextFilterator = new DataTextFilterator(dataHintAware)));
+
+			final AdvancedTableModel etm = GlazedListsSwing.eventTableModelWithThreadProxyList(filtered, tm);
+
+			tblCsvData.setModel(csvTableModel = etm); // for the next line to work, you must set the model first
+
+			TableComparatorChooser<Object> tcc = TableComparatorChooser.install(tblCsvData, sorted, TableComparatorChooser.MULTIPLE_COLUMN_MOUSE);
+			// tcc.createComparatorForElement(null, modeldesign); // use this for zero padded integers
 
         }
         	break;
@@ -673,6 +703,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         // Listen for table model data changes (for status bar)
         tblCsvData.getModel().addTableModelListener(this);
 
+        // Initializes the JTable font, internal margins, and cell border.
         tblCsvData.setShowVerticalLines(false);
         tblCsvData.setFont(FONT_CALIBRI); // (fontSmallData);
         tblCsvData.setRowMargin(1); tblCsvData.getColumnModel().setColumnMargin(0);
@@ -719,12 +750,20 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         final List<DataHint> hints = dataHintAware.getDataHints();
         for (int i=0; i<tblCsvData.getColumnCount(); i++) {
             final String cname = tblCsvData.getColumnName(i);
-            if (hints.get(i).equals(DataHint.NUMERIC)) {
-                tblCsvData.getColumn(cname).setCellRenderer(XTable.numRenderer);
-            } else {
-                tblCsvData.getColumn(cname).setCellRenderer(XTable.strRenderer);
-            }
-        }
+			switch (hints.get(i)) {
+				// case DATE: // TODO
+				// break;
+				case NUMERIC:
+					tblCsvData.getColumn(cname).setCellRenderer(XTable.numRenderer);
+					break;
+				case ZEROPADDED_INTEGER:
+					tblCsvData.getColumn(cname).setCellRenderer(XTable.numRenderer);
+					break;
+				default:
+					tblCsvData.getColumn(cname).setCellRenderer(XTable.strRenderer);
+					break;
+			} // end switch hints
+        } // end for columns
 
         boolean customizeHeader = false;
         if (customizeHeader) {
@@ -743,14 +782,14 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
             //tblCsvData.getTableHeader().setBorder(BORDER_ETCHED); // This works (kinda) but remember that this is the border on the ENTIRE table header (not just individual columns)
         	//csvTable.setBorder(BORDER_ETCHED);
         } else {
-// These have been moved to XTable.
-//            tblCsvData.getTableHeader().setFont(FONT_SEGOE_UI_BOLD); // (FONT_CALIBRI_BOLD)
-//            tblCsvData.getTableHeader().setForeground(COLOR_GREY_DARKEST);
-//            tblCsvData.getTableHeader().setBackground(new Color(0xDEDEDE));
+            // These have been moved to XTable.
+            //            tblCsvData.getTableHeader().setFont(FONT_SEGOE_UI_BOLD); // (FONT_CALIBRI_BOLD)
+            //            tblCsvData.getTableHeader().setForeground(COLOR_GREY_DARKEST);
+            //            tblCsvData.getTableHeader().setBackground(new Color(0xDEDEDE));
         }
 
         if (tblCsvData instanceof JTable) {
-            this.resizeColumnWidth(tblCsvData);            
+            this.resizeColumnWidth(tblCsvData);
         } else if (tblCsvData instanceof JXTable) {
             final JXTable t = (JXTable) tblCsvData;
             t.packAll();

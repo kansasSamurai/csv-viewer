@@ -39,7 +39,7 @@ import javax.swing.table.TableColumnModel;
  * user the ability to hide columns and then reshow them in their last viewed
  * position. This functionality is supported by a popup menu added to the table
  * header of the table. The TableColumnModel is still used to control the view
- * for the table. The manager will inovoke the appropriate methods of the
+ * for the table. The manager will invoke the appropriate methods of the
  * TableColumnModel to hide/show columns as required.
  * [D] http://www.tachenov.name/2016/07/13/202/
  *
