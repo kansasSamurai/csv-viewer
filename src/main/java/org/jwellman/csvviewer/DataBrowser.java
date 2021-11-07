@@ -173,7 +173,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 
     private static final Font FONT_SEGOE_UI = new Font("Segoe UI", Font.PLAIN, 12);
 
-//  private static final Font FONT_SEGOE_UI_BOLD = new Font("Segoe UI", Font.BOLD, 18);
+    private static final Font FONT_SEGOE_UI_BOLD = new Font("Segoe UI", Font.BOLD, 14);
 
     private static final Font FONT_CALIBRI_BOLD = new Font("Calibri", Font.BOLD, 12);
 
@@ -229,7 +229,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         case 1:
             // 6/27/2020 this mostly works but there is an issue with the Search textfield
             tblCsvData = new JTable();
-            tblCsvData.setAutoCreateRowSorter(true);
+            // tblCsvData.setAutoCreateRowSorter(true); // turn this off when using glazedlists or other sorting implementations
             break;
         case 2:
             // 6/27/2020 - This works and has striped rows... I just like mine better
@@ -237,7 +237,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
             break;
         case 3:
             tblCsvData = new XTable();
-            // tblCsvData.setAutoCreateRowSorter(true);
+            // tblCsvData.setAutoCreateRowSorter(true); // turn this off when using glazedlists or other sorting implementations
             break;
         case 4:
             // 6/27/2020 this also has an issue with the Search textfield
@@ -727,7 +727,9 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 // 11/6/2021 :: So, it is really hard to decide if I want the blue text when selected
 //              Because I think it probably meets user expectations a little bit better
 //              I am turning off the blue and letting the dark grey default be shown.
-//            tblCsvData.setSelectionForeground( new Color(0x3A87AD) );
+//          tblCsvData.setSelectionForeground( new Color(0x3A87AD) );
+            if ( ! (tblCsvData instanceof XTable) )
+                tblCsvData.setSelectionForeground( new Color(0x3A87AD) );
             tblCsvData.setSelectionBackground( new Color(0xD9EDF7) );
         }
 
@@ -765,12 +767,14 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 			} // end switch hints
         } // end for columns
 
+        // 11/6/2021 :: Most of the time (until I make further customizations) the header
+        // needs to remain the default so that sorting icons/decorations will appear correctly.
         boolean customizeHeader = false;
         if (customizeHeader) {
             final NumberCellRenderer hdrRenderer = new NumberCellRenderer("Consolas", "dummy");
             hdrRenderer.setForeground(Color.LIGHT_GRAY);
             hdrRenderer.setBackground(COLOR_GREY_DARKEST);        
-            hdrRenderer.setFont(FONT_SEGOE_UI);
+            hdrRenderer.setFont(FONT_SEGOE_UI_BOLD);
             // hdrRenderer.setBorder(BORDER_ETCHED); // DefaultTableCellRenderer does not honor a user Border :(
             
             // hdrRenderer.setCellBorder(BORDER_MATTE); // This works (kinda) but I don't like the look

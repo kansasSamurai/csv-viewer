@@ -27,7 +27,7 @@ public class AbstractTableCellRenderer extends DefaultTableCellRenderer {
 	
     protected Border cellBorder;
     
-    protected static final Border BORDER_FIX = BorderFactory.createEmptyBorder(5, 3, 0, 3); // 5, 3, 0, 3 | 5, 1, 0, 1   |   6, 0, 1, 0
+    protected static final Border BORDER_FIX = BorderFactory.createEmptyBorder(6, 3, 0, 3); // 5, 3, 0, 3 | 5, 1, 0, 1   |   6, 0, 1, 0
     
     protected static final Border BORDER_OUTLINE = BorderFactory.createLineBorder(Color.red, 1);
     

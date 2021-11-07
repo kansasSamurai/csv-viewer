@@ -94,7 +94,12 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
 
     private boolean rowStripingEnabled = true;
 
-    private Border debugcellborder = BorderFactory.createLineBorder(Color.cyan);
+    private Border cyancellborder = BorderFactory.createLineBorder(Color.cyan);
+
+    private Border emptycellborder = BorderFactory.createEmptyBorder(3,3,3,3);
+
+    private Border debugcellborder =BorderFactory.createCompoundBorder(emptycellborder, cyancellborder); 
+    		//BorderFactory.createLineBorder(Color.cyan);
 
     private RubberBandingListener rbandListener = new RubberBandingListener();
 
@@ -232,10 +237,13 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
 
         //
         if (label != null) {
-        	
-        	if (Settings.global().isUserMode()) {
 
-        	} else {
+    		// Tested 11/6/2021 :: the following seems to have no effect (but yet the horizontal does... huh?)
+            label.setVerticalAlignment(SwingConstants.BOTTOM);
+
+            if (Settings.global().isUserMode()) {
+
+            } else {
             	// This does not look right when there is an icon :(
             	// label.setVerticalAlignment(BOTTOM);
             	// TODO figure this out.

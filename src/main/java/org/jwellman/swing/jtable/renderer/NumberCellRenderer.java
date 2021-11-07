@@ -3,7 +3,6 @@ package org.jwellman.swing.jtable.renderer;
 import java.awt.Font;
 
 import javax.swing.SwingConstants;
-
 import org.jwellman.swing.font.FontFactory;
 
 /**
@@ -15,7 +14,7 @@ import org.jwellman.swing.font.FontFactory;
  * @author rwellman
  *
  */
-public class NumberCellRenderer extends AbstractTableCellRenderer  {
+public class NumberCellRenderer extends AbstractTableCellRenderer {
 
 	private static final long serialVersionUID = 1L;
 
@@ -25,7 +24,9 @@ public class NumberCellRenderer extends AbstractTableCellRenderer  {
 
 	public NumberCellRenderer(Font font) {
 		super(font);
-		setHorizontalAlignment(SwingConstants.RIGHT);	
+		setHorizontalAlignment(SwingConstants.RIGHT);
+		// Tested 11/6/2021 :: the following seems to have no effect (but yet the horizontal does... huh?)
+		// setVerticalAlignment(SwingConstants.BOTTOM);
 	}
 
 	/**
