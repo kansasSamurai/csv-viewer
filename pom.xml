@@ -31,59 +31,59 @@
 			<artifactId>spring-boot-starter-freemarker</artifactId>
 		</dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-    
-        <dependency>
-            <groupId>org.jwellman</groupId>
-            <artifactId>foundation</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
-        </dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>com.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>4.1</version>
-        </dependency>
+		<dependency>
+			<groupId>org.jwellman</groupId>
+			<artifactId>foundation</artifactId>
+			<version>1.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+			<version>4.1</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-		
-	    <dependency>
-            <groupId>com.glazedlists</groupId>
-			<artifactId>glazedlists</artifactId>
-			<version>1.11.0</version>
-	    </dependency>
 
 		<dependency>
-		    <groupId>com.github.jiconfont</groupId>
-		    <artifactId>jiconfont-swing</artifactId>
-		    <version>1.0.0</version>
+			<groupId>com.glazedlists</groupId>
+			<artifactId>glazedlists</artifactId>
+			<version>1.11.0</version>
 		</dependency>
-		
+
 		<dependency>
-		    <groupId>com.github.jiconfont</groupId>
-		    <artifactId>jiconfont-font_awesome</artifactId>
-		    <version>4.7.0.0</version>
+			<groupId>com.github.jiconfont</groupId>
+			<artifactId>jiconfont-swing</artifactId>
+			<version>1.0.0</version>
 		</dependency>
-		
+
 		<dependency>
-		    <groupId>com.github.jiconfont</groupId>
-		    <artifactId>jiconfont-google_material_design_icons</artifactId>
-		    <version>2.2.0.0</version>
+			<groupId>com.github.jiconfont</groupId>
+			<artifactId>jiconfont-font_awesome</artifactId>
+			<version>4.7.0.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.github.jiconfont</groupId>
+			<artifactId>jiconfont-google_material_design_icons</artifactId>
+			<version>2.2.0.0</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.swinglabs/swingx -->
 		<dependency>
-		    <groupId>org.swinglabs</groupId>
-		    <artifactId>swingx</artifactId>
-		    <version>1.6.1</version>
+			<groupId>org.swinglabs</groupId>
+			<artifactId>swingx</artifactId>
+			<version>1.6.1</version>
 		</dependency>
 
         <!-- 11/26/2020: Pretty sure these are only necessary as long
@@ -95,25 +95,25 @@
             <version>1.29</version>
         </dependency>
          -->
-	
-	    <!-- This is currently only necessary for weblaf (though I may keep) -->
-	    <dependency>
-	        <groupId>com.thoughtworks.xstream</groupId>
-	        <artifactId>xstream</artifactId>
-	        <version>1.4.7</version>
-	    </dependency>
 
-        <!-- Not available in maven central; see local repo -->
-        <dependency>
-            <groupId>com.nilo.plaf</groupId>
-            <artifactId>nimrod</artifactId>
-            <version>1.2d</version>
-        </dependency>
+		<!-- This is currently only necessary for weblaf (though I may keep) -->
+		<dependency>
+			<groupId>com.thoughtworks.xstream</groupId>
+			<artifactId>xstream</artifactId>
+			<version>1.4.7</version>
+		</dependency>
 
-		<dependency>	
-			<groupId>com.jtattoo</groupId>	
-			<artifactId>JTattoo</artifactId>	
-			<version>1.6.11</version>	
+		<!-- Not available in maven central; see local repo -->
+		<dependency>
+			<groupId>com.nilo.plaf</groupId>
+			<artifactId>nimrod</artifactId>
+			<version>1.2d</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jtattoo</groupId>
+			<artifactId>JTattoo</artifactId>
+			<version>1.6.11</version>
 		</dependency>
 
 	</dependencies>
@@ -142,17 +142,13 @@
 
 	<repositories>
 
-      <repository>
-          <id>project.local</id>
-          <name>csv_viewer_project</name>
-          <url>file:\\\${project.basedir}\repo\</url>
-            <releases>
-              <enabled>true</enabled>
-            </releases>
-            <snapshots>
-              <enabled>false</enabled>
-            </snapshots>
-      </repository>
+		<repository>
+			<id>project.local</id>
+			<name>csv_viewer_project</name>
+			<url>file:\\\${project.basedir}\repo\</url>
+			<releases> <enabled>true</enabled> </releases>
+			<snapshots> <enabled>false</enabled> </snapshots>
+		</repository>
 
 	</repositories>
 

@@ -140,14 +140,8 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
     private JPanel boxpnlColumns;
 
     private final Font fontSmallData = FontFactory.getFont("Consolas", Font.PLAIN, 12);
-    
-    private final Font fontSmallLabel = FontFactory.getFont("Segoe UI", Font.PLAIN, 12);
 
-//    private final Font fontNormalGrid = FontFactory.getFont("Consolas", Font.PLAIN, 14);
-//
-//    private final NumberCellRenderer numRenderer = new NumberCellRenderer(fontNormalGrid);
-//    
-//    private final StringCellRenderer strRenderer = new StringCellRenderer(fontNormalGrid);
+    private final Font fontSmallLabel = FontFactory.getFont("Segoe UI", Font.PLAIN, 12);
 
     private static final Border BORDER_EMPTY = BorderFactory.createEmptyBorder(5, 5, 5, 5);
 
@@ -178,23 +172,23 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
     				);
 
     private static final Font FONT_SEGOE_UI = new Font("Segoe UI", Font.PLAIN, 12);
-    
+
 //  private static final Font FONT_SEGOE_UI_BOLD = new Font("Segoe UI", Font.BOLD, 18);
 
     private static final Font FONT_CALIBRI_BOLD = new Font("Calibri", Font.BOLD, 12);
- 
+
     // I like Calibri at font sizes above 12pt; its numbers are 'monospaced' which is highly desirable to me
-    private static final Font FONT_CALIBRI = new Font("Calibri", Font.PLAIN, 12);
+    private static final Font FONT_CALIBRI = new Font("Calibri", Font.PLAIN, 14);
 
     // I like Lucida up to 12pt; above that it tends to look a little "stretched" (but is still monospaced correctly)
     private static final Font FONT_LUCIDA = new Font("Lucida Console", Font.PLAIN, 12);
-    
+
     private static final Font FONT_VERDANA = new Font("Verdana", Font.PLAIN, 14);
-   
+
     private static final Color COLOR_GREY_MED = new Color(136,136,136);
-   
+
     private static final Color COLOR_GREY_DARKEST = new Color(64,64,64);
-   
+
     private static final Color COLOR_EAST_TEXT = new Color(0xcdcdcd);
 
     private static Icon searchGrey;
@@ -203,14 +197,13 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
     private boolean printedCellSize = false;
 
     // ===== Glazed Lists =====
-    
+
     private DataTextFilterator dataTextFilterator;
-    
-    
-    
-    
-    
-    
+
+
+
+
+
     public DataBrowser(DataBrowserAware aware) {
 
     	// TODO Perhaps eventually there should be a list of DataBrowserAware
@@ -418,7 +411,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 		return pane;
 	}
 
-	// This is the current version being used.
+	// This version is deprecated
     @SuppressWarnings({"rawtypes", "unchecked"})
 	private JComponent createCsvTableV2(File file) {
         
@@ -503,7 +496,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 
         
         tblCsvData.setShowVerticalLines(false);
-        tblCsvData.setFont(FONT_CALIBRI.deriveFont(16.0f)); // (fontSmallData);
+        //tblCsvData.setFont(FONT_CALIBRI.deriveFont(16.0f)); // (fontSmallData);
         tblCsvData.setRowMargin(1); tblCsvData.getColumnModel().setColumnMargin(0);
         tblCsvData.setFillsViewportHeight(true);           
 
@@ -587,7 +580,8 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 
         return pane;
     }
-    
+
+	// This is the current version being used.
 	// 10/31/2021, this is a newer version being tried to create a table footer/status
     // It's exactly the same as v2 except returns a JPanel instead of a JScrollPane
     // plus the new components to make the table footer.
@@ -705,6 +699,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 
         // Initializes the JTable font, internal margins, and cell border.
         tblCsvData.setShowVerticalLines(false);
+        // It is necessary to set the font here because setting it on the renderers is not working... huh?
         tblCsvData.setFont(FONT_CALIBRI); // (fontSmallData);
         tblCsvData.setRowMargin(1); tblCsvData.getColumnModel().setColumnMargin(0);
         tblCsvData.setFillsViewportHeight(true);           
@@ -722,12 +717,17 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
             tblCsvData.setSelectionBackground(darkScheme ? new Color(0x002b36) : new Color(0xfdf6e3));
             
         } else {
+// 11/6/2021 :: When no rows are selected, the softer grey used by XTable looks better.
+//              However, when rows are selected, this darker color presents a more consistent overall contrast.
             tblCsvData.setGridColor(COLOR_GREY_DARKEST);
 
             tblCsvData.setForeground(COLOR_GREY_DARKEST);
             tblCsvData.setBackground(Color.WHITE); 
-            
-            tblCsvData.setSelectionForeground( new Color(0x3A87AD) );
+
+// 11/6/2021 :: So, it is really hard to decide if I want the blue text when selected
+//              Because I think it probably meets user expectations a little bit better
+//              I am turning off the blue and letting the dark grey default be shown.
+//            tblCsvData.setSelectionForeground( new Color(0x3A87AD) );
             tblCsvData.setSelectionBackground( new Color(0xD9EDF7) );
         }
 
@@ -1291,6 +1291,10 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
     /**
      * Thanks to:
      * https://stackoverflow.com/questions/17627431/auto-resizing-the-jtable-column-widths
+     * 
+     * Though I have made this a feature/method of XTable, I cannot
+     * remove this internal version because this version works on any JTable
+     * and I want to keep legacy code.
      * 
      * @param tblCsvData
      */

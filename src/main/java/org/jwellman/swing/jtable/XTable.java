@@ -61,24 +61,26 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
 
     private static final int ICONSIZE = 13;
 
-    public static final Font FONT_GRID = new Font("Consolas", Font.PLAIN, 14);
+    public static final Font FONT_GRID = new Font("Segoe UI", Font.PLAIN, 36); // new Font("Consolas", Font.PLAIN, 14);
 
-    public static final Font FONT_SEGOE_UI = new Font("Segoe UI", Font.PLAIN, 12);
+    public static final Font FONT_SEGOE_UI = new Font("Segoe UI", Font.PLAIN, 14);
 
     public static final Font FONT_SEGOE_UI_BOLD = new Font("Segoe UI", Font.BOLD, 14);
 
-    public static final Color COLOR_STRIPE = new Color(249,249,249); // VERY LIGHT GRAY
+    public static final Color COLOR_STRIPE = new Color(240,240,240); // Color(249,249,249); // VERY LIGHT GRAY
+
+    public static final Color COLOR_GRID = new Color(218,218,218); // Color(249,249,249); // VERY LIGHT GRAY
 
     public static final Color COLOR_ROLLOVER = new Color(0xDEDEDE); // LIGHT GRAY
 
+    // This is the color that icons/decorations are painted during rollover
     public static final Color COLOR_ROLLOVER_HIGHLIGHT = new Color(0xDCDCDC); // "GRAY" << NOTICE... barely darker than rollover color >> 0xBDBDBD 0xC7C7C7 0xD5D5D5 < these are ok but maybe better
 
-    @SuppressWarnings("unused")
 	private static final Color COLOR_GREY_DARKEST = new Color(64,64,64);
 
     public static final Color COLOR_SELECTION_BLUE = new Color(0x3A87AD) ; // royal blue
 
-    public static final Color COLOR_SELECTION_LIGHTBLUE = new Color(0xD9EDF7) ; // sky blue
+    public static final Color COLOR_SELECTION_LIGHTBLUE = new Color(168,214,225); // new Color(0xD9EDF7) ; // sky blue
 
     public static final NumberCellRenderer numRenderer = new NumberCellRenderer(FONT_GRID);
 
@@ -125,12 +127,12 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
 
     private void init() {
 
-        this.setGridColor(COLOR_ROLLOVER_HIGHLIGHT);
+        this.setGridColor(COLOR_GRID);
 
-        this.setForeground(COLOR_ROLLOVER_HIGHLIGHT);
+        this.setForeground(COLOR_GREY_DARKEST); //(COLOR_ROLLOVER_HIGHLIGHT);
         this.setBackground(Color.WHITE); 
 
-        this.setSelectionForeground( COLOR_SELECTION_BLUE );
+        this.setSelectionForeground(COLOR_GREY_DARKEST); // ( COLOR_SELECTION_BLUE );
         this.setSelectionBackground( COLOR_SELECTION_LIGHTBLUE );
 
         this.getTableHeader().setFont(FONT_SEGOE_UI_BOLD); // (FONT_CALIBRI_BOLD)
@@ -163,7 +165,7 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
         //decTwo.addIcon(date, top); // top-1
         // ((ColorIcon)swatch).setRoundedCorners(true);
     }
-    
+
     /**
      * Thanks to:
      * https://stackoverflow.com/questions/17627431/auto-resizing-the-jtable-column-widths
@@ -186,7 +188,7 @@ public class XTable extends JTable implements MouseInputListener, SwingConstants
             columnModel.getColumn(column).setPreferredWidth(width);
         }
     }
-    
+
     /**
      * TODO The icon customization needs to be removed; at best, maybe add
      * some sort of a callback for the icons but xtable by itself
