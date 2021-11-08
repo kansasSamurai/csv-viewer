@@ -60,6 +60,7 @@ import org.jwellman.csvviewer.glazed.DataTextFilterator;
 import org.jwellman.csvviewer.glazed.GlazedListTableModel;
 import org.jwellman.csvviewer.interfaces.TextChooserAware;
 import org.jwellman.csvviewer.models.Person;
+import org.jwellman.csvviewer.ui.Footer;
 import org.jwellman.foundation.swing.XButton;
 import org.jwellman.foundation.swing.XLabel;
 import org.jwellman.foundation.swing.XTextField;
@@ -428,7 +429,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
     		// JTattoo Aluminium theme does not handle this border well
 		    pane.setBorder(
 		    	BorderFactory.createCompoundBorder(
-		            BORDER_EMPTY,
+		    		BORDER_EMPTY,
 		            BorderFactory.createLineBorder(COLOR_GREY_MED) ) // BORDER_LINE
 		            ); // (BORDER_EMPTY); //( BORDER_COMPOUND );	
 		}
@@ -627,7 +628,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
     		// JTattoo Aluminium theme does not handle this border well
 		    pane.setBorder(
 		    	BorderFactory.createCompoundBorder(
-		            BORDER_EMPTY,
+		    		BORDER_EMPTY,
 		            BorderFactory.createLineBorder(COLOR_GREY_MED) ) // BORDER_LINE
 		            ); // (BORDER_EMPTY); //( BORDER_COMPOUND );	
 		}
@@ -801,52 +802,9 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 
         panel.add(pane); // center
         panel.add(this.footer =  new Footer(tblCsvData.getModel().getRowCount()), BorderLayout.SOUTH);
+        this.footer.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
 
         return panel;
-    }
-
-    @SuppressWarnings("serial")
-	private class Footer extends JPanel {
-
-    	final JPanel content = new JPanel();
-    	final JLabel prefix = new JLabel("Full file: ");
-    	final JLabel totalcount = new JLabel("???");
-    	final JLabel separator = new JLabel(" data rows, Search Results: ");
-    	final JLabel displaycount = new JLabel("?");
-    	final JLabel suffix = new JLabel(" found.");
-
-    	// totalrows does not change after construction
-    	int totalrows = 0;
-
-    	// displayedrows is only less than total after search
-    	int displayedrows = 0;
-
-        public Footer(int rows) {
-            this.setLayout(new BorderLayout());
-            this.setBorder(BORDER_EMPTY);
-
-            this.totalrows = this.displayedrows = rows;
-            totalcount.setText(Integer.toString(totalrows));
-            displaycount.setText(Integer.toString(displayedrows));
-
-            content.setLayout(new BoxLayout(content, BoxLayout.LINE_AXIS));
-            // content.setBorder(BorderFactory.createEtchedBorder());
-            this.add(content, BorderLayout.NORTH);
-
-            content.add(Box.createHorizontalStrut(2));
-            content.add(prefix);
-            content.add(totalcount);
-            content.add(separator);
-            content.add(displaycount);
-            content.add(suffix);
-            
-        }
-
-        public void setDisplayedRows(int rowCount) {
-            this.displayedrows = rowCount;
-            displaycount.setText(Integer.toString(displayedrows));			
-        }
-
     }
 
 	private JPanel createEasternPanel() {
