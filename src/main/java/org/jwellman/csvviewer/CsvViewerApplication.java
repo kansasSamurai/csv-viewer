@@ -11,16 +11,16 @@ import org.jwellman.foundation.interfaces.uiThemeProvider;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration;
+//import org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration;
 
 @SpringBootApplication
-@EnableAutoConfiguration(exclude = WebMvcAutoConfiguration.class)
+//@EnableAutoConfiguration(exclude = WebMvcAutoConfiguration.class)
 public class CsvViewerApplication extends AbstractSimpleMain implements uiThemeProvider {
 
 	public static void main(String[] args) {
 		
 		SpringApplication app = new SpringApplication(CsvViewerApplication.class);
-		app.setWebEnvironment(false);
+//		app.setWebEnvironment(false);
 
 		new CsvViewerApplication().startup(false, args);
 	}
