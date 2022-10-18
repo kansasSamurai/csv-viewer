@@ -40,6 +40,8 @@ import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
@@ -58,6 +60,7 @@ import org.jwellman.csvviewer.glazed.DataTextFilterator;
 import org.jwellman.csvviewer.glazed.GlazedListTableModel;
 import org.jwellman.csvviewer.interfaces.TextChooserAware;
 import org.jwellman.csvviewer.models.Person;
+import org.jwellman.csvviewer.ui.Footer;
 import org.jwellman.foundation.swing.XButton;
 import org.jwellman.foundation.swing.XLabel;
 import org.jwellman.foundation.swing.XTextField;
@@ -100,7 +103,7 @@ import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
  *
  */
 @SuppressWarnings({"unused", "deprecation"})
-public class DataBrowser extends JPanel implements FileActionAware, SwingConstants {
+public class DataBrowser extends JPanel implements FileActionAware, SwingConstants, TableModelListener  {
 
     private static final long serialVersionUID = 1L;
     
@@ -112,6 +115,8 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 	private TableModel csvTableModel;
     
     private TableColumnManager csvTableColumnManager;
+
+    private Footer footer;
 
 	// This was not originally present; however, with the addition of glazed lists
 	// it became necessary to differentiate between DelimitedFileTableModel and GlazedListTableModel
@@ -136,31 +141,25 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
     private JPanel boxpnlColumns;
 
     private final Font fontSmallData = FontFactory.getFont("Consolas", Font.PLAIN, 12);
-    
+
     private final Font fontSmallLabel = FontFactory.getFont("Segoe UI", Font.PLAIN, 12);
 
-//    private final Font fontNormalGrid = FontFactory.getFont("Consolas", Font.PLAIN, 14);
-//
-//    private final NumberCellRenderer numRenderer = new NumberCellRenderer(fontNormalGrid);
-//    
-//    private final StringCellRenderer strRenderer = new StringCellRenderer(fontNormalGrid);
-    
     private static final Border BORDER_EMPTY = BorderFactory.createEmptyBorder(5, 5, 5, 5);
 
-    private static final Border BORDER_MATTE = BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(249,249,249));
-    
+    private static final Border BORDER_MATTE = BorderFactory.createMatteBorder(5, 1, 1, 1, new Color(249,249,249));
+
     private static final Border BORDER_ETCHED = BorderFactory.createEtchedBorder();
-    
+
     private static final Border BORDER_LINE = BorderFactory.createLineBorder(Color.black, 1);
-    
+
     private static final Border BORDER_DEBUG = BorderFactory.createLineBorder(Color.red, 1);    
-    
+
     private static final Border BORDER_DASHED = BorderFactory.createDashedBorder(null, 3.0f, 2.0f);
-    
+
     private static final Border BORDER_COMPOUND = BorderFactory.createCompoundBorder(BORDER_EMPTY, BORDER_ETCHED);
-    
+
     private static final Border BORDER_FIX = BorderFactory.createEmptyBorder(6, 0, 0, 0);
-    
+
     private static final Border BORDER_DEBUG_INNER = BorderFactory
     		.createCompoundBorder(
     				BORDER_DASHED, 
@@ -174,32 +173,38 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
     				);
 
     private static final Font FONT_SEGOE_UI = new Font("Segoe UI", Font.PLAIN, 12);
-    
-//    private static final Font FONT_SEGOE_UI_BOLD = new Font("Segoe UI", Font.BOLD, 18);
-//    
+
+    private static final Font FONT_SEGOE_UI_BOLD = new Font("Segoe UI", Font.BOLD, 14);
+
     private static final Font FONT_CALIBRI_BOLD = new Font("Calibri", Font.BOLD, 12);
- 
-    private static final Font FONT_CALIBRI = new Font("Calibri", Font.PLAIN, 12);
-   
+
+    // I like Calibri at font sizes above 12pt; its numbers are 'monospaced' which is highly desirable to me
+    private static final Font FONT_CALIBRI = new Font("Calibri", Font.PLAIN, 14);
+
+    // I like Lucida up to 12pt; above that it tends to look a little "stretched" (but is still monospaced correctly)
+    private static final Font FONT_LUCIDA = new Font("Lucida Console", Font.PLAIN, 12);
+
     private static final Font FONT_VERDANA = new Font("Verdana", Font.PLAIN, 14);
-   
+
     private static final Color COLOR_GREY_MED = new Color(136,136,136);
-   
+
     private static final Color COLOR_GREY_DARKEST = new Color(64,64,64);
-   
+
     private static final Color COLOR_EAST_TEXT = new Color(0xcdcdcd);
 
+    private static Icon searchGrey;
+
+    // After we have printed the cell size once, set this to true so that we do not print it any more
     private boolean printedCellSize = false;
 
     // ===== Glazed Lists =====
-    
+
     private DataTextFilterator dataTextFilterator;
-    
-    
-    
-    
-    
-    
+
+
+
+
+
     public DataBrowser(DataBrowserAware aware) {
 
     	// TODO Perhaps eventually there should be a list of DataBrowserAware
@@ -225,7 +230,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         case 1:
             // 6/27/2020 this mostly works but there is an issue with the Search textfield
             tblCsvData = new JTable();
-            tblCsvData.setAutoCreateRowSorter(true);
+            // tblCsvData.setAutoCreateRowSorter(true); // turn this off when using glazedlists or other sorting implementations
             break;
         case 2:
             // 6/27/2020 - This works and has striped rows... I just like mine better
@@ -233,7 +238,7 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
             break;
         case 3:
             tblCsvData = new XTable();
-            // tblCsvData.setAutoCreateRowSorter(true);
+            // tblCsvData.setAutoCreateRowSorter(true); // turn this off when using glazedlists or other sorting implementations
             break;
         case 4:
             // 6/27/2020 this also has an issue with the Search textfield
@@ -249,36 +254,39 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
             xtable.addHighlighter( new ColorHighlighter(HighlightPredicate.ROLLOVER_ROW, new Color(0x3A87AD), new Color(0xD9EDF7)) );  
             break;
         }
+
+        // All table types above extend JTable
+
     }
- 
+
     private Component createStatusBar() {
         Border b = BorderFactory.createCompoundBorder(
             BorderFactory.createEmptyBorder(0,5,1,5),
             BORDER_ETCHED
         );
-        
+
         final JPanel statusBar = new JPanel();
         statusBar.setLayout(new BoxLayout(statusBar, BoxLayout.X_AXIS));
         statusBar.setBorder(b);
-        
-        this.statusFilename = new JLabel(" X:/.../........");
+
+        this.statusFilename = new JLabel(" [The full file path will go here when you open the file]");
         statusBar.add(this.statusFilename);
-        
+
         return statusBar;
     }
 
     private Component createFileDropTarget() {
-    	
+
     	final JPanel panel = new JPanel(new GridBagLayout()); // (new GridBagLayout());
     	panel.setBorder( BORDER_COMPOUND ); // BORDER_EMPTY ;
         // final DropTarget target = 
         new DropTarget(panel, new FileDropTarget(panel, this));
-    	
+
         final String calltoaction = "Drop a file here to open it...";
         final Font font = new Font("Roboto", Font.PLAIN, calcPointSize(20));
         final Color foreground = new Color(0x92b0b3);
-    	boolean uselabel = true;
-    	if (uselabel) {
+        boolean uselabel = true;
+        if (uselabel) {
             final JLabel label = new JLabel(calltoaction);
             label.setBorder(BORDER_EMPTY);
             label.setHorizontalAlignment(JLabel.CENTER);
@@ -315,16 +323,16 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
      * @return
      */
     private int calcPointSize(int pixelSize) {
-    	final double fontSize= pixelSize * Toolkit.getDefaultToolkit().getScreenResolution() / 72.0;
+        final double fontSize= pixelSize * Toolkit.getDefaultToolkit().getScreenResolution() / 72.0;
         System.out.println("Given pixel size of " + pixelSize + ", font size = " + fontSize);
-        
-		return (int) fontSize;
+
+        return (int) fontSize;
 	}
 
     private JComponent createCsvTable(File file) {
-        return createCsvTableV2(file);
+        return createCsvTableV3(file);
     }
-    
+
     // This version is deprecated but left for comparison/reference
 	private JComponent createCsvTableV1(File file) {
         final JScrollPane pane = (tblCsvData instanceof BetterJTable) 
@@ -404,8 +412,9 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 		return pane;
 	}
 
-	// This is the current version being used.
-    private JComponent createCsvTableV2(File file) {
+	// This version is deprecated
+    @SuppressWarnings({"rawtypes", "unchecked"})
+	private JComponent createCsvTableV2(File file) {
         
         final JScrollPane pane = (tblCsvData instanceof BetterJTable)
                 ? BetterJTable.createStripedJScrollPane(tblCsvData)
@@ -413,14 +422,14 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 
         boolean usingTexturedLAF = false;
         if (usingTexturedLAF) {
-        	pane.setOpaque(false);
-        	pane.getViewport().setOpaque(false);
-        	pane.setBorder(BORDER_EMPTY);
+            pane.setOpaque(false);
+            pane.getViewport().setOpaque(false);
+            pane.setBorder(BORDER_EMPTY);
         } else {
     		// JTattoo Aluminium theme does not handle this border well
 		    pane.setBorder(
 		    	BorderFactory.createCompoundBorder(
-		            BORDER_EMPTY,
+		    		BORDER_EMPTY,
 		            BorderFactory.createLineBorder(COLOR_GREY_MED) ) // BORDER_LINE
 		            ); // (BORDER_EMPTY); //( BORDER_COMPOUND );	
 		}
@@ -455,20 +464,22 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         	csvTableModel = etm;
         }
         	break;
-        case 4: // case 3 but refactored to use glazed lists column sorting
-        {
-        	GlazedListTableModel tm = new GlazedListTableModel(file, this.dataBrowserAware.getDelimiter());
-        	dataHintAware = tm;
+		case 4: // case 3 but refactored to use glazed lists column sorting
+		{
+			GlazedListTableModel tm = new GlazedListTableModel(file, this.dataBrowserAware.getDelimiter());
+			dataHintAware = tm;
 
-        	final SortedList sorted = new SortedList(tm.getEventList(), new DataComparator());
-        	
-        	final FilterList filtered = new FilterList(sorted, new TextComponentMatcherEditor(txtFilter, dataTextFilterator = new DataTextFilterator(dataHintAware)));
-        	
-        	AdvancedTableModel etm = GlazedListsSwing.eventTableModelWithThreadProxyList(filtered, tm);
-        	csvTableModel = etm;
-            tblCsvData.setModel(csvTableModel); // for the next line to work, you must set the model first
+			final SortedList sorted = new SortedList(tm.getEventList(), new DataComparator());
 
-        	TableComparatorChooser<Object> tcc = TableComparatorChooser.install(tblCsvData, sorted, TableComparatorChooser.SINGLE_COLUMN);
+			final FilterList filtered =
+					new FilterList(sorted, new TextComponentMatcherEditor(txtFilter,
+							dataTextFilterator = new DataTextFilterator(dataHintAware)));
+
+			final AdvancedTableModel etm = GlazedListsSwing.eventTableModelWithThreadProxyList(filtered, tm);
+
+			tblCsvData.setModel(csvTableModel = etm); // for the next line to work, you must set the // model first
+
+			TableComparatorChooser<Object> tcc = TableComparatorChooser.install(tblCsvData, sorted, TableComparatorChooser.MULTIPLE_COLUMN_MOUSE);
 
         }
         	break;
@@ -486,21 +497,21 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 
         
         tblCsvData.setShowVerticalLines(false);
-        tblCsvData.setFont(FONT_CALIBRI); // (fontSmallData);
+        //tblCsvData.setFont(FONT_CALIBRI.deriveFont(16.0f)); // (fontSmallData);
         tblCsvData.setRowMargin(1); tblCsvData.getColumnModel().setColumnMargin(0);
         tblCsvData.setFillsViewportHeight(true);           
 
         boolean solarized = false;
-        boolean lightScheme = false;        
+        boolean darkScheme = true;
         if (solarized) {
             // Note:  When using solarized, your table (i.e. XTable) must not use rowstriping
-            tblCsvData.setGridColor(lightScheme ? new Color(0x657b83) : new Color(0x839496)); // (COLOR_GREY_MED); // 0x073642 is solarized base02
+            tblCsvData.setGridColor(darkScheme ? new Color(0x657b83) : new Color(0x839496)); // (COLOR_GREY_MED); // 0x073642 is solarized base02
             
-            tblCsvData.setForeground(lightScheme ? new Color(0x657b83) : new Color(0x839496)); // (COLOR_GREY_MED); // 0x073642 is solarized base02
-            tblCsvData.setBackground(lightScheme ? new Color(0xfdf6e3) : new Color(0x002b36));
+            tblCsvData.setForeground(darkScheme ? new Color(0x657b83) : new Color(0x839496)); // (COLOR_GREY_MED); // 0x073642 is solarized base02
+            tblCsvData.setBackground(darkScheme ? new Color(0xfdf6e3) : new Color(0x002b36));
             
-            tblCsvData.setSelectionForeground(lightScheme ? new Color(0x839496) : new Color(0x657b83));
-            tblCsvData.setSelectionBackground(lightScheme ? new Color(0x002b36) : new Color(0xfdf6e3));
+            tblCsvData.setSelectionForeground(darkScheme ? new Color(0x839496) : new Color(0x657b83));
+            tblCsvData.setSelectionBackground(darkScheme ? new Color(0x002b36) : new Color(0xfdf6e3));
             
         } else {
             tblCsvData.setGridColor(COLOR_GREY_DARKEST);
@@ -538,21 +549,21 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         	}
         }
 
-        boolean customizeHeader = false;
+        boolean customizeHeader = true;
         if (customizeHeader) {
             final NumberCellRenderer hdrRenderer = new NumberCellRenderer("Consolas", "dummy");
-            hdrRenderer.setForeground(new Color(249,249,249));
+            hdrRenderer.setForeground(Color.LIGHT_GRAY);
             hdrRenderer.setBackground(COLOR_GREY_DARKEST);        
-            // hdrRenderer.setFont(FONT_SEGOE_UI);
+            hdrRenderer.setFont(FONT_SEGOE_UI);
             // hdrRenderer.setBorder(BORDER_ETCHED); // DefaultTableCellRenderer does not honor a user Border :(
             
-            hdrRenderer.setCellBorder(BORDER_MATTE); // This works but I don't like the look
+            // hdrRenderer.setCellBorder(BORDER_MATTE); // This works (kinda) but I don't like the look
             
             hdrRenderer.setHorizontalAlignment(CENTER);
             hdrRenderer.setVerticalAlignment(BOTTOM);
             
             tblCsvData.getTableHeader().setDefaultRenderer(hdrRenderer);
-            //tblCsvData.getTableHeader().setBorder(BORDER_ETCHED);
+            //tblCsvData.getTableHeader().setBorder(BORDER_ETCHED); // This works (kinda) but remember that this is the border on the ENTIRE table header (not just individual columns)
         	//csvTable.setBorder(BORDER_ETCHED);
         } else {
 // These have been moved to XTable.
@@ -570,8 +581,233 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
 
         return pane;
     }
-    
-    private JPanel createEasternPanel() {
+
+	// This is the current version being used.
+	// 10/31/2021, this is a newer version being tried to create a table footer/status
+    // It's exactly the same as v2 except returns a JPanel instead of a JScrollPane
+    // plus the new components to make the table footer.
+    /**
+     * Though this method name is a little misleading [1], its real function
+     * is to populate the JTable with the actual data after the user has
+     * chosen the file.  It also does most of the visual tweaking necessary
+     * to make the JTable look like I want it to.<p>  
+     * [1] i.e. this method does not create the JTable itself; that has already been done.<p>
+     * Overall, it does everything
+     * in the following order:<p>
+     * <ol>
+     * <li>Create table striping if the underlying JTable extension does not.</li>
+     * <li>Adjust the border on the scrollpane; conditionally, based on the LAF.</li>
+     * <li>Create the table model. (including advanced GlazedLists configuration)</li>
+     * <li>Set the table model into the JTable.</li>
+     * <li>Initialize the JTable font, internal margins, and cell border.</li>
+     * <li>(optional - off) Support for solarized color scheme; light and dark.</li>
+     * <li>Installs a table column manager for hide/show of table columns via right-click on the table header.</li>
+     * <li>setAutoResizeMode(JTable.AUTO_RESIZE_OFF)</li>
+     * <li>Set table column cell renderer based on the column's data type.</li>
+     * <li>(optional - off)Further customization of the table header(s).</li>
+     * <li>Adjust column widths based on data.</li>
+     * <li>Create the table footer.</li>
+     * </ol>
+     * @param file
+     * @return
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+	private JComponent createCsvTableV3(File file) {
+        final JPanel panel = new JPanel(new BorderLayout());
+        
+        final JScrollPane pane = (tblCsvData instanceof BetterJTable)
+                ? BetterJTable.createStripedJScrollPane(tblCsvData)
+                : new JScrollPane(tblCsvData);       
+
+        boolean usingTexturedLAF = false;
+        if (usingTexturedLAF) {
+        	pane.setOpaque(false);
+        	pane.getViewport().setOpaque(false);
+        	pane.setBorder(BORDER_EMPTY);
+        } else {
+    		// JTattoo Aluminium theme does not handle this border well
+		    pane.setBorder(
+		    	BorderFactory.createCompoundBorder(
+		    		BORDER_EMPTY,
+		            BorderFactory.createLineBorder(COLOR_GREY_MED) ) // BORDER_LINE
+		            ); // (BORDER_EMPTY); //( BORDER_COMPOUND );	
+		}
+        
+        if (tblCsvData instanceof BetterJTable) {
+            // do nothing (yet?)
+        } else {
+        }
+
+        int modeldesign = 4;
+        FilterList filteredData = null;
+        switch(modeldesign) {
+        case 1:
+        	csvTableModel = new DelimitedFileTableModel(file, this.dataBrowserAware.getDelimiter());
+        	dataHintAware = (DataHintAware) csvTableModel;
+
+        	break;
+        case 2:
+        {
+        	GlazedListTableModel tm = new GlazedListTableModel(file, this.dataBrowserAware.getDelimiter());
+        	dataHintAware = tm;
+        	DefaultEventTableModel etm = new DefaultEventTableModel(tm.getEventList(), tm);
+        	csvTableModel = etm;
+        }
+        	break;
+        case 3: // case 2 + filter list
+        {
+        	GlazedListTableModel tm = new GlazedListTableModel(file, this.dataBrowserAware.getDelimiter());
+        	dataHintAware = tm;
+        	filteredData = new FilterList(tm.getEventList(), new TextComponentMatcherEditor(txtFilter, dataTextFilterator = new DataTextFilterator(dataHintAware)));
+        	DefaultEventTableModel etm = new DefaultEventTableModel(filteredData, tm);
+        	csvTableModel = etm;
+        }
+            break;
+		case 4: // case 3 but refactored to use glazed lists column sorting
+		{
+			GlazedListTableModel tm = new GlazedListTableModel(file, this.dataBrowserAware.getDelimiter());
+			dataHintAware = tm;
+
+			final SortedList sorted = new SortedList(tm.getEventList(), new DataComparator());
+
+			final FilterList filtered =
+					new FilterList(sorted, new TextComponentMatcherEditor(txtFilter,
+							dataTextFilterator = new DataTextFilterator(dataHintAware)));
+
+			final AdvancedTableModel etm = GlazedListsSwing.eventTableModelWithThreadProxyList(filtered, tm);
+
+			tblCsvData.setModel(csvTableModel = etm); // for the next line to work, you must set the model first
+
+			TableComparatorChooser<Object> tcc = TableComparatorChooser.install(tblCsvData, sorted, TableComparatorChooser.MULTIPLE_COLUMN_MOUSE);
+			// tcc.createComparatorForElement(null, modeldesign); // use this for zero padded integers
+
+        }
+        	break;
+        default:
+        	;
+        }
+        
+        switch(modeldesign) {
+        case 4:
+        	// already setModel() in case 4 above
+        	break;
+        default:
+        	tblCsvData.setModel(csvTableModel);
+        }
+
+        // Listen for table model data changes (for status bar)
+        tblCsvData.getModel().addTableModelListener(this);
+
+        // Initializes the JTable font, internal margins, and cell border.
+        tblCsvData.setShowVerticalLines(false);
+        // It is necessary to set the font here because setting it on the renderers is not working... huh?
+        tblCsvData.setFont(FONT_CALIBRI); // (fontSmallData);
+        tblCsvData.setRowMargin(1); tblCsvData.getColumnModel().setColumnMargin(0);
+        tblCsvData.setFillsViewportHeight(true);           
+
+        boolean solarized = false;
+        boolean darkScheme = true;
+        if (solarized) {
+            // Note:  When using solarized, your table (i.e. XTable) must not use rowstriping
+            tblCsvData.setGridColor(darkScheme ? new Color(0x657b83) : new Color(0x839496)); // (COLOR_GREY_MED); // 0x073642 is solarized base02
+            
+            tblCsvData.setForeground(darkScheme ? new Color(0x657b83) : new Color(0x839496)); // (COLOR_GREY_MED); // 0x073642 is solarized base02
+            tblCsvData.setBackground(darkScheme ? new Color(0xfdf6e3) : new Color(0x002b36));
+            
+            tblCsvData.setSelectionForeground(darkScheme ? new Color(0x839496) : new Color(0x657b83));
+            tblCsvData.setSelectionBackground(darkScheme ? new Color(0x002b36) : new Color(0xfdf6e3));
+            
+        } else {
+// 11/6/2021 :: When no rows are selected, the softer grey used by XTable looks better.
+//              However, when rows are selected, this darker color presents a more consistent overall contrast.
+            tblCsvData.setGridColor(COLOR_GREY_DARKEST);
+
+            tblCsvData.setForeground(COLOR_GREY_DARKEST);
+            tblCsvData.setBackground(Color.WHITE); 
+
+// 11/6/2021 :: So, it is really hard to decide if I want the blue text when selected
+//              Because I think it probably meets user expectations a little bit better
+//              I am turning off the blue and letting the dark grey default be shown.
+//          tblCsvData.setSelectionForeground( new Color(0x3A87AD) );
+            if ( ! (tblCsvData instanceof XTable) )
+                tblCsvData.setSelectionForeground( new Color(0x3A87AD) );
+            tblCsvData.setSelectionBackground( new Color(0xD9EDF7) );
+        }
+
+        csvTableColumnManager = new TableColumnManager(tblCsvData);
+        
+        boolean fillpanel = false;
+        if (fillpanel) {
+            // do nothing; autoresize is on by default
+            // This is generally undesirable as most delimited files will be wider
+            // than the default size of the panel and overflow/scrolling is desirable.
+        } else {
+            tblCsvData.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        }
+        
+        // order of preference: Consolas , Lucida Console , Bitstream Vera Sans Mono 
+        // Courier New , Lucida Sans Typewriter
+        // following are interesting (* = not monospaced):
+        // OCR A Extended , HP Simplified* , LuzSans-Book* , Rockwell* , Roboto*
+        // Sitka Text* , X-Files*
+        final List<DataHint> hints = dataHintAware.getDataHints();
+        for (int i=0; i<tblCsvData.getColumnCount(); i++) {
+            final String cname = tblCsvData.getColumnName(i);
+			switch (hints.get(i)) {
+				// case DATE: // TODO
+				// break;
+				case NUMERIC:
+					tblCsvData.getColumn(cname).setCellRenderer(XTable.numRenderer);
+					break;
+				case ZEROPADDED_INTEGER:
+					tblCsvData.getColumn(cname).setCellRenderer(XTable.numRenderer);
+					break;
+				default:
+					tblCsvData.getColumn(cname).setCellRenderer(XTable.strRenderer);
+					break;
+			} // end switch hints
+        } // end for columns
+
+        // 11/6/2021 :: Most of the time (until I make further customizations) the header
+        // needs to remain the default so that sorting icons/decorations will appear correctly.
+        boolean customizeHeader = false;
+        if (customizeHeader) {
+            final NumberCellRenderer hdrRenderer = new NumberCellRenderer("Consolas", "dummy");
+            hdrRenderer.setForeground(Color.LIGHT_GRAY);
+            hdrRenderer.setBackground(COLOR_GREY_DARKEST);        
+            hdrRenderer.setFont(FONT_SEGOE_UI_BOLD);
+            // hdrRenderer.setBorder(BORDER_ETCHED); // DefaultTableCellRenderer does not honor a user Border :(
+            
+            // hdrRenderer.setCellBorder(BORDER_MATTE); // This works (kinda) but I don't like the look
+            
+            hdrRenderer.setHorizontalAlignment(CENTER);
+            hdrRenderer.setVerticalAlignment(BOTTOM);
+            
+            tblCsvData.getTableHeader().setDefaultRenderer(hdrRenderer);
+            //tblCsvData.getTableHeader().setBorder(BORDER_ETCHED); // This works (kinda) but remember that this is the border on the ENTIRE table header (not just individual columns)
+        	//csvTable.setBorder(BORDER_ETCHED);
+        } else {
+            // These have been moved to XTable.
+            //            tblCsvData.getTableHeader().setFont(FONT_SEGOE_UI_BOLD); // (FONT_CALIBRI_BOLD)
+            //            tblCsvData.getTableHeader().setForeground(COLOR_GREY_DARKEST);
+            //            tblCsvData.getTableHeader().setBackground(new Color(0xDEDEDE));
+        }
+
+        if (tblCsvData instanceof JTable) {
+            this.resizeColumnWidth(tblCsvData);
+        } else if (tblCsvData instanceof JXTable) {
+            final JXTable t = (JXTable) tblCsvData;
+            t.packAll();
+        }
+
+        panel.add(pane); // center
+        panel.add(this.footer =  new Footer(tblCsvData.getModel().getRowCount()), BorderLayout.SOUTH);
+        this.footer.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
+
+        return panel;
+    }
+
+	private JPanel createEasternPanel() {
         return createEasternPanel_new();
     }
 
@@ -637,8 +873,9 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         HorizontalGraphitePanel graphitepanel = null; 
  
         jlabel = (JLabel) XLabel.create().setFont(FONT_VERDANA).setText("SEARCH").setForeground(COLOR_EAST_TEXT).get();
-               jlabel.setHorizontalAlignment(SwingConstants.CENTER);
-               graphitepanel = new HorizontalGraphitePanel();
+                jlabel.setIcon(searchGrey);
+                jlabel.setHorizontalAlignment(SwingConstants.CENTER);
+                graphitepanel = new HorizontalGraphitePanel();
               
                {   int design = 1;
                       switch(design) {
@@ -1017,6 +1254,10 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
      * Thanks to:
      * https://stackoverflow.com/questions/17627431/auto-resizing-the-jtable-column-widths
      * 
+     * Though I have made this a feature/method of XTable, I cannot
+     * remove this internal version because this version works on any JTable
+     * and I want to keep legacy code.
+     * 
      * @param tblCsvData
      */
     public void resizeColumnWidth(JTable table) {
@@ -1053,14 +1294,14 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         final Color red = new Color(0x801F15);
         final Color grey = Color.lightGray;
         
-        Icon bugGrey = IconFontSwing.buildIcon(FontAwesome.FILTER, 13, grey);
-        Icon bugBlack = IconFontSwing.buildIcon(FontAwesome.FILTER, 13, Color.black);
-        Icon bugFixed = IconFontSwing.buildIcon(FontAwesome.FILTER, 13, green);                
+        Icon filterGrey = IconFontSwing.buildIcon(FontAwesome.FILTER, 13, grey);
+        Icon filterBlack = IconFontSwing.buildIcon(FontAwesome.FILTER, 13, Color.black);
+        Icon filterGreen = IconFontSwing.buildIcon(FontAwesome.FILTER, 13, green);                
         
         Icon crosshairs = IconFontSwing.buildIcon(FontAwesome.CROSSHAIRS, 13, Color.black);
-        Icon database = IconFontSwing.buildIcon(FontAwesome.DATABASE, 12, Color.black);
+        Icon databaseIcon = IconFontSwing.buildIcon(FontAwesome.DATABASE, 12, Color.black);
 
-        Icon searchGrey = IconFontSwing.buildIcon(FontAwesome.SEARCH, 13, grey);
+        if (searchGrey == null) searchGrey = IconFontSwing.buildIcon(FontAwesome.SEARCH, 13, grey);
         Icon searchBlack = IconFontSwing.buildIcon(FontAwesome.SEARCH, 13, Color.black);
         Icon searchGreen = IconFontSwing.buildIcon(FontAwesome.SEARCH, 13, green);        
         
@@ -1069,50 +1310,54 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
         Icon analytics = IconFontSwing.buildIcon(FontAwesome.PIE_CHART, 13, grey);        
         Icon analyticsBlack = IconFontSwing.buildIcon(FontAwesome.PIE_CHART, 13, Color.black);        
         Icon analyticsGreen = IconFontSwing.buildIcon(FontAwesome.PIE_CHART, 13, green);        
-        
-        JCheckBox lyticsheader = new JCheckBox();
-        lyticsheader.setIcon(analyticsBlack); // TODO restore to analytics
-        lyticsheader.setSelectedIcon(analyticsBlack);
-        p.add(lyticsheader);
-        
+
+        if ( ! Settings.global().isUserMode() ) {
+
+        	JCheckBox lyticsheader = new JCheckBox();
+            lyticsheader.setIcon(analyticsBlack); // TODO restore to analytics
+            lyticsheader.setSelectedIcon(analyticsBlack);
+            p.add(lyticsheader);
+
+            JCheckBox bugcheck = new JCheckBox();
+            bugcheck.setIcon(filterBlack);
+            bugcheck.setSelectedIcon(filterBlack);
+
+            // Different LAFs have slightly different JCheckBox behavior with icons
+            // There is a most common use case but I create the others here as documentation.
+            int laf = 99;
+            switch (laf) {
+            default:
+                //bugcheck.setRolloverIcon(bugCritical);        
+                bugcheck.setSelectedIcon(filterBlack);
+                //bugcheck.setRolloverSelectedIcon(bugFixed);
+                //bugcheck.setPressedIcon(crosshairs);
+            	break;
+            case 1:
+                bugcheck.setRolloverIcon(filterBlack);        
+                bugcheck.setSelectedIcon(filterGreen);
+                bugcheck.setRolloverSelectedIcon(filterGreen);
+                bugcheck.setPressedIcon(crosshairs);
+            	break;
+            }
+            
+            JButton b = new JButton();
+            b.setIcon(filterGreen);
+            //d.setFont(font); 
+            //d.setText("\uf0ab\uf039\uf038\uf13d"); d.setForeground(Color.white);
+            //d.setAction(new JTablePropertyAction("GRID",  tblCsvData, JTablePropertyAction.ACTION_TOGGLE_GRID, null));
+
+            // JLabel buglabel = new JLabel(bugFixed);
+            // p.add(buglabel); // this works, just do not want to see it anymore
+            p.add(bugcheck);        
+            //p.add(b); // this works also, just also do not want to see it
+            //p.add(new JCheckBox(" "));
+            
+        }
+
         JCheckBox filterheader = new JCheckBox();
         filterheader.setIcon(searchBlack);
         filterheader.setSelectedIcon(searchBlack);
         p.add(filterheader);
-        
-        JCheckBox bugcheck = new JCheckBox();
-        bugcheck.setIcon(bugBlack);
-        bugcheck.setSelectedIcon(bugBlack);
-        
-        // Different LAFs have slightly different JCheckBox behavior with icons
-        // There is a most common use case but I create the others here as documentation.
-        int laf = 99;
-        switch (laf) {
-        default:
-            //bugcheck.setRolloverIcon(bugCritical);        
-            bugcheck.setSelectedIcon(bugBlack);
-            //bugcheck.setRolloverSelectedIcon(bugFixed);
-            //bugcheck.setPressedIcon(crosshairs);
-        	break;
-        case 1:
-            bugcheck.setRolloverIcon(bugBlack);        
-            bugcheck.setSelectedIcon(bugFixed);
-            bugcheck.setRolloverSelectedIcon(bugFixed);
-            bugcheck.setPressedIcon(crosshairs);
-        	break;
-        }
-        
-        JButton b = new JButton();
-        b.setIcon(bugFixed);
-        //d.setFont(font); 
-        //d.setText("\uf0ab\uf039\uf038\uf13d"); d.setForeground(Color.white);
-        //d.setAction(new JTablePropertyAction("GRID",  tblCsvData, JTablePropertyAction.ACTION_TOGGLE_GRID, null));
-
-        // JLabel buglabel = new JLabel(bugFixed);
-        // p.add(buglabel); // this works, just do not want to see it anymore
-        p.add(bugcheck);        
-        //p.add(b); // this works also, just also do not want to see it
-        //p.add(new JCheckBox(" "));
         
         JCheckBox chkSelectAll = new JCheckBox("Toggle All", true);
         chkSelectAll.setFont(FONT_CALIBRI);
@@ -1135,21 +1380,23 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
             lytbox.setPressedIcon(crosshairs);
             lytbox.setSelectedIcon(analyticsGreen);
             
-            JCheckBox filbox = new JCheckBox();
-            filbox.setIcon(searchGrey);
-            filbox.setPressedIcon(crosshairs);
-            filbox.setSelectedIcon(searchGreen);
-            filbox.addActionListener(new ActionSetFilterColumn(filbox, txtFilter, dataTextFilterator, i++));
-            
-            JCheckBox bugbox = new JCheckBox();
-            bugbox.setIcon(bugGrey);
-            bugbox.setPressedIcon(crosshairs);
-            bugbox.setSelectedIcon(bugFixed);
+            JCheckBox filterbox = new JCheckBox();
+            filterbox.setIcon(filterGrey);
+            filterbox.setPressedIcon(crosshairs);
+            filterbox.setSelectedIcon(filterGreen);
 
+            JCheckBox searchbox = new JCheckBox();
+            searchbox.setIcon(searchGrey);
+            searchbox.setPressedIcon(crosshairs);
+            searchbox.setSelectedIcon(searchGreen);
+            searchbox.addActionListener(new ActionSetFilterColumn(searchbox, txtFilter, dataTextFilterator, i++));
+            
             p = new RestrictedHeightPanel(new FlowLayout(FlowLayout.LEFT));
-            p.add(lytbox);
-            p.add(filbox);
-            p.add(bugbox); // TODO what's the visual diff between "" vs. " "
+            if ( ! Settings.global().isUserMode() ) {
+                p.add(lytbox);
+                p.add(filterbox); // TODO what's the visual diff between "" vs. " "
+            }
+            p.add(searchbox);
         	p.add(action.register(checkbox));
         	
             boxpnlColumns.add(p);
@@ -1233,6 +1480,11 @@ public class DataBrowser extends JPanel implements FileActionAware, SwingConstan
     
 	public JButton getGlassPaneButton() {
 		return this.btnGlassPane;
+	}
+
+	@Override
+	public void tableChanged(TableModelEvent e) {
+		this.footer.setDisplayedRows(tblCsvData.getModel().getRowCount());
 	}
 
 }

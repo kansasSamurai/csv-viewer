@@ -1,5 +1,5 @@
 package org.jwellman.swing.misc;
 
 public enum DataHint {
-	STRING, NUMERIC;
+	STRING, DATE, NUMERIC, ZEROPADDED_INTEGER;
 }

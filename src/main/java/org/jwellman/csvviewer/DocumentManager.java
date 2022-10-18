@@ -65,13 +65,15 @@ public class DocumentManager extends JPanel implements DataBrowserAware, ActionL
         this.delimiterChooser.getUI().add( Box.createHorizontalGlue() );
         
         final Dimension d = new Dimension(22, 1);       
-        s = HorizontalGraphitePanel.decorateButton((AbstractButton)XButton.create().setText("New").get(), null, d);
+        s = HorizontalGraphitePanel.decorateButton((AbstractButton)XButton.create().setText(CMD_NEW).get(), null, d);
         s.addActionListener(this);
         this.delimiterChooser.getUI().add( s );
        
-        s = HorizontalGraphitePanel.decorateButton((AbstractButton)XButton.create().setText("Settings").get(), null, d);
-        s.addActionListener(this);
-        this.delimiterChooser.getUI().add( s );
+        if ( ! Settings.global().isUserMode() ) {
+            s = HorizontalGraphitePanel.decorateButton((AbstractButton)XButton.create().setText(CMD_SETTINGS).get(), null, d);
+            s.addActionListener(this);
+            this.delimiterChooser.getUI().add( s );
+        }
 
         this.add(this.delimiterChooser.getUI(), where);
     }
@@ -94,7 +96,7 @@ public class DocumentManager extends JPanel implements DataBrowserAware, ActionL
 	public String getDelimiter() {
 		return this.delimiterChooser.getText();
 	}
-    
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 
@@ -102,8 +104,8 @@ public class DocumentManager extends JPanel implements DataBrowserAware, ActionL
 		case CMD_NEW:
 			this.tabbedPane.addTab("CSV", new DataBrowser(this)); {
 				final int idx = this.tabbedPane.getTabCount() - 1;
-		        new CloseTabPanel(tabbedPane, idx);        
-		        this.tabbedPane.setSelectedIndex(idx);			
+				new CloseTabPanel(tabbedPane, idx);        
+				this.tabbedPane.setSelectedIndex(idx);			
 			}
 			break;
 		case CMD_SETTINGS:
@@ -119,7 +121,7 @@ public class DocumentManager extends JPanel implements DataBrowserAware, ActionL
 			palette.setVisible(true);
 			break;
 		}
-        
+
 	}
 
 }
